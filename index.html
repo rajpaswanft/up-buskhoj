@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UP BusKhoj - Live Bus & Timetable</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Header : destination board -->
+  <header class="app-header">
+    <div class="board-strip">
+      <span>GORAKHPUR</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
+      <span>LUCKNOW</span><span class="dot">•</span><span>KUSHINAGAR</span><span class="dot">•</span>
+      <span>GORAKHPUR</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
+      <span>LUCKNOW</span><span class="dot">•</span><span>KUSHINAGAR</span><span class="dot">•</span>
+    </div>
+    <div class="logo-area">
+      <span class="bus-icon" aria-hidden="true">🚌</span>
+      <div>
+        <h1>UP BusKhoj</h1>
+        <p>Route dhoondo, waqt bachao</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- Search Box Card -->
+    <section class="search-card" aria-label="Bus search">
+      <div class="route-row">
+        <div class="input-group">
+          <label for="fromCity">Kahan Se (From)</label>
+          <select id="fromCity">
+            <option value="">Loading cities…</option>
+          </select>
+        </div>
+
+        <div class="swap-divider">
+          <button id="swapBtn" type="button" title="Route ulta karein" aria-label="Swap from and to">⇅</button>
+        </div>
+
+        <div class="input-group">
+          <label for="toCity">Kahan Tak (To)</label>
+          <select id="toCity">
+            <option value="">Loading cities…</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="searchBtn" class="primary-btn" type="button">
+        <span>Buses Khojein</span>
+        <span class="ticket-punch" aria-hidden="true">✂</span>
+      </button>
+    </section>
+
+    <!-- Quick Filters / Status Bar -->
+    <div class="quick-status">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      <span id="statusText">Popular Route: <strong>Deoria ⇄ Gorakhpur (Har 15-20 min)</strong></span>
+    </div>
+
+    <!-- Results Section -->
+    <section class="results-container">
+      <div class="results-heading-row">
+        <h2 id="resultHeading">Available Buses</h2>
+        <span id="resultCount" class="result-count"></span>
+      </div>
+      <div id="busList" class="bus-list">
+        <!-- Bus cards injected by app.js -->
+      </div>
+    </section>
+
+    <p class="disclaimer">Samay anumaanit hai, road traffic ke hisaab se badal sakta hai.</p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
