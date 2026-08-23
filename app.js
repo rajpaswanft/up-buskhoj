@@ -1,17 +1,17 @@
 // =====================================================
 // UP BusKhoj — app.js
-// Fully data-driven: nothing city/route-specific is
-// hardcoded here. Everything comes from data.json, so
-// adding a new city or bus only means editing that file.
+// Fully data-driven: fetches everything from data.json.
+// No city or route is hardcoded here — add a new bus
+// object to data.json and it just works.
 // =====================================================
 
 const DATA_URL = "./data.json";
 
 const BADGE_LABEL = {
-  Ordinary: "UP Roadways (Sadharan)",
+  Ordinary: "UPSRTC Sadharan",
   Janrath: "Janrath (AC Semi-Deluxe)",
   Shatabdi: "Shatabdi (Premium AC)",
-  "Pink Express": "Pink Express",
+  "Pink Express": "UP Pink Express",
 };
 
 const el = {
@@ -34,52 +34,76 @@ async function loadData() {
   setLoadingState(true);
   try {
     const res = await fetch(DATA_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} while fetching ${DATA_URL}`);
     const json = await res.json();
-    BUSES = Array.isArray(json.buses) ? json.buses : [];
+
+    if (!Array.isArray(json.buses) || json.buses.length === 0) {
+      throw new Error("data.json loaded but 'buses' array is empty or missing.");
+    }
+
+    BUSES = json.buses;
     populateCityDropdowns(BUSES);
     setLoadingState(false);
     pickSensibleDefaults();
     search();
   } catch (err) {
-    console.error("Failed to load data.json:", err);
-    setLoadingState(false, true);
+    console.error("[UP BusKhoj] Failed to load data.json:", err);
+    setLoadingState(false, true, err);
   }
 }
 
-function setLoadingState(isLoading, isError = false) {
-  const placeholder = isError
-    ? "Data load nahi ho payi"
-    : isLoading
-    ? "Loading cities…"
-    : null;
-
-  if (placeholder) {
+function setLoadingState(isLoading, isError = false, err = null) {
+  if (isLoading) {
     [el.fromSelect, el.toSelect].forEach((sel) => {
-      sel.innerHTML = `<option value="">${placeholder}</option>`;
+      sel.innerHTML = `<option value="">Loading cities…</option>`;
       sel.disabled = true;
     });
-  } else {
-    [el.fromSelect, el.toSelect].forEach((sel) => (sel.disabled = false));
+    el.statusText.textContent = "Bus data load ho raha hai…";
+    return;
   }
 
+  [el.fromSelect, el.toSelect].forEach((sel) => (sel.disabled = false));
+
   if (isError) {
-    el.statusText.textContent =
-      "data.json load nahi ho saka. File path check karein aur page reload karein.";
+    const isFileProtocol = window.location.protocol === "file:";
+    [el.fromSelect, el.toSelect].forEach((sel) => {
+      sel.innerHTML = `<option value="">Data load nahi hui</option>`;
+    });
+    el.resultHeading.textContent = "Data load nahi ho payi";
+    el.resultCount.textContent = "";
+    el.busList.innerHTML = "";
+
+    let hint = "data.json load nahi ho saka — file path ya server check karein.";
+    if (isFileProtocol) {
+      hint =
+        "Browser file:// se seedha khola gaya hai, isliye fetch('data.json') block ho jaata hai (CORS). Ek local server chalayein — jaise 'python3 -m http.server' folder mein, ya VS Code Live Server — phir http://localhost par kholein. GitHub Pages par yeh apne aap sahi chalega.";
+    }
+    el.statusText.textContent = hint;
+    el.busList.appendChild(renderErrorState(hint, err));
   }
+}
+
+function renderErrorState(hint, err) {
+  const div = document.createElement("div");
+  div.className = "empty-state";
+  div.innerHTML = `
+    <span class="emoji">⚠️</span>
+    <strong>Bus data load nahi ho paya</strong>
+    <p>${hint}</p>
+  `;
+  return div;
 }
 
 // -----------------------------------------------------
 // Build the full stop sequence for a bus:
-// [source, ...intermediateStops, destination]
+// [from, ...via_stops, to]
 // -----------------------------------------------------
 function fullRoute(bus) {
-  return [bus.source, ...(bus.intermediateStops || []), bus.destination];
+  return [bus.from, ...(bus.via_stops || []), bus.to];
 }
 
 // -----------------------------------------------------
-// Dropdown population — every city comes from the data,
-// nothing is hardcoded in HTML.
+// Dropdown population — every city comes from the data
 // -----------------------------------------------------
 function populateCityDropdowns(buses) {
   const citySet = new Set();
@@ -97,7 +121,7 @@ function populateCityDropdowns(buses) {
   });
 }
 
-// Pick two different cities as a friendly starting point
+// Pick two well-connected cities as a friendly starting point
 function pickSensibleDefaults() {
   const preferred = ["Deoria", "Gorakhpur"];
   const options = Array.from(el.fromSelect.options).map((o) => o.value);
@@ -113,29 +137,18 @@ function pickSensibleDefaults() {
 }
 
 // -----------------------------------------------------
-// Time helpers
+// Time helpers — data.json stores times as "6:00 AM" etc.
+// We only need to parse them for chronological sorting.
 // -----------------------------------------------------
-function to12Hour(hhmm) {
-  const [h, m] = hhmm.split(":").map(Number);
-  const period = h >= 12 ? "PM" : "AM";
-  const hour12 = h % 12 === 0 ? 12 : h % 12;
-  return `${String(hour12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${period}`;
-}
-
-function addMinutes(hhmm, minutesToAdd) {
-  const [h, m] = hhmm.split(":").map(Number);
-  const total = (h * 60 + m + minutesToAdd) % (24 * 60);
-  const newH = Math.floor(total / 60);
-  const newM = total % 60;
-  return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
-}
-
-function formatDuration(minutes) {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (h === 0) return `${m} min`;
-  if (m === 0) return `${h} hr`;
-  return `${h} hr ${m} min`;
+function toMinutesSinceMidnight(timeStr) {
+  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+  if (!match) return 0;
+  let [, h, m, period] = match;
+  h = parseInt(h, 10);
+  m = parseInt(m, 10);
+  if (period.toUpperCase() === "PM" && h !== 12) h += 12;
+  if (period.toUpperCase() === "AM" && h === 12) h = 0;
+  return h * 60 + m;
 }
 
 function badgeClass(busType) {
@@ -166,18 +179,18 @@ function search() {
   if (from === to) {
     el.resultCount.textContent = "";
     el.statusText.innerHTML = "Kripya alag <strong>From</strong> aur <strong>To</strong> station chunein.";
-    el.busList.appendChild(renderEmptyState(from, to));
+    el.busList.appendChild(renderEmptyState());
     return;
   }
 
-  const matches = findMatches(from, to).sort((a, b) =>
-    a.departureTime.localeCompare(b.departureTime)
+  const matches = findMatches(from, to).sort(
+    (a, b) => toMinutesSinceMidnight(a.departure_time) - toMinutesSinceMidnight(b.departure_time)
   );
 
   if (matches.length === 0) {
     el.resultCount.textContent = "";
     el.statusText.innerHTML = `Route: <strong>${from} ⇄ ${to}</strong>`;
-    el.busList.appendChild(renderEmptyState(from, to));
+    el.busList.appendChild(renderEmptyState());
     return;
   }
 
@@ -194,37 +207,37 @@ function search() {
 // -----------------------------------------------------
 function renderBusCard(bus, searchFrom, searchTo) {
   const route = fullRoute(bus);
-  const isPartialTrip = bus.source !== searchFrom || bus.destination !== searchTo;
-  const arrival = addMinutes(bus.departureTime, bus.durationMinutes);
+  const isPartialTrip = bus.from !== searchFrom || bus.to !== searchTo;
+  const badgeText = BADGE_LABEL[bus.bus_type] || bus.bus_name || bus.bus_type;
 
   const card = document.createElement("div");
   card.className = "bus-card";
   card.innerHTML = `
     <div class="bus-card-top">
-      <span class="badge ${badgeClass(bus.busType)}">${BADGE_LABEL[bus.busType] || bus.busType}</span>
+      <span class="badge ${badgeClass(bus.bus_type)}">${badgeText}</span>
       <span class="fare">₹${bus.fare}</span>
     </div>
     <div class="bus-time-row">
       <div>
-        <span class="time">${to12Hour(bus.departureTime)}</span>
-        <span class="station">${bus.source}</span>
+        <span class="time">${bus.departure_time}</span>
+        <span class="station">${bus.from}</span>
       </div>
       <div class="duration-line">
-        <span>~${formatDuration(bus.durationMinutes)}</span>
+        <span>~${bus.duration}</span>
         <div class="line"></div>
       </div>
       <div>
-        <span class="time">${to12Hour(arrival)}</span>
-        <span class="station">${bus.destination}</span>
+        <span class="time">${bus.arrival_time}</span>
+        <span class="station">${bus.to}</span>
       </div>
     </div>
     ${
       isPartialTrip
         ? `<div class="via-note">Boarding: <strong>${searchFrom}</strong> · Alighting: <strong>${searchTo}</strong> — poore route (${route.join(
             " → "
-          )}) ka time ऊपर dikhaya gaya hai.</div>`
-        : route.length > 2
-        ? `<div class="via-note">Via: ${bus.intermediateStops.join(", ")}</div>`
+          )}) ka samay upar dikhaya gaya hai.</div>`
+        : bus.via_stops && bus.via_stops.length > 0
+        ? `<div class="via-note">Via: ${bus.via_stops.join(", ")}</div>`
         : ""
     }
     <div class="bus-card-footer">
@@ -233,18 +246,18 @@ function renderBusCard(bus, searchFrom, searchTo) {
     </div>
   `;
   card.querySelector(".track-btn").addEventListener("click", () => {
-    alert(`Bus ${bus.busId}\nFull route: ${route.join(" → ")}`);
+    alert(`${bus.bus_id} — ${bus.bus_name}\nFull route: ${route.join(" → ")}`);
   });
   return card;
 }
 
-function renderEmptyState(from, to) {
+function renderEmptyState() {
   const div = document.createElement("div");
   div.className = "empty-state";
   div.innerHTML = `
     <span class="emoji">🚏</span>
-    <strong>Is route par abhi seedhi bus nahi mili</strong>
-    <p>${from} se ${to} tak koi direct ya connecting bus data mein nahi hai. Kisi bade junction se badal kar try karein.</p>
+    <strong>Is route par jald buses add hongi</strong>
+    <p>Abhi is stop-pair ke liye koi direct ya connecting bus data mein nahi hai. Kisi bade junction (Gorakhpur, Lucknow) se badal kar try karein.</p>
   `;
   return div;
 }
