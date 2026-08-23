@@ -1,228 +1,816 @@
 {
   "meta": {
     "lastUpdated": "2026-08-23",
-    "note": "Sample/demo timetable data for UP BusKhoj. Replace or extend with real UPSRTC data — no code changes needed elsewhere, the app reads everything from this file."
+    "note": "Sample/demo UP Roadways timetable data for UP BusKhoj. Add more objects to 'buses' to extend coverage — no code changes needed elsewhere."
   },
   "buses": [
     {
-      "busId": "UP-GKP-LKO-001",
-      "source": "Gorakhpur",
-      "destination": "Lucknow",
-      "intermediateStops": ["Basti", "Ayodhya", "Barabanki"],
-      "departureTime": "05:30",
-      "durationMinutes": 345,
-      "busType": "Shatabdi",
+      "bus_id": "UP-DEO-GOR-001",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Deoria",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "7:18 AM",
+      "duration": "1h 19m",
+      "fare": 65,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-DEO-GOR-002",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Deoria",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "1:26 PM",
+      "duration": "1h 11m",
+      "fare": 90,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-DEO-GOR-003",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Deoria",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "6:01 PM",
+      "duration": "1h 1m",
+      "fare": 105,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-DEO-GOR-004",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Deoria",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "10:45 PM",
+      "duration": "1h 15m",
+      "fare": 80,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-GOR-DEO-005",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Gorakhpur",
+      "to": "Deoria",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "7:18 AM",
+      "duration": "1h 19m",
+      "fare": 65,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-GOR-DEO-006",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Gorakhpur",
+      "to": "Deoria",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "1:26 PM",
+      "duration": "1h 11m",
+      "fare": 90,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-GOR-DEO-007",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Gorakhpur",
+      "to": "Deoria",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "6:01 PM",
+      "duration": "1h 1m",
+      "fare": 105,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-GOR-DEO-008",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Gorakhpur",
+      "to": "Deoria",
+      "via_stops": [
+        "Chauri Chaura"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "10:45 PM",
+      "duration": "1h 15m",
+      "fare": 80,
+      "frequency": "Har 15-20 minute par",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-GOR-LUC-009",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Gorakhpur",
+      "to": "Lucknow",
+      "via_stops": [
+        "Basti",
+        "Ayodhya",
+        "Barabanki"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "11:46 AM",
+      "duration": "5h 46m",
       "fare": 320,
-      "frequency": "Daily, 6 trips"
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Subah"
     },
     {
-      "busId": "UP-LKO-GKP-002",
-      "source": "Lucknow",
-      "destination": "Gorakhpur",
-      "intermediateStops": ["Barabanki", "Ayodhya", "Basti"],
-      "departureTime": "08:30",
-      "durationMinutes": 330,
-      "busType": "Janrath",
-      "fare": 480,
-      "frequency": "Daily, 6 trips"
+      "bus_id": "UP-GOR-LUC-010",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Gorakhpur",
+      "to": "Lucknow",
+      "via_stops": [
+        "Basti",
+        "Ayodhya",
+        "Barabanki"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "5:28 PM",
+      "duration": "5h 14m",
+      "fare": 450,
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Dopahar"
     },
     {
-      "busId": "UP-GKP-VNS-003",
-      "source": "Gorakhpur",
-      "destination": "Varanasi",
-      "intermediateStops": ["Azamgarh", "Mau"],
-      "departureTime": "06:00",
-      "durationMinutes": 300,
-      "busType": "Ordinary",
-      "fare": 220,
-      "frequency": "Daily, 4 trips"
+      "bus_id": "UP-GOR-LUC-011",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Gorakhpur",
+      "to": "Lucknow",
+      "via_stops": [
+        "Basti",
+        "Ayodhya",
+        "Barabanki"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "9:30 PM",
+      "duration": "4h 31m",
+      "fare": 530,
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Shaam"
     },
     {
-      "busId": "UP-VNS-GKP-004",
-      "source": "Varanasi",
-      "destination": "Gorakhpur",
-      "intermediateStops": ["Mau", "Azamgarh"],
-      "departureTime": "07:15",
-      "durationMinutes": 290,
-      "busType": "Pink Express",
-      "fare": 260,
-      "frequency": "Daily, 3 trips"
-    },
-    {
-      "busId": "UP-DEO-GKP-005",
-      "source": "Deoria",
-      "destination": "Gorakhpur",
-      "intermediateStops": [],
-      "departureTime": "07:30",
-      "durationMinutes": 80,
-      "busType": "Ordinary",
-      "fare": 65,
-      "frequency": "Every 15-20 minutes"
-    },
-    {
-      "busId": "UP-GKP-DEO-006",
-      "source": "Gorakhpur",
-      "destination": "Deoria",
-      "intermediateStops": [],
-      "departureTime": "06:00",
-      "durationMinutes": 80,
-      "busType": "Ordinary",
-      "fare": 65,
-      "frequency": "Every 15-20 minutes"
-    },
-    {
-      "busId": "UP-LKO-KNP-007",
-      "source": "Lucknow",
-      "destination": "Kanpur",
-      "intermediateStops": [],
-      "departureTime": "09:00",
-      "durationMinutes": 90,
-      "busType": "Shatabdi",
-      "fare": 120,
-      "frequency": "Every 30 minutes"
-    },
-    {
-      "busId": "UP-KNP-LKO-008",
-      "source": "Kanpur",
-      "destination": "Lucknow",
-      "intermediateStops": [],
-      "departureTime": "10:30",
-      "durationMinutes": 95,
-      "busType": "Janrath",
-      "fare": 130,
-      "frequency": "Every 30 minutes"
-    },
-    {
-      "busId": "UP-LKO-PRG-009",
-      "source": "Lucknow",
-      "destination": "Prayagraj",
-      "intermediateStops": ["Raebareli"],
-      "departureTime": "06:45",
-      "durationMinutes": 210,
-      "busType": "Pink Express",
-      "fare": 260,
-      "frequency": "Daily, 8 trips"
-    },
-    {
-      "busId": "UP-PRG-LKO-010",
-      "source": "Prayagraj",
-      "destination": "Lucknow",
-      "intermediateStops": ["Raebareli"],
-      "departureTime": "08:00",
-      "durationMinutes": 220,
-      "busType": "Ordinary",
-      "fare": 210,
-      "frequency": "Daily, 8 trips"
-    },
-    {
-      "busId": "UP-PRG-VNS-011",
-      "source": "Prayagraj",
-      "destination": "Varanasi",
-      "intermediateStops": ["Bhadohi"],
-      "departureTime": "07:00",
-      "durationMinutes": 150,
-      "busType": "Janrath",
-      "fare": 140,
-      "frequency": "Every 45 minutes"
-    },
-    {
-      "busId": "UP-VNS-PRG-012",
-      "source": "Varanasi",
-      "destination": "Prayagraj",
-      "intermediateStops": ["Bhadohi"],
-      "departureTime": "09:00",
-      "durationMinutes": 160,
-      "busType": "Ordinary",
-      "fare": 130,
-      "frequency": "Every 45 minutes"
-    },
-    {
-      "busId": "UP-AGR-LKO-013",
-      "source": "Agra",
-      "destination": "Lucknow",
-      "intermediateStops": ["Firozabad", "Etawah", "Kanpur"],
-      "departureTime": "05:00",
-      "durationMinutes": 390,
-      "busType": "Shatabdi",
-      "fare": 420,
-      "frequency": "Daily, 3 trips"
-    },
-    {
-      "busId": "UP-LKO-AGR-014",
-      "source": "Lucknow",
-      "destination": "Agra",
-      "intermediateStops": ["Kanpur", "Etawah", "Firozabad"],
-      "departureTime": "07:30",
-      "durationMinutes": 400,
-      "busType": "Janrath",
+      "bus_id": "UP-GOR-LUC-012",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Gorakhpur",
+      "to": "Lucknow",
+      "via_stops": [
+        "Basti",
+        "Ayodhya",
+        "Barabanki"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "3:00 AM",
+      "duration": "5h 30m",
       "fare": 400,
-      "frequency": "Daily, 3 trips"
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Raat"
     },
     {
-      "busId": "UP-MRT-AGR-015",
-      "source": "Meerut",
-      "destination": "Agra",
-      "intermediateStops": ["Bulandshahr", "Aligarh"],
-      "departureTime": "06:30",
-      "durationMinutes": 300,
-      "busType": "Ordinary",
-      "fare": 240,
-      "frequency": "Daily, 5 trips"
+      "bus_id": "UP-LUC-GOR-013",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Lucknow",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Barabanki",
+        "Ayodhya",
+        "Basti"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "11:46 AM",
+      "duration": "5h 46m",
+      "fare": 320,
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Subah"
     },
     {
-      "busId": "UP-AGR-MRT-016",
-      "source": "Agra",
-      "destination": "Meerut",
-      "intermediateStops": ["Aligarh", "Bulandshahr"],
-      "departureTime": "08:15",
-      "durationMinutes": 310,
-      "busType": "Pink Express",
+      "bus_id": "UP-LUC-GOR-014",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Lucknow",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Barabanki",
+        "Ayodhya",
+        "Basti"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "5:28 PM",
+      "duration": "5h 14m",
+      "fare": 450,
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-LUC-GOR-015",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Lucknow",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Barabanki",
+        "Ayodhya",
+        "Basti"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "9:30 PM",
+      "duration": "4h 31m",
+      "fare": 530,
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-LUC-GOR-016",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Lucknow",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Barabanki",
+        "Ayodhya",
+        "Basti"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "3:00 AM",
+      "duration": "5h 30m",
+      "fare": 400,
+      "frequency": "Din mein 6 trips",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-LUC-VAR-017",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Lucknow",
+      "to": "Varanasi",
+      "via_stops": [
+        "Sultanpur",
+        "Jaunpur"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "11:15 AM",
+      "duration": "5h 15m",
       "fare": 280,
-      "frequency": "Daily, 5 trips"
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Subah"
     },
     {
-      "busId": "UP-MRT-LKO-017",
-      "source": "Meerut",
-      "destination": "Lucknow",
-      "intermediateStops": ["Bulandshahr", "Aligarh", "Kanpur"],
-      "departureTime": "05:45",
-      "durationMinutes": 480,
-      "busType": "Shatabdi",
-      "fare": 520,
-      "frequency": "Daily, 2 trips"
+      "bus_id": "UP-LUC-VAR-018",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Lucknow",
+      "to": "Varanasi",
+      "via_stops": [
+        "Sultanpur",
+        "Jaunpur"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "5:00 PM",
+      "duration": "4h 45m",
+      "fare": 390,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Dopahar"
     },
     {
-      "busId": "UP-KSN-GKP-018",
-      "source": "Kushinagar",
-      "destination": "Gorakhpur",
-      "intermediateStops": [],
-      "departureTime": "06:30",
-      "durationMinutes": 90,
-      "busType": "Ordinary",
-      "fare": 60,
-      "frequency": "Every 25-30 minutes"
+      "bus_id": "UP-LUC-VAR-019",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Lucknow",
+      "to": "Varanasi",
+      "via_stops": [
+        "Sultanpur",
+        "Jaunpur"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "9:06 PM",
+      "duration": "4h 6m",
+      "fare": 460,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Shaam"
     },
     {
-      "busId": "UP-GKP-KSN-019",
-      "source": "Gorakhpur",
-      "destination": "Kushinagar",
-      "intermediateStops": [],
-      "departureTime": "06:15",
-      "durationMinutes": 90,
-      "busType": "Ordinary",
-      "fare": 60,
-      "frequency": "Every 25-30 minutes"
+      "bus_id": "UP-LUC-VAR-020",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Lucknow",
+      "to": "Varanasi",
+      "via_stops": [
+        "Sultanpur",
+        "Jaunpur"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "2:30 AM",
+      "duration": "5h",
+      "fare": 350,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Raat"
     },
     {
-      "busId": "UP-AYO-LKO-020",
-      "source": "Ayodhya",
-      "destination": "Lucknow",
-      "intermediateStops": ["Barabanki"],
-      "departureTime": "08:00",
-      "durationMinutes": 140,
-      "busType": "Janrath",
-      "fare": 150,
-      "frequency": "Every 40 minutes"
+      "bus_id": "UP-VAR-LUC-021",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Varanasi",
+      "to": "Lucknow",
+      "via_stops": [
+        "Jaunpur",
+        "Sultanpur"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "11:15 AM",
+      "duration": "5h 15m",
+      "fare": 280,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-VAR-LUC-022",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Varanasi",
+      "to": "Lucknow",
+      "via_stops": [
+        "Jaunpur",
+        "Sultanpur"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "5:00 PM",
+      "duration": "4h 45m",
+      "fare": 390,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-VAR-LUC-023",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Varanasi",
+      "to": "Lucknow",
+      "via_stops": [
+        "Jaunpur",
+        "Sultanpur"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "9:06 PM",
+      "duration": "4h 6m",
+      "fare": 460,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-VAR-LUC-024",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Varanasi",
+      "to": "Lucknow",
+      "via_stops": [
+        "Jaunpur",
+        "Sultanpur"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "2:30 AM",
+      "duration": "5h",
+      "fare": 350,
+      "frequency": "Din mein 5 trips",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-GOR-KUS-025",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Gorakhpur",
+      "to": "Kushinagar",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "7:29 AM",
+      "duration": "1h 29m",
+      "fare": 55,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-GOR-KUS-026",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Gorakhpur",
+      "to": "Kushinagar",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "1:35 PM",
+      "duration": "1h 21m",
+      "fare": 75,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-GOR-KUS-027",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Gorakhpur",
+      "to": "Kushinagar",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "6:09 PM",
+      "duration": "1h 10m",
+      "fare": 90,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-GOR-KUS-028",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Gorakhpur",
+      "to": "Kushinagar",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "10:55 PM",
+      "duration": "1h 25m",
+      "fare": 70,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-KUS-GOR-029",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Kushinagar",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "7:29 AM",
+      "duration": "1h 29m",
+      "fare": 55,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-KUS-GOR-030",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Kushinagar",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "1:35 PM",
+      "duration": "1h 21m",
+      "fare": 75,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-KUS-GOR-031",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Kushinagar",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "6:09 PM",
+      "duration": "1h 10m",
+      "fare": 90,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-KUS-GOR-032",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Kushinagar",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Hata"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "10:55 PM",
+      "duration": "1h 25m",
+      "fare": 70,
+      "frequency": "Har 25-30 minute par",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-DEO-VAR-033",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Deoria",
+      "to": "Varanasi",
+      "via_stops": [
+        "Salempur",
+        "Ballia"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "9:40 AM",
+      "duration": "3h 40m",
+      "fare": 180,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-DEO-VAR-034",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Deoria",
+      "to": "Varanasi",
+      "via_stops": [
+        "Salempur",
+        "Ballia"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "3:34 PM",
+      "duration": "3h 20m",
+      "fare": 250,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-DEO-VAR-035",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Deoria",
+      "to": "Varanasi",
+      "via_stops": [
+        "Salempur",
+        "Ballia"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "7:52 PM",
+      "duration": "2h 52m",
+      "fare": 295,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-DEO-VAR-036",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Deoria",
+      "to": "Varanasi",
+      "via_stops": [
+        "Salempur",
+        "Ballia"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "1:00 AM",
+      "duration": "3h 30m",
+      "fare": 225,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-VAR-DEO-037",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Varanasi",
+      "to": "Deoria",
+      "via_stops": [
+        "Ballia",
+        "Salempur"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "9:40 AM",
+      "duration": "3h 40m",
+      "fare": 180,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-VAR-DEO-038",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Varanasi",
+      "to": "Deoria",
+      "via_stops": [
+        "Ballia",
+        "Salempur"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "3:34 PM",
+      "duration": "3h 20m",
+      "fare": 250,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-VAR-DEO-039",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Varanasi",
+      "to": "Deoria",
+      "via_stops": [
+        "Ballia",
+        "Salempur"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "7:52 PM",
+      "duration": "2h 52m",
+      "fare": 295,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-VAR-DEO-040",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Varanasi",
+      "to": "Deoria",
+      "via_stops": [
+        "Ballia",
+        "Salempur"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "1:00 AM",
+      "duration": "3h 30m",
+      "fare": 225,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-PRA-GOR-041",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Prayagraj",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Jaunpur",
+        "Azamgarh"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "10:43 AM",
+      "duration": "4h 44m",
+      "fare": 260,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-PRA-GOR-042",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Prayagraj",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Jaunpur",
+        "Azamgarh"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "4:31 PM",
+      "duration": "4h 16m",
+      "fare": 365,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-PRA-GOR-043",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Prayagraj",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Jaunpur",
+        "Azamgarh"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "8:41 PM",
+      "duration": "3h 41m",
+      "fare": 430,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-PRA-GOR-044",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Prayagraj",
+      "to": "Gorakhpur",
+      "via_stops": [
+        "Jaunpur",
+        "Azamgarh"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "2:00 AM",
+      "duration": "4h 30m",
+      "fare": 325,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Raat"
+    },
+    {
+      "bus_id": "UP-GOR-PRA-045",
+      "bus_name": "UPSRTC Sadharan",
+      "bus_type": "Ordinary",
+      "from": "Gorakhpur",
+      "to": "Prayagraj",
+      "via_stops": [
+        "Azamgarh",
+        "Jaunpur"
+      ],
+      "departure_time": "6:00 AM",
+      "arrival_time": "10:43 AM",
+      "duration": "4h 44m",
+      "fare": 260,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Subah"
+    },
+    {
+      "bus_id": "UP-GOR-PRA-046",
+      "bus_name": "Janrath 2x2 AC",
+      "bus_type": "Janrath",
+      "from": "Gorakhpur",
+      "to": "Prayagraj",
+      "via_stops": [
+        "Azamgarh",
+        "Jaunpur"
+      ],
+      "departure_time": "12:15 PM",
+      "arrival_time": "4:31 PM",
+      "duration": "4h 16m",
+      "fare": 365,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Dopahar"
+    },
+    {
+      "bus_id": "UP-GOR-PRA-047",
+      "bus_name": "Shatabdi AC",
+      "bus_type": "Shatabdi",
+      "from": "Gorakhpur",
+      "to": "Prayagraj",
+      "via_stops": [
+        "Azamgarh",
+        "Jaunpur"
+      ],
+      "departure_time": "5:00 PM",
+      "arrival_time": "8:41 PM",
+      "duration": "3h 41m",
+      "fare": 430,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Shaam"
+    },
+    {
+      "bus_id": "UP-GOR-PRA-048",
+      "bus_name": "UP Pink Express",
+      "bus_type": "Pink Express",
+      "from": "Gorakhpur",
+      "to": "Prayagraj",
+      "via_stops": [
+        "Azamgarh",
+        "Jaunpur"
+      ],
+      "departure_time": "9:30 PM",
+      "arrival_time": "2:00 AM",
+      "duration": "4h 30m",
+      "fare": 325,
+      "frequency": "Din mein 4 trips",
+      "time_slot": "Raat"
     }
   ]
 }
