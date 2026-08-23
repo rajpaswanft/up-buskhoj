@@ -1,0 +1,228 @@
+{
+  "meta": {
+    "lastUpdated": "2026-08-23",
+    "note": "Sample/demo timetable data for UP BusKhoj. Replace or extend with real UPSRTC data — no code changes needed elsewhere, the app reads everything from this file."
+  },
+  "buses": [
+    {
+      "busId": "UP-GKP-LKO-001",
+      "source": "Gorakhpur",
+      "destination": "Lucknow",
+      "intermediateStops": ["Basti", "Ayodhya", "Barabanki"],
+      "departureTime": "05:30",
+      "durationMinutes": 345,
+      "busType": "Shatabdi",
+      "fare": 320,
+      "frequency": "Daily, 6 trips"
+    },
+    {
+      "busId": "UP-LKO-GKP-002",
+      "source": "Lucknow",
+      "destination": "Gorakhpur",
+      "intermediateStops": ["Barabanki", "Ayodhya", "Basti"],
+      "departureTime": "08:30",
+      "durationMinutes": 330,
+      "busType": "Janrath",
+      "fare": 480,
+      "frequency": "Daily, 6 trips"
+    },
+    {
+      "busId": "UP-GKP-VNS-003",
+      "source": "Gorakhpur",
+      "destination": "Varanasi",
+      "intermediateStops": ["Azamgarh", "Mau"],
+      "departureTime": "06:00",
+      "durationMinutes": 300,
+      "busType": "Ordinary",
+      "fare": 220,
+      "frequency": "Daily, 4 trips"
+    },
+    {
+      "busId": "UP-VNS-GKP-004",
+      "source": "Varanasi",
+      "destination": "Gorakhpur",
+      "intermediateStops": ["Mau", "Azamgarh"],
+      "departureTime": "07:15",
+      "durationMinutes": 290,
+      "busType": "Pink Express",
+      "fare": 260,
+      "frequency": "Daily, 3 trips"
+    },
+    {
+      "busId": "UP-DEO-GKP-005",
+      "source": "Deoria",
+      "destination": "Gorakhpur",
+      "intermediateStops": [],
+      "departureTime": "07:30",
+      "durationMinutes": 80,
+      "busType": "Ordinary",
+      "fare": 65,
+      "frequency": "Every 15-20 minutes"
+    },
+    {
+      "busId": "UP-GKP-DEO-006",
+      "source": "Gorakhpur",
+      "destination": "Deoria",
+      "intermediateStops": [],
+      "departureTime": "06:00",
+      "durationMinutes": 80,
+      "busType": "Ordinary",
+      "fare": 65,
+      "frequency": "Every 15-20 minutes"
+    },
+    {
+      "busId": "UP-LKO-KNP-007",
+      "source": "Lucknow",
+      "destination": "Kanpur",
+      "intermediateStops": [],
+      "departureTime": "09:00",
+      "durationMinutes": 90,
+      "busType": "Shatabdi",
+      "fare": 120,
+      "frequency": "Every 30 minutes"
+    },
+    {
+      "busId": "UP-KNP-LKO-008",
+      "source": "Kanpur",
+      "destination": "Lucknow",
+      "intermediateStops": [],
+      "departureTime": "10:30",
+      "durationMinutes": 95,
+      "busType": "Janrath",
+      "fare": 130,
+      "frequency": "Every 30 minutes"
+    },
+    {
+      "busId": "UP-LKO-PRG-009",
+      "source": "Lucknow",
+      "destination": "Prayagraj",
+      "intermediateStops": ["Raebareli"],
+      "departureTime": "06:45",
+      "durationMinutes": 210,
+      "busType": "Pink Express",
+      "fare": 260,
+      "frequency": "Daily, 8 trips"
+    },
+    {
+      "busId": "UP-PRG-LKO-010",
+      "source": "Prayagraj",
+      "destination": "Lucknow",
+      "intermediateStops": ["Raebareli"],
+      "departureTime": "08:00",
+      "durationMinutes": 220,
+      "busType": "Ordinary",
+      "fare": 210,
+      "frequency": "Daily, 8 trips"
+    },
+    {
+      "busId": "UP-PRG-VNS-011",
+      "source": "Prayagraj",
+      "destination": "Varanasi",
+      "intermediateStops": ["Bhadohi"],
+      "departureTime": "07:00",
+      "durationMinutes": 150,
+      "busType": "Janrath",
+      "fare": 140,
+      "frequency": "Every 45 minutes"
+    },
+    {
+      "busId": "UP-VNS-PRG-012",
+      "source": "Varanasi",
+      "destination": "Prayagraj",
+      "intermediateStops": ["Bhadohi"],
+      "departureTime": "09:00",
+      "durationMinutes": 160,
+      "busType": "Ordinary",
+      "fare": 130,
+      "frequency": "Every 45 minutes"
+    },
+    {
+      "busId": "UP-AGR-LKO-013",
+      "source": "Agra",
+      "destination": "Lucknow",
+      "intermediateStops": ["Firozabad", "Etawah", "Kanpur"],
+      "departureTime": "05:00",
+      "durationMinutes": 390,
+      "busType": "Shatabdi",
+      "fare": 420,
+      "frequency": "Daily, 3 trips"
+    },
+    {
+      "busId": "UP-LKO-AGR-014",
+      "source": "Lucknow",
+      "destination": "Agra",
+      "intermediateStops": ["Kanpur", "Etawah", "Firozabad"],
+      "departureTime": "07:30",
+      "durationMinutes": 400,
+      "busType": "Janrath",
+      "fare": 400,
+      "frequency": "Daily, 3 trips"
+    },
+    {
+      "busId": "UP-MRT-AGR-015",
+      "source": "Meerut",
+      "destination": "Agra",
+      "intermediateStops": ["Bulandshahr", "Aligarh"],
+      "departureTime": "06:30",
+      "durationMinutes": 300,
+      "busType": "Ordinary",
+      "fare": 240,
+      "frequency": "Daily, 5 trips"
+    },
+    {
+      "busId": "UP-AGR-MRT-016",
+      "source": "Agra",
+      "destination": "Meerut",
+      "intermediateStops": ["Aligarh", "Bulandshahr"],
+      "departureTime": "08:15",
+      "durationMinutes": 310,
+      "busType": "Pink Express",
+      "fare": 280,
+      "frequency": "Daily, 5 trips"
+    },
+    {
+      "busId": "UP-MRT-LKO-017",
+      "source": "Meerut",
+      "destination": "Lucknow",
+      "intermediateStops": ["Bulandshahr", "Aligarh", "Kanpur"],
+      "departureTime": "05:45",
+      "durationMinutes": 480,
+      "busType": "Shatabdi",
+      "fare": 520,
+      "frequency": "Daily, 2 trips"
+    },
+    {
+      "busId": "UP-KSN-GKP-018",
+      "source": "Kushinagar",
+      "destination": "Gorakhpur",
+      "intermediateStops": [],
+      "departureTime": "06:30",
+      "durationMinutes": 90,
+      "busType": "Ordinary",
+      "fare": 60,
+      "frequency": "Every 25-30 minutes"
+    },
+    {
+      "busId": "UP-GKP-KSN-019",
+      "source": "Gorakhpur",
+      "destination": "Kushinagar",
+      "intermediateStops": [],
+      "departureTime": "06:15",
+      "durationMinutes": 90,
+      "busType": "Ordinary",
+      "fare": 60,
+      "frequency": "Every 25-30 minutes"
+    },
+    {
+      "busId": "UP-AYO-LKO-020",
+      "source": "Ayodhya",
+      "destination": "Lucknow",
+      "intermediateStops": ["Barabanki"],
+      "departureTime": "08:00",
+      "durationMinutes": 140,
+      "busType": "Janrath",
+      "fare": 150,
+      "frequency": "Every 40 minutes"
+    }
+  ]
+}
