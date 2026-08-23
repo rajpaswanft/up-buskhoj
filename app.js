@@ -1,11 +1,257 @@
 // =====================================================
-// UP BusKhoj — app.js
-// Fully data-driven: fetches everything from data.json.
-// No city or route is hardcoded here — add a new bus
-// object to data.json and it just works.
+// UP BusKhoj — app.js (standalone, no fetch)
+// All bus data lives in BUS_DATA below. To add a city or
+// route, just add another object to this array — the
+// dropdowns and search both read from it automatically.
 // =====================================================
 
-const DATA_URL = "./data.json";
+const BUS_DATA = [
+  // ---------- Deoria ⇄ Gorakhpur ----------
+  {
+    bus_id: "UP-DEO-GOR-01",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Deoria",
+    to: "Gorakhpur",
+    via_stops: ["Chauri Chaura"],
+    departure_time: "6:00 AM",
+    arrival_time: "7:15 AM",
+    duration: "1h 15m",
+    fare: 65,
+    frequency: "Har 15-20 minute par",
+  },
+  {
+    bus_id: "UP-DEO-GOR-02",
+    bus_name: "Janrath 2x2 AC",
+    bus_type: "Janrath",
+    from: "Deoria",
+    to: "Gorakhpur",
+    via_stops: ["Chauri Chaura"],
+    departure_time: "2:30 PM",
+    arrival_time: "3:35 PM",
+    duration: "1h 5m",
+    fare: 95,
+    frequency: "Har 15-20 minute par",
+  },
+  {
+    bus_id: "UP-GOR-DEO-03",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Gorakhpur",
+    to: "Deoria",
+    via_stops: ["Chauri Chaura"],
+    departure_time: "7:00 AM",
+    arrival_time: "8:15 AM",
+    duration: "1h 15m",
+    fare: 65,
+    frequency: "Har 15-20 minute par",
+  },
+  {
+    bus_id: "UP-GOR-DEO-04",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Gorakhpur",
+    to: "Deoria",
+    via_stops: ["Chauri Chaura"],
+    departure_time: "5:30 PM",
+    arrival_time: "6:45 PM",
+    duration: "1h 15m",
+    fare: 65,
+    frequency: "Har 15-20 minute par",
+  },
+
+  // ---------- Gorakhpur ⇄ Lucknow ----------
+  {
+    bus_id: "UP-GOR-LKO-05",
+    bus_name: "Shatabdi AC",
+    bus_type: "Shatabdi",
+    from: "Gorakhpur",
+    to: "Lucknow",
+    via_stops: ["Basti", "Ayodhya", "Barabanki"],
+    departure_time: "5:30 AM",
+    arrival_time: "10:45 AM",
+    duration: "5h 15m",
+    fare: 480,
+    frequency: "Din mein 6 trips",
+  },
+  {
+    bus_id: "UP-GOR-LKO-06",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Gorakhpur",
+    to: "Lucknow",
+    via_stops: ["Basti", "Ayodhya", "Barabanki"],
+    departure_time: "11:00 AM",
+    arrival_time: "4:45 PM",
+    duration: "5h 45m",
+    fare: 320,
+    frequency: "Din mein 6 trips",
+  },
+  {
+    bus_id: "UP-LKO-GOR-07",
+    bus_name: "Janrath 2x2 AC",
+    bus_type: "Janrath",
+    from: "Lucknow",
+    to: "Gorakhpur",
+    via_stops: ["Barabanki", "Ayodhya", "Basti"],
+    departure_time: "7:15 AM",
+    arrival_time: "1:00 PM",
+    duration: "5h 45m",
+    fare: 420,
+    frequency: "Din mein 6 trips",
+  },
+  {
+    bus_id: "UP-LKO-GOR-08",
+    bus_name: "UP Pink Express",
+    bus_type: "Pink Express",
+    from: "Lucknow",
+    to: "Gorakhpur",
+    via_stops: ["Barabanki", "Ayodhya", "Basti"],
+    departure_time: "9:30 PM",
+    arrival_time: "3:15 AM",
+    duration: "5h 45m",
+    fare: 380,
+    frequency: "Din mein 6 trips",
+  },
+
+  // ---------- Gorakhpur ⇄ Kushinagar ----------
+  {
+    bus_id: "UP-GOR-KSN-09",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Gorakhpur",
+    to: "Kushinagar",
+    via_stops: ["Hata"],
+    departure_time: "6:15 AM",
+    arrival_time: "7:40 AM",
+    duration: "1h 25m",
+    fare: 55,
+    frequency: "Har 25-30 minute par",
+  },
+  {
+    bus_id: "UP-GOR-KSN-10",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Gorakhpur",
+    to: "Kushinagar",
+    via_stops: ["Hata"],
+    departure_time: "1:45 PM",
+    arrival_time: "3:10 PM",
+    duration: "1h 25m",
+    fare: 55,
+    frequency: "Har 25-30 minute par",
+  },
+  {
+    bus_id: "UP-KSN-GOR-11",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Kushinagar",
+    to: "Gorakhpur",
+    via_stops: ["Hata"],
+    departure_time: "8:00 AM",
+    arrival_time: "9:25 AM",
+    duration: "1h 25m",
+    fare: 55,
+    frequency: "Har 25-30 minute par",
+  },
+
+  // ---------- Gorakhpur ⇄ Varanasi ----------
+  {
+    bus_id: "UP-GOR-VNS-12",
+    bus_name: "Janrath 2x2 AC",
+    bus_type: "Janrath",
+    from: "Gorakhpur",
+    to: "Varanasi",
+    via_stops: ["Azamgarh", "Mau"],
+    departure_time: "6:30 AM",
+    arrival_time: "11:15 AM",
+    duration: "4h 45m",
+    fare: 260,
+    frequency: "Din mein 5 trips",
+  },
+  {
+    bus_id: "UP-GOR-VNS-13",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Gorakhpur",
+    to: "Varanasi",
+    via_stops: ["Azamgarh", "Mau"],
+    departure_time: "3:00 PM",
+    arrival_time: "8:15 PM",
+    duration: "5h 15m",
+    fare: 220,
+    frequency: "Din mein 5 trips",
+  },
+  {
+    bus_id: "UP-VNS-GOR-14",
+    bus_name: "UP Pink Express",
+    bus_type: "Pink Express",
+    from: "Varanasi",
+    to: "Gorakhpur",
+    via_stops: ["Mau", "Azamgarh"],
+    departure_time: "7:45 AM",
+    arrival_time: "12:30 PM",
+    duration: "4h 45m",
+    fare: 240,
+    frequency: "Din mein 5 trips",
+  },
+
+  // ---------- Deoria ⇄ Varanasi ----------
+  {
+    bus_id: "UP-DEO-VNS-15",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Deoria",
+    to: "Varanasi",
+    via_stops: ["Salempur", "Ballia"],
+    departure_time: "6:45 AM",
+    arrival_time: "10:15 AM",
+    duration: "3h 30m",
+    fare: 180,
+    frequency: "Din mein 4 trips",
+  },
+  {
+    bus_id: "UP-VNS-DEO-16",
+    bus_name: "Janrath 2x2 AC",
+    bus_type: "Janrath",
+    from: "Varanasi",
+    to: "Deoria",
+    via_stops: ["Ballia", "Salempur"],
+    departure_time: "4:30 PM",
+    arrival_time: "7:40 PM",
+    duration: "3h 10m",
+    fare: 230,
+    frequency: "Din mein 4 trips",
+  },
+
+  // ---------- Lucknow ⇄ Varanasi ----------
+  {
+    bus_id: "UP-LKO-VNS-17",
+    bus_name: "Shatabdi AC",
+    bus_type: "Shatabdi",
+    from: "Lucknow",
+    to: "Varanasi",
+    via_stops: ["Sultanpur", "Jaunpur"],
+    departure_time: "6:00 AM",
+    arrival_time: "10:45 AM",
+    duration: "4h 45m",
+    fare: 460,
+    frequency: "Din mein 5 trips",
+  },
+  {
+    bus_id: "UP-VNS-LKO-18",
+    bus_name: "UPSRTC Sadharan",
+    bus_type: "Ordinary",
+    from: "Varanasi",
+    to: "Lucknow",
+    via_stops: ["Jaunpur", "Sultanpur"],
+    departure_time: "8:15 AM",
+    arrival_time: "1:30 PM",
+    duration: "5h 15m",
+    fare: 280,
+    frequency: "Din mein 5 trips",
+  },
+];
 
 const BADGE_LABEL = {
   Ordinary: "UPSRTC Sadharan",
@@ -25,73 +271,35 @@ const el = {
   statusText: document.getElementById("statusText"),
 };
 
-let BUSES = [];
-
 // -----------------------------------------------------
-// Data loading
+// Safety check — every entry must have these fields, or
+// we skip it rather than ever render "undefined".
 // -----------------------------------------------------
-async function loadData() {
-  setLoadingState(true);
-  try {
-    const res = await fetch(DATA_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status} while fetching ${DATA_URL}`);
-    const json = await res.json();
+const REQUIRED_FIELDS = [
+  "bus_id",
+  "bus_name",
+  "bus_type",
+  "from",
+  "to",
+  "departure_time",
+  "arrival_time",
+  "duration",
+  "fare",
+  "frequency",
+];
 
-    if (!Array.isArray(json.buses) || json.buses.length === 0) {
-      throw new Error("data.json loaded but 'buses' array is empty or missing.");
-    }
-
-    BUSES = json.buses;
-    populateCityDropdowns(BUSES);
-    setLoadingState(false);
-    pickSensibleDefaults();
-    search();
-  } catch (err) {
-    console.error("[UP BusKhoj] Failed to load data.json:", err);
-    setLoadingState(false, true, err);
-  }
+function isValidBus(bus) {
+  return REQUIRED_FIELDS.every((field) => bus[field] !== undefined && bus[field] !== null && bus[field] !== "");
 }
 
-function setLoadingState(isLoading, isError = false, err = null) {
-  if (isLoading) {
-    [el.fromSelect, el.toSelect].forEach((sel) => {
-      sel.innerHTML = `<option value="">Loading cities…</option>`;
-      sel.disabled = true;
-    });
-    el.statusText.textContent = "Bus data load ho raha hai…";
-    return;
-  }
+const VALID_BUSES = BUS_DATA.filter(isValidBus);
 
-  [el.fromSelect, el.toSelect].forEach((sel) => (sel.disabled = false));
-
-  if (isError) {
-    const isFileProtocol = window.location.protocol === "file:";
-    [el.fromSelect, el.toSelect].forEach((sel) => {
-      sel.innerHTML = `<option value="">Data load nahi hui</option>`;
-    });
-    el.resultHeading.textContent = "Data load nahi ho payi";
-    el.resultCount.textContent = "";
-    el.busList.innerHTML = "";
-
-    let hint = "data.json load nahi ho saka — file path ya server check karein.";
-    if (isFileProtocol) {
-      hint =
-        "Browser file:// se seedha khola gaya hai, isliye fetch('data.json') block ho jaata hai (CORS). Ek local server chalayein — jaise 'python3 -m http.server' folder mein, ya VS Code Live Server — phir http://localhost par kholein. GitHub Pages par yeh apne aap sahi chalega.";
-    }
-    el.statusText.textContent = hint;
-    el.busList.appendChild(renderErrorState(hint, err));
-  }
-}
-
-function renderErrorState(hint, err) {
-  const div = document.createElement("div");
-  div.className = "empty-state";
-  div.innerHTML = `
-    <span class="emoji">⚠️</span>
-    <strong>Bus data load nahi ho paya</strong>
-    <p>${hint}</p>
-  `;
-  return div;
+if (VALID_BUSES.length !== BUS_DATA.length) {
+  console.warn(
+    `[UP BusKhoj] Skipped ${BUS_DATA.length - VALID_BUSES.length} bus entr${
+      BUS_DATA.length - VALID_BUSES.length === 1 ? "y" : "ies"
+    } missing required fields.`
+  );
 }
 
 // -----------------------------------------------------
@@ -99,15 +307,15 @@ function renderErrorState(hint, err) {
 // [from, ...via_stops, to]
 // -----------------------------------------------------
 function fullRoute(bus) {
-  return [bus.from, ...(bus.via_stops || []), bus.to];
+  return [bus.from, ...(Array.isArray(bus.via_stops) ? bus.via_stops : []), bus.to];
 }
 
 // -----------------------------------------------------
-// Dropdown population — every city comes from the data
+// Dropdown population — driven entirely by BUS_DATA
 // -----------------------------------------------------
-function populateCityDropdowns(buses) {
+function populateCityDropdowns() {
   const citySet = new Set();
-  buses.forEach((bus) => fullRoute(bus).forEach((stop) => citySet.add(stop)));
+  VALID_BUSES.forEach((bus) => fullRoute(bus).forEach((stop) => citySet.add(stop)));
   const cities = Array.from(citySet).sort((a, b) => a.localeCompare(b));
 
   [el.fromSelect, el.toSelect].forEach((sel) => {
@@ -118,6 +326,7 @@ function populateCityDropdowns(buses) {
       opt.textContent = city;
       sel.appendChild(opt);
     });
+    sel.disabled = cities.length === 0;
   });
 }
 
@@ -125,6 +334,7 @@ function populateCityDropdowns(buses) {
 function pickSensibleDefaults() {
   const preferred = ["Deoria", "Gorakhpur"];
   const options = Array.from(el.fromSelect.options).map((o) => o.value);
+  if (options.length === 0) return;
 
   const from = preferred.find((c) => options.includes(c)) || options[0];
   const to =
@@ -132,34 +342,19 @@ function pickSensibleDefaults() {
     options.find((c) => c !== from) ||
     options[0];
 
-  if (from) el.fromSelect.value = from;
-  if (to) el.toSelect.value = to;
-}
-
-// -----------------------------------------------------
-// Time helpers — data.json stores times as "6:00 AM" etc.
-// We only need to parse them for chronological sorting.
-// -----------------------------------------------------
-function toMinutesSinceMidnight(timeStr) {
-  const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
-  if (!match) return 0;
-  let [, h, m, period] = match;
-  h = parseInt(h, 10);
-  m = parseInt(m, 10);
-  if (period.toUpperCase() === "PM" && h !== 12) h += 12;
-  if (period.toUpperCase() === "AM" && h === 12) h = 0;
-  return h * 60 + m;
+  el.fromSelect.value = from;
+  el.toSelect.value = to;
 }
 
 function badgeClass(busType) {
-  return busType.toLowerCase().replace(/\s+/g, "-");
+  return String(busType || "ordinary").toLowerCase().replace(/\s+/g, "-");
 }
 
 // -----------------------------------------------------
-// Search / filter
+// Search / filter — direct AND via-route matches
 // -----------------------------------------------------
 function findMatches(from, to) {
-  return BUSES.filter((bus) => {
+  return VALID_BUSES.filter((bus) => {
     const route = fullRoute(bus);
     const fromIdx = route.indexOf(from);
     const toIdx = route.indexOf(to);
@@ -171,9 +366,15 @@ function search() {
   const from = el.fromSelect.value;
   const to = el.toSelect.value;
 
-  if (!from || !to) return;
-
   el.busList.innerHTML = "";
+
+  if (!from || !to) {
+    el.resultHeading.textContent = "Available Buses";
+    el.resultCount.textContent = "";
+    el.statusText.textContent = "Kripya From aur To station chunein.";
+    return;
+  }
+
   el.resultHeading.textContent = `${from} → ${to}`;
 
   if (from === to) {
@@ -183,9 +384,7 @@ function search() {
     return;
   }
 
-  const matches = findMatches(from, to).sort(
-    (a, b) => toMinutesSinceMidnight(a.departure_time) - toMinutesSinceMidnight(b.departure_time)
-  );
+  const matches = findMatches(from, to);
 
   if (matches.length === 0) {
     el.resultCount.textContent = "";
@@ -209,6 +408,7 @@ function renderBusCard(bus, searchFrom, searchTo) {
   const route = fullRoute(bus);
   const isPartialTrip = bus.from !== searchFrom || bus.to !== searchTo;
   const badgeText = BADGE_LABEL[bus.bus_type] || bus.bus_name || bus.bus_type;
+  const viaStops = Array.isArray(bus.via_stops) ? bus.via_stops : [];
 
   const card = document.createElement("div");
   card.className = "bus-card";
@@ -236,8 +436,8 @@ function renderBusCard(bus, searchFrom, searchTo) {
         ? `<div class="via-note">Boarding: <strong>${searchFrom}</strong> · Alighting: <strong>${searchTo}</strong> — poore route (${route.join(
             " → "
           )}) ka samay upar dikhaya gaya hai.</div>`
-        : bus.via_stops && bus.via_stops.length > 0
-        ? `<div class="via-note">Via: ${bus.via_stops.join(", ")}</div>`
+        : viaStops.length > 0
+        ? `<div class="via-note">Via: ${viaStops.join(", ")}</div>`
         : ""
     }
     <div class="bus-card-footer">
@@ -276,4 +476,9 @@ el.searchBtn.addEventListener("click", search);
 el.fromSelect.addEventListener("change", search);
 el.toSelect.addEventListener("change", search);
 
-document.addEventListener("DOMContentLoaded", loadData);
+// -----------------------------------------------------
+// Init — synchronous, no fetch, nothing to fail
+// -----------------------------------------------------
+populateCityDropdowns();
+pickSensibleDefaults();
+search();
