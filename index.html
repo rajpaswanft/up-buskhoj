@@ -17,6 +17,7 @@
     <div class="board-strip">
       <span>GORAKHPUR</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
       <span>LUCKNOW</span><span class="dot">•</span><span>KUSHINAGAR</span><span class="dot">•</span>
+      <span>VARANASI</span><span class="dot">•</span><span>PRAYAGRAJ</span><span class="dot">•</span>
       <span>GORAKHPUR</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
       <span>LUCKNOW</span><span class="dot">•</span><span>KUSHINAGAR</span><span class="dot">•</span>
     </div>
@@ -24,8 +25,12 @@
       <span class="bus-icon" aria-hidden="true">🚌</span>
       <div>
         <h1>UP BusKhoj</h1>
-        <p>Route dhoondo, waqt bachao</p>
+        <p>Live Schedule &middot; Time-Aware</p>
       </div>
+      <span class="live-clock-chip" title="Aapke device ka current time">
+        <span class="clock-dot" aria-hidden="true"></span>
+        <span id="liveClock">--:-- --</span>
+      </span>
     </div>
   </header>
 
@@ -63,7 +68,7 @@
     <!-- Quick Filters / Status Bar -->
     <div class="quick-status">
       <span class="pulse-dot" aria-hidden="true"></span>
-      <span id="statusText">Popular Route: <strong>Deoria ⇄ Gorakhpur (Har 15-20 min)</strong></span>
+      <span id="statusText">Popular Route: <strong>Deoria ⇄ Gorakhpur</strong></span>
     </div>
 
     <!-- Results Section -->
@@ -72,12 +77,22 @@
         <h2 id="resultHeading">Available Buses</h2>
         <span id="resultCount" class="result-count"></span>
       </div>
+
+      <!-- Upcoming buses, NEXT BUS pinned on top -->
       <div id="busList" class="bus-list">
         <!-- Bus cards injected by app.js -->
       </div>
+
+      <!-- Toggle for today's already-departed buses -->
+      <button id="togglePastBtn" class="toggle-past-btn" type="button" hidden>
+        <span class="toggle-icon">▾</span> Pehle nikal chuki buses dekhein
+      </button>
+      <div id="pastBusList" class="bus-list past-list collapsed">
+        <!-- Past bus cards injected by app.js -->
+      </div>
     </section>
 
-    <p class="disclaimer">Samay anumaanit hai, road traffic ke hisaab se badal sakta hai.</p>
+    <p class="disclaimer">Samay device ke local clock se calculate hota hai; road traffic ke hisaab se badal sakta hai.</p>
   </main>
 
   <script src="app.js"></script>
