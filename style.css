@@ -1,6 +1,7 @@
 /* =====================================================
    UP BusKhoj — Design tokens
-   Inspired by UP Roadways highway boards + paper tickets
+   Highway board + paper ticket, now with a live
+   train-tracker style timeline for schedules.
    ===================================================== */
 :root {
   --board-green: #123322;
@@ -15,6 +16,8 @@
   --route-line: #B7B097;
   --ac-blue: #33587E;
   --pink-express: #C2447A;
+  --live-green: #2E9E5B;
+  --live-green-dark: #1F7A44;
   --line-hair: rgba(33, 30, 23, 0.14);
 
   --font-display: "Teko", sans-serif;
@@ -26,14 +29,12 @@
 }
 
 * { box-sizing: border-box; }
-
 html { -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
   background: var(--paper);
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(33,30,23,0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(33,30,23,0.05) 1px, transparent 0);
   background-size: 18px 18px;
   color: var(--ink);
   font-family: var(--font-body);
@@ -60,7 +61,7 @@ body {
   padding: 6px 0;
   color: rgba(239, 176, 38, 0.65);
   background: rgba(0, 0, 0, 0.18);
-  animation: scrollBoard 22s linear infinite;
+  animation: scrollBoard 24s linear infinite;
   display: inline-block;
   padding-left: 100%;
 }
@@ -104,6 +105,33 @@ body {
   font-size: 0.82rem;
   color: #CFE3D4;
   font-weight: 500;
+}
+
+.live-clock-chip {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(239, 176, 38, 0.35);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--marker-yellow);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.clock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--live-green);
+  box-shadow: 0 0 0 0 rgba(46, 158, 91, 0.6);
+  animation: pulse 1.8s infinite;
+  flex-shrink: 0;
 }
 
 /* =====================================================
@@ -169,10 +197,7 @@ select {
   text-overflow: ellipsis;
 }
 
-select:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
+select:disabled { opacity: 0.6; cursor: wait; }
 
 select:focus-visible {
   outline: 3px solid var(--marker-yellow);
@@ -224,14 +249,8 @@ select:focus-visible {
 }
 
 .primary-btn:hover { filter: brightness(1.04); }
-
-.primary-btn:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 var(--rust-dark);
-}
-
+.primary-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--rust-dark); }
 .primary-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 3px; }
-
 .ticket-punch { font-size: 1rem; opacity: 0.85; }
 
 /* =====================================================
@@ -250,16 +269,16 @@ select:focus-visible {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #3E9161;
+  background: var(--live-green);
   flex-shrink: 0;
-  box-shadow: 0 0 0 0 rgba(62, 145, 97, 0.6);
+  box-shadow: 0 0 0 0 rgba(46, 158, 97, 0.6);
   animation: pulse 1.8s infinite;
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(62, 145, 97, 0.5); }
-  70% { box-shadow: 0 0 0 7px rgba(62, 145, 97, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(62, 145, 97, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0.5); }
+  70% { box-shadow: 0 0 0 7px rgba(46, 158, 91, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0); }
 }
 
 .quick-status strong { color: var(--ink); }
@@ -288,10 +307,36 @@ select:focus-visible {
   color: var(--ink-soft);
 }
 
-.bus-list { display: flex; flex-direction: column; gap: 16px; }
+/* =====================================================
+   Timeline list — "Where Is My Train" inspired rail
+   ===================================================== */
+.bus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+}
+
+.bus-list.has-timeline {
+  padding-left: 22px;
+}
+
+.bus-list.has-timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background-image: linear-gradient(to bottom, var(--route-line) 60%, transparent 40%);
+  background-size: 2px 10px;
+  background-repeat: repeat-y;
+}
+
+.past-list.collapsed { display: none; }
 
 /* =====================================================
-   Bus card — paper ticket stub with perforated notches
+   Bus card — paper ticket stub with timeline dot
    ===================================================== */
 .bus-card {
   position: relative;
@@ -303,11 +348,55 @@ select:focus-visible {
   overflow: visible;
 }
 
+.timeline-dot {
+  position: absolute;
+  left: -22px;
+  top: 20px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  border: 2.5px solid var(--board-green-2);
+  z-index: 2;
+}
+
+.next-bus .timeline-dot {
+  background: var(--live-green);
+  border-color: var(--live-green);
+  box-shadow: 0 0 0 5px rgba(46, 158, 91, 0.22);
+  animation: dotPulse 1.6s infinite;
+}
+
+.past-bus .timeline-dot {
+  background: var(--paper);
+  border-color: var(--route-line);
+}
+
+@keyframes dotPulse {
+  0% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(46, 158, 91, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0); }
+}
+
+.next-bus {
+  border: 1.5px solid var(--live-green);
+  box-shadow: 0 12px 26px -14px rgba(31, 122, 68, 0.55);
+}
+
+.past-bus {
+  opacity: 0.6;
+  filter: grayscale(0.35);
+}
+
+.past-bus .bus-card-footer,
+.past-bus .via-note { opacity: 0.9; }
+
 .bus-card-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .badge {
@@ -325,24 +414,41 @@ select:focus-visible {
 .badge.shatabdi { background: var(--rust); }
 .badge.pink-express { background: var(--pink-express); }
 
-.via-note {
-  font-size: 0.74rem;
-  color: var(--ink-soft);
-  background: rgba(33, 30, 23, 0.05);
-  border-radius: 8px;
-  padding: 7px 10px;
-  margin: 0 0 12px;
-  line-height: 1.4;
+.next-badge {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: var(--live-green);
+  padding: 4px 9px;
+  border-radius: 999px;
+  animation: badgeGlow 1.8s infinite;
 }
 
-.via-note strong { color: var(--ink); }
+@keyframes badgeGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 158, 91, 0.5); }
+  50% { box-shadow: 0 0 0 4px rgba(46, 158, 91, 0.15); }
+}
 
 .fare {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--board-green);
+  margin-left: auto;
 }
+
+.countdown-tag {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  padding: 3px 0;
+}
+
+.countdown-tag.next { color: var(--live-green-dark); font-size: 0.92rem; }
+.countdown-tag.upcoming { color: var(--ac-blue); }
+.countdown-tag.past { color: var(--ink-soft); font-weight: 600; }
 
 .bus-time-row {
   display: grid;
@@ -369,11 +475,7 @@ select:focus-visible {
 
 .bus-time-row > div:last-child { text-align: right; }
 
-.duration-line {
-  text-align: center;
-  position: relative;
-  padding-top: 2px;
-}
+.duration-line { text-align: center; position: relative; padding-top: 2px; }
 
 .duration-line span {
   font-size: 0.68rem;
@@ -407,7 +509,18 @@ select:focus-visible {
 .duration-line .line::before { left: 0; }
 .duration-line .line::after { right: 0; }
 
-/* perforation between time-row and footer */
+.via-note {
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  background: rgba(33, 30, 23, 0.05);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.via-note strong { color: var(--ink); }
+
 .bus-card-footer {
   display: flex;
   align-items: center;
@@ -455,7 +568,6 @@ select:focus-visible {
 .track-btn:hover { background: var(--board-green); color: #fff; }
 .track-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 2px; }
 
-/* torn zig-zag bottom edge of the ticket */
 .bus-card::after {
   content: "";
   display: block;
@@ -470,7 +582,40 @@ select:focus-visible {
 }
 
 /* =====================================================
-   Empty state
+   Toggle: past buses
+   ===================================================== */
+.toggle-past-btn {
+  width: 100%;
+  margin-top: 16px;
+  background: var(--paper-raised);
+  border: 1.5px dashed var(--route-line);
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 11px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.toggle-past-btn:hover {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.toggle-past-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 2px; }
+.toggle-icon { font-size: 0.7rem; }
+
+.past-list { margin-top: 14px; }
+
+/* =====================================================
+   Empty / no-more-buses state
    ===================================================== */
 .empty-state {
   text-align: center;
@@ -494,7 +639,9 @@ select:focus-visible {
 /* =====================================================
    Small screens
    ===================================================== */
-@media (max-width: 360px) {
+@media (max-width: 380px) {
+  .logo-area { flex-wrap: wrap; }
+  .live-clock-chip { margin-left: 0; }
   .logo-area h1 { font-size: 1.8rem; }
   .primary-btn { font-size: 1.15rem; }
 }
