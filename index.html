@@ -8,6 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Leaflet.js (Step 3: Map + Route Polyline + Live GPS Tracker) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +30,7 @@
       <span class="bus-icon" aria-hidden="true">🚌</span>
       <div>
         <h1>UP BusKhoj</h1>
-        <p>Live Schedule &middot; Time-Aware</p>
+        <p>Live Schedule &middot; Route Map &middot; GPS</p>
       </div>
       <span class="live-clock-chip" title="Aapke device ka current time">
         <span class="clock-dot" aria-hidden="true"></span>
@@ -78,7 +83,9 @@
         <span id="resultCount" class="result-count"></span>
       </div>
 
-      <!-- Upcoming buses, NEXT BUS pinned on top -->
+      <!-- Upcoming buses, NEXT BUS pinned on top. Each bus card
+           (built in app.js) includes a collapsible Leaflet map
+           slot + "Route / Live Track" toggle + GPS tracker. -->
       <div id="busList" class="bus-list">
         <!-- Bus cards injected by app.js -->
       </div>
@@ -92,7 +99,7 @@
       </div>
     </section>
 
-    <p class="disclaimer">Samay device ke local clock se calculate hota hai; road traffic ke hisaab se badal sakta hai.</p>
+    <p class="disclaimer">Samay device ke local clock se calculate hota hai; route map aur GPS position OpenStreetMap/Leaflet se live render hote hain.</p>
   </main>
 
   <script src="app.js"></script>
