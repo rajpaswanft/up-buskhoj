@@ -637,6 +637,144 @@ select:focus-visible {
 }
 
 /* =====================================================
+   Step 3 — Route map (Leaflet) + Live GPS tracker
+   ===================================================== */
+
+/* "Route / Live Track" button doubles as the map toggle */
+.track-btn.active {
+  background: var(--board-green);
+  color: #fff;
+}
+
+/* Collapsible map section: animate max-height so Leaflet
+   always initialises into a container that already has a
+   real, final size (see MAP_TRANSITION_MS in app.js). */
+.map-section {
+  max-height: 0;
+  overflow: hidden;
+  margin: 0 -16px;
+  transition: max-height 0.3s ease;
+}
+
+.map-section.expanded {
+  max-height: 380px;
+}
+
+.map-container {
+  height: clamp(220px, 26vh, 260px);
+  width: auto;
+  margin: 12px 16px 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line-hair);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
+/* Leaflet injects its own canvas/tiles here — just make sure
+   it fills the rounded container we sized above. */
+.map-container .leaflet-container {
+  height: 100%;
+  width: 100%;
+  font-family: var(--font-body);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.map-fallback {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 16px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.map-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+
+.gps-toggle-btn {
+  width: 100%;
+  background: var(--paper-raised);
+  border: 1.5px solid var(--ac-blue);
+  color: var(--ac-blue);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.gps-toggle-btn:hover { background: var(--ac-blue); color: #fff; }
+.gps-toggle-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 2px; }
+
+.gps-toggle-btn.active {
+  background: var(--live-green);
+  border-color: var(--live-green);
+  color: #fff;
+  animation: badgeGlow 1.8s infinite;
+}
+
+.gps-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gps-chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: rgba(33, 30, 23, 0.06);
+  border-radius: 8px;
+  padding: 5px 9px;
+}
+
+.gps-chip.gps-error {
+  color: var(--rust-dark);
+  background: rgba(180, 71, 44, 0.12);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+/* Custom Leaflet divIcon markers — plain CSS dots, no
+   external marker image assets needed. */
+.stop-pin {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--paper-raised);
+  border: 2.5px solid var(--board-green-2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.stop-pin.terminal {
+  width: 14px;
+  height: 14px;
+  background: var(--rust);
+  border-color: #fff;
+}
+
+.live-user-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--live-green);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 4px rgba(46, 158, 91, 0.35), 0 2px 6px rgba(0, 0, 0, 0.35);
+  animation: dotPulse 1.6s infinite;
+}
+
+/* =====================================================
    Small screens
    ===================================================== */
 @media (max-width: 380px) {
