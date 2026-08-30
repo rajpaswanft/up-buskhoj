@@ -1,17 +1,41 @@
 // =====================================================
 // UP BusKhoj — app.js
-// Time-Aware Schedule System + realistic high-frequency
-// UPSRTC dataset (Deoria<->Gorakhpur runs every 15-20 min,
-// 140+ trips/day across both directions incl. passing
-// buses). To keep the UI clean, only the NEXT BUS + next
-// 5-6 upcoming slots are shown by default, with a
-// "Load More Buses" button to reveal more — no clutter.
+// Step 1+2: Time-Aware Schedule System (NEXT BUS,
+//   countdowns, past-bus toggle, Load More pagination)
+// Step 3: Leaflet Map + Route Polyline + Live GPS Tracker
 //
 // Everything is data-driven from BUS_DATA below — no
-// fetch(), no build step, no HTML/CSS changes needed
-// (the Load More buttons are created dynamically here,
-// reusing the existing .toggle-past-btn style).
+// fetch(), no build step. Leaflet is loaded via CDN in
+// index.html; this file only calls the global `L`.
 // =====================================================
+
+// -----------------------------------------------------
+// Stop coordinates — every from/to/via_stops value used
+// anywhere in BUS_DATA has an entry here. Add a new stop
+// to a route below AND to this table together.
+// -----------------------------------------------------
+const STOP_COORDS = {
+  "Deoria": [26.5020, 83.7791],
+  "Baitalpur": [26.5505, 83.7431],
+  "Gauri Bazar": [26.5861, 83.6933],
+  "Chauri Chaura": [26.6432, 83.6062],
+  "Gorakhpur": [26.7588, 83.3813],
+  "Salempur": [26.2833, 83.8667],
+  "Bhatni": [26.3833, 83.6833],
+  "Hata": [26.7469, 83.7386],
+  "Kushinagar": [26.7400, 83.8900],
+  "Khalilabad": [26.7702, 83.0730],
+  "Basti": [26.8148, 82.7621],
+  "Ayodhya": [26.7922, 82.1998],
+  "Barabanki": [26.9269, 81.1897],
+  "Lucknow": [26.8467, 80.9462],
+  "Azamgarh": [26.0736, 83.1836],
+  "Mau": [25.9417, 83.5610],
+  "Varanasi": [25.3176, 82.9739],
+  "Ballia": [25.7600, 84.1500],
+  "Sultanpur": [26.2648, 82.0722],
+  "Prayagraj": [25.4358, 81.8463],
+};
 
 const BUS_DATA = [
   { bus_id: "DEO-GOR-ORD-001", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Gorakhpur", via_stops: ["Chauri Chaura", "Baitalpur", "Gauri Bazar"], departure_time: "04:30 AM", arrival_time: "05:45 AM", duration: "1h 15m", fare: 80, frequency: "Har 15-20 minute par" },
@@ -445,6 +469,16 @@ let visibleUpcomingCount = PAGE_SIZE;
 let visiblePastCount = PAGE_SIZE;
 
 // -----------------------------------------------------
+// Map / GPS state (Step 3) — keyed by bus_id since a bus
+// only ever appears once (upcoming OR past) in a render.
+// -----------------------------------------------------
+const mapInstances = {};   // bus_id -> Leaflet map instance
+const expandedMapIds = new Set(); // bus_id set: card's map section is open
+const gpsWatches = {};     // bus_id -> navigator.geolocation watch id
+const gpsMarkers = {};     // bus_id -> Leaflet marker for the live user dot
+const MAP_TRANSITION_MS = 320; // must stay >= the CSS max-height transition
+
+// -----------------------------------------------------
 // Data integrity guard — never render "undefined"
 // -----------------------------------------------------
 const REQUIRED_FIELDS = [
@@ -512,7 +546,7 @@ function badgeClass(busType) {
 }
 
 // -----------------------------------------------------
-// Time helpers — the heart of the time-aware system
+// Time helpers
 // -----------------------------------------------------
 function toMinutesSinceMidnight(timeStr) {
   const match = String(timeStr).trim().match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
@@ -557,8 +591,6 @@ function formatAgo(diffMin) {
 
 // -----------------------------------------------------
 // Search / filter — direct AND via-route matches
-// (also catches "passing" buses like Salempur/Bhatni
-// services that travel through Deoria <-> Gorakhpur)
 // -----------------------------------------------------
 function findMatches(from, to) {
   return VALID_BUSES.filter((bus) => {
@@ -569,8 +601,6 @@ function findMatches(from, to) {
   });
 }
 
-// Pure logic (no DOM): splits matches into upcoming
-// (soonest-first) and past (most-recently-departed-first).
 function buildScheduleView(matches, nowMinutes) {
   const withMinutes = matches.map((bus) => ({
     bus,
@@ -589,9 +619,29 @@ function buildScheduleView(matches, nowMinutes) {
 }
 
 // -----------------------------------------------------
+// Map / GPS cleanup — called whenever the user starts a
+// genuinely new search (new route), so old Leaflet map
+// instances and geolocation watches don't leak.
+// -----------------------------------------------------
+function cleanupAllMapsAndGps() {
+  Object.keys(gpsWatches).forEach((busId) => {
+    navigator.geolocation.clearWatch(gpsWatches[busId]);
+    delete gpsWatches[busId];
+  });
+  Object.keys(gpsMarkers).forEach((busId) => delete gpsMarkers[busId]);
+  Object.keys(mapInstances).forEach((busId) => {
+    try {
+      mapInstances[busId].remove();
+    } catch (e) {
+      /* map already gone — safe to ignore */
+    }
+    delete mapInstances[busId];
+  });
+  expandedMapIds.clear();
+}
+
+// -----------------------------------------------------
 // Search + render
-// isNewQuery = true  -> user changed route/searched: reset "Load More" paging
-// isNewQuery = false -> periodic auto-refresh: keep however much the user expanded
 // -----------------------------------------------------
 function search(isNewQuery = true) {
   const from = el.fromSelect.value;
@@ -600,6 +650,7 @@ function search(isNewQuery = true) {
   if (isNewQuery) {
     visibleUpcomingCount = PAGE_SIZE;
     visiblePastCount = PAGE_SIZE;
+    cleanupAllMapsAndGps();
   }
 
   el.busList.innerHTML = "";
@@ -641,7 +692,6 @@ function search(isNewQuery = true) {
     nowMinutes
   )}</strong>`;
 
-  // ---- upcoming buses (paginated: NEXT BUS + next 5-6, "Load More" for rest) ----
   if (upcoming.length === 0) {
     el.busList.appendChild(renderNoMoreBusesToday(from, to, matches, nowMinutes));
   } else {
@@ -664,7 +714,6 @@ function search(isNewQuery = true) {
     }
   }
 
-  // ---- past buses (toggle-controlled, also paginated) ----
   if (past.length > 0) {
     el.togglePastBtn.hidden = false;
     el.pastBusList.classList.add("has-timeline");
@@ -686,6 +735,13 @@ function search(isNewQuery = true) {
   }
 
   updateToggleButton(past.length);
+
+  // Re-open any map sections that were expanded before this
+  // re-render (periodic refresh) recreated the card DOM.
+  expandedMapIds.forEach((busId) => {
+    const card = document.getElementById(`card-${busId}`);
+    if (card) expandMapSection(card, busId, { skipTransitionDelay: true });
+  });
 }
 
 function updateToggleButton(pastCount) {
@@ -697,7 +753,7 @@ function updateToggleButton(pastCount) {
 }
 
 // -----------------------------------------------------
-// Rendering
+// Rendering — bus card (now with map + GPS slot)
 // -----------------------------------------------------
 function renderBusCard(bus, searchFrom, searchTo, { state, countdownText }) {
   const route = fullRoute(bus);
@@ -707,6 +763,7 @@ function renderBusCard(bus, searchFrom, searchTo, { state, countdownText }) {
 
   const card = document.createElement("div");
   card.className = `bus-card ${state}-bus`;
+  card.id = `card-${bus.bus_id}`;
   card.innerHTML = `
     <div class="timeline-dot" aria-hidden="true"></div>
     <div class="bus-card-top">
@@ -740,12 +797,28 @@ function renderBusCard(bus, searchFrom, searchTo, { state, countdownText }) {
     }
     <div class="bus-card-footer">
       <span>Frequency: ${bus.frequency}</span>
-      <button class="track-btn" type="button">Route / Live Track</button>
+      <button class="track-btn" type="button">🗺️ Route / Live Track</button>
+    </div>
+    <div class="map-section" id="map-section-${bus.bus_id}">
+      <div class="map-container" id="map-${bus.bus_id}"></div>
+      <div class="map-controls">
+        <button class="gps-toggle-btn" type="button">📍 Inside Bus (Track My Location)</button>
+        <div class="gps-status" hidden>
+          <span class="gps-chip gps-speed">Speed: —</span>
+          <span class="gps-chip gps-accuracy">Accuracy: —</span>
+        </div>
+      </div>
     </div>
   `;
+
   card.querySelector(".track-btn").addEventListener("click", () => {
-    alert(`${bus.bus_id} — ${bus.bus_name}\nFull route: ${route.join(" → ")}\nFare: ₹${bus.fare}\nDeparture: ${bus.departure_time}`);
+    toggleMapSection(card, bus.bus_id);
   });
+
+  card.querySelector(".gps-toggle-btn").addEventListener("click", () => {
+    toggleGpsTracking(bus, card);
+  });
+
   return card;
 }
 
@@ -782,6 +855,229 @@ function renderNoMoreBusesToday(from, to, matches, nowMinutes) {
     <p>Agli bus kal subah <strong>${formatClock(earliestTomorrow)}</strong> baje hai. Neeche "Pehle nikal chuki buses dekhein" par tap karke aaj ki poori schedule dekh sakte hain.</p>
   `;
   return div;
+}
+
+// -----------------------------------------------------
+// Step 3a — Route map (Leaflet) toggle + init
+// -----------------------------------------------------
+function toggleMapSection(card, busId) {
+  if (expandedMapIds.has(busId)) {
+    collapseMapSection(card, busId);
+  } else {
+    expandMapSection(card, busId);
+  }
+}
+
+function expandMapSection(card, busId, { skipTransitionDelay = false } = {}) {
+  const section = card.querySelector(".map-section");
+  const btn = card.querySelector(".track-btn");
+  if (!section) return;
+  section.classList.add("expanded");
+  if (btn) btn.classList.add("active");
+  expandedMapIds.add(busId);
+
+  const bus = VALID_BUSES.find((b) => b.bus_id === busId);
+  if (!bus) return;
+
+  const delay = skipTransitionDelay ? 0 : MAP_TRANSITION_MS;
+  window.setTimeout(() => initOrRefreshRouteMap(bus), delay);
+}
+
+function collapseMapSection(card, busId) {
+  const section = card.querySelector(".map-section");
+  const btn = card.querySelector(".track-btn");
+  if (section) section.classList.remove("expanded");
+  if (btn) btn.classList.remove("active");
+  expandedMapIds.delete(busId);
+  // Riding-mode GPS only makes sense while the map is open.
+  if (gpsWatches[busId] !== undefined) {
+    stopGpsTracking(busId, card);
+  }
+}
+
+function initOrRefreshRouteMap(bus) {
+  if (typeof L === "undefined") {
+    console.error("[UP BusKhoj] Leaflet (L) not loaded — check the CDN <script> tag in index.html.");
+    return;
+  }
+
+  if (mapInstances[bus.bus_id]) {
+    mapInstances[bus.bus_id].invalidateSize();
+    return;
+  }
+
+  const containerId = `map-${bus.bus_id}`;
+  const containerEl = document.getElementById(containerId);
+  if (!containerEl) return;
+
+  const stops = fullRoute(bus);
+  const depMin = toMinutesSinceMidnight(bus.departure_time);
+  const arrMin = toMinutesSinceMidnight(bus.arrival_time);
+  // Arrival can wrap past midnight (e.g. a 10 PM bus arriving 3 AM) —
+  // normalise so the interpolation below always moves forward in time.
+  const totalTripMin = arrMin >= depMin ? arrMin - depMin : (1440 - depMin) + arrMin;
+
+  const knownStopCoords = stops
+    .map((name, idx) => ({ name, idx, latlng: STOP_COORDS[name] }))
+    .filter((s) => Array.isArray(s.latlng));
+
+  if (knownStopCoords.length < 2) {
+    containerEl.innerHTML = `<div class="map-fallback">Is route ke stops ka map data abhi uplabdh nahi hai.</div>`;
+    return;
+  }
+
+  const map = L.map(containerId, { scrollWheelZoom: false }).setView(knownStopCoords[0].latlng, 8);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  const polyline = L.polyline(
+    knownStopCoords.map((s) => s.latlng),
+    { color: "#B4472C", weight: 4, opacity: 0.85, lineJoin: "round" }
+  ).addTo(map);
+
+  knownStopCoords.forEach((s) => {
+    const isTerminal = s.idx === 0 || s.idx === stops.length - 1;
+    const estMin = stops.length > 1 ? depMin + (totalTripMin * s.idx) / (stops.length - 1) : depMin;
+    const estMinNormalised = Math.round(estMin) % 1440;
+
+    const icon = L.divIcon({
+      className: "",
+      html: `<div class="stop-pin ${isTerminal ? "terminal" : ""}"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+
+    L.marker(s.latlng, { icon })
+      .addTo(map)
+      .bindPopup(`<strong>${s.name}</strong><br>Estimated Passing: ${formatClock(estMinNormalised)}`);
+  });
+
+  map.fitBounds(polyline.getBounds(), { padding: [28, 28] });
+  mapInstances[bus.bus_id] = map;
+}
+
+// -----------------------------------------------------
+// Step 3b — Live GPS ("Inside Bus") tracker
+// -----------------------------------------------------
+function toggleGpsTracking(bus, card) {
+  const busId = bus.bus_id;
+  if (gpsWatches[busId] !== undefined) {
+    stopGpsTracking(busId, card);
+  } else {
+    startGpsTracking(bus, card);
+  }
+}
+
+function startGpsTracking(bus, card) {
+  const busId = bus.bus_id;
+  const btn = card.querySelector(".gps-toggle-btn");
+  const statusEl = card.querySelector(".gps-status");
+
+  if (!("geolocation" in navigator)) {
+    if (statusEl) {
+      statusEl.hidden = false;
+      statusEl.innerHTML = `<span class="gps-chip gps-error">Geolocation is browser mein support nahi hai.</span>`;
+    }
+    return;
+  }
+
+  // Make sure the map exists before we try to drop a marker on it.
+  initOrRefreshRouteMap(bus);
+
+  if (btn) {
+    btn.classList.add("active");
+    btn.innerHTML = "🛑 Stop Tracking";
+  }
+  if (statusEl) {
+    statusEl.hidden = false;
+    statusEl.innerHTML = `<span class="gps-chip gps-speed">Speed: —</span><span class="gps-chip gps-accuracy">Locating…</span>`;
+  }
+
+  const watchId = navigator.geolocation.watchPosition(
+    (position) => handleGpsSuccess(bus, card, position),
+    (error) => handleGpsError(bus, card, error),
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+  );
+
+  gpsWatches[busId] = watchId;
+}
+
+function stopGpsTracking(busId, card) {
+  if (gpsWatches[busId] !== undefined) {
+    navigator.geolocation.clearWatch(gpsWatches[busId]);
+    delete gpsWatches[busId];
+  }
+
+  const map = mapInstances[busId];
+  if (map && gpsMarkers[busId]) {
+    map.removeLayer(gpsMarkers[busId]);
+    delete gpsMarkers[busId];
+  }
+
+  if (card) {
+    const btn = card.querySelector(".gps-toggle-btn");
+    const statusEl = card.querySelector(".gps-status");
+    if (btn) {
+      btn.classList.remove("active");
+      btn.innerHTML = "📍 Inside Bus (Track My Location)";
+    }
+    if (statusEl) {
+      statusEl.hidden = true;
+      statusEl.innerHTML = "";
+    }
+  }
+}
+
+function handleGpsSuccess(bus, card, position) {
+  const busId = bus.bus_id;
+  const { latitude, longitude, speed, accuracy } = position.coords;
+  const map = mapInstances[busId];
+  if (!map) return;
+
+  const latlng = [latitude, longitude];
+
+  if (gpsMarkers[busId]) {
+    gpsMarkers[busId].setLatLng(latlng);
+  } else {
+    const icon = L.divIcon({
+      className: "",
+      html: `<div class="live-user-dot"></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    });
+    gpsMarkers[busId] = L.marker(latlng, { icon, zIndexOffset: 1000 })
+      .addTo(map)
+      .bindPopup("Aap yahan hain");
+  }
+
+  map.panTo(latlng, { animate: true });
+
+  const statusEl = card ? card.querySelector(".gps-status") : null;
+  if (statusEl) {
+    const speedKmh = typeof speed === "number" && speed !== null ? (speed * 3.6).toFixed(1) : "—";
+    const accuracyM = typeof accuracy === "number" ? Math.round(accuracy) : "—";
+    statusEl.hidden = false;
+    statusEl.innerHTML = `<span class="gps-chip gps-speed">Speed: ${speedKmh} km/h</span><span class="gps-chip gps-accuracy">Accuracy: ±${accuracyM} m</span>`;
+  }
+}
+
+function handleGpsError(bus, card, error) {
+  const statusEl = card ? card.querySelector(".gps-status") : null;
+  let message = "Location fetch nahi ho paya.";
+  if (error && error.code === error.PERMISSION_DENIED) {
+    message = "Location access allow nahi hai. Browser settings check karein.";
+  } else if (error && error.code === error.POSITION_UNAVAILABLE) {
+    message = "Abhi location uplabdh nahi hai.";
+  } else if (error && error.code === error.TIMEOUT) {
+    message = "Location dhoondne mein zyada samay lag raha hai.";
+  }
+  if (statusEl) {
+    statusEl.hidden = false;
+    statusEl.innerHTML = `<span class="gps-chip gps-error">${message}</span>`;
+  }
 }
 
 // -----------------------------------------------------
@@ -825,9 +1121,16 @@ pickSensibleDefaults();
 search(true);
 tickClock();
 setInterval(tickClock, 1000);
+
 // Re-run the active search periodically (without resetting
 // "Load More" pagination) so NEXT BUS / countdowns stay
-// accurate as time passes.
+// accurate. We skip this refresh entirely while any card's
+// map is open or GPS tracking is running, so we never yank
+// a Leaflet map or geolocation watch out from under a user
+// who is actively viewing/riding a route.
 setInterval(() => {
-  if (el.fromSelect.value && el.toSelect.value) search(false);
+  const somethingLiveIsOpen = expandedMapIds.size > 0 || Object.keys(gpsWatches).length > 0;
+  if (el.fromSelect.value && el.toSelect.value && !somethingLiveIsOpen) {
+    search(false);
+  }
 }, 15000);
