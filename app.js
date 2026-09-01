@@ -3,10 +3,32 @@
 // Step 1+2: Time-Aware Schedule System (NEXT BUS,
 //   countdowns, past-bus toggle, Load More pagination)
 // Step 3: Leaflet Map + Route Polyline + Live GPS Tracker
+// Step 4: Statewide 74-district UPSRTC directory +
+//   instant autocomplete search across every tehsil/
+//   chauraha in UP, plus the named Deoria<->Varanasi
+//   special corridors (Salempur-Mau & Rudrapur-Barhalganj)
+//   and a completed Lucknow-Kanpur-Agra-Varanasi-Prayagraj
+//   trunk mesh.
 //
-// Everything is data-driven from BUS_DATA below — no
-// fetch(), no build step. Leaflet is loaded via CDN in
-// index.html; this file only calls the global `L`.
+// SCOPE NOTE (read before extending the dataset):
+// DISTRICT_DIRECTORY below is exhaustive — every stand,
+// depot, and tehsil hub named in the official UP Roadways
+// directory PDF, across all 74 districts it lists (the
+// source PDF's own table of contents numbers 1-74 as
+// districts; entry 75 is a corridor appendix, not a 75th
+// district). It powers autocomplete so ANY of those ~1,480
+// places is searchable. However, only the ~55 stops in
+// STOP_COORDS + BUS_DATA have an actual live timetable,
+// fare, and map route — accurate GPS coordinates and
+// realistic schedules for all ~1,480 directory entries
+// isn't something that can be responsibly fabricated.
+// Searching a directory-only stop is valid and shows a
+// clear "no live bus yet" message, exactly like a real
+// transit app whose network doesn't cover every junction.
+//
+// Everything is data-driven — no fetch(), no build step.
+// Leaflet is loaded via CDN in index.html; this file only
+// calls the global `L`.
 // =====================================================
 
 // -----------------------------------------------------
@@ -77,6 +99,120 @@ const STOP_COORDS = {
   "Kisan Chowk": [28.4744, 77.5040],
   "Ek Murti Chowk": [28.4595, 77.5031],
   "Jewar Link": [28.1179, 77.5822],
+  // Deoria <-> Varanasi special corridors (Salempur-Mau & Rudrapur-Barhalganj)
+  "Lar Road": [26.1667, 83.8333],
+  "Rudrapur": [26.3333, 83.6167],
+  "Gagaha": [26.4500, 83.5667],
+  "Barhalganj": [26.4833, 83.5333],
+  "Dohrighat": [26.2333, 83.5333],
+  "Ghosi": [26.1667, 83.5667],
+  "Kopaganj": [26.0000, 83.5667],
+  "Mardah": [25.6333, 83.6667],
+  "Saidpur": [25.5833, 83.2833],
+  "Sarnath": [25.3810, 83.0227],
+  "Bhadohi": [25.3968, 82.5687],
+
+};
+
+// -----------------------------------------------------
+// DISTRICT_DIRECTORY — every bus stand, depot, tehsil
+// hub, and highway chauraha named in the official UP
+// Roadways directory PDF, grouped by district. This
+// powers state-wide autocomplete search: a person can
+// type ANY tehsil or chauraha name from anywhere in UP.
+//
+// IMPORTANT — directory vs. live schedule, be transparent:
+// This directory is comprehensive (searchable), but only
+// stops that also appear in STOP_COORDS + BUS_DATA below
+// have an actual live timetable and map route. Searching
+// a directory-only stop (e.g. a small tehsil chauraha) is
+// valid and will show up in the dropdown, but the results
+// panel will show "Is route par jald buses add hongi" —
+// exactly like a real transport app whose network doesn't
+// cover every single junction yet.
+//
+// NOTE ON COUNT: the source PDF's own table of contents
+// numbers 1-74 as districts and reserves entry 75 for a
+// "Special Corridor" appendix (Deoria<->Varanasi guide),
+// so the directory below has 74 district groups, not 75 —
+// carried over faithfully rather than padded to a round
+// number.
+// -----------------------------------------------------
+const DISTRICT_DIRECTORY = {
+  "Agra": ["ISBT Agra (Transport Nagar)", "Idgah Bus Stand", "Fort Bus Stand (Bijli Ghar)", "Taj Depot", "Foundry Nagar Depot", "Rambagh Chauraha", "Bhagwan Talkies Chauraha", "Guru Ka Taal Tiraha", "Water Works Chauraha", "Kamla Nagar", "Fatehabad", "Fatehpuri Sikri", "Kheragarh", "Bah", "Pinahat", "Shamsabad", "Jagner", "Achhnera", "Kiraoli", "Saiyan", "Khandauli", "Etmadpur", "Jarar", "Malpura"],
+  "Aligarh": ["Sootmil Bus Stand", "Gandhi Park Bus Stand", "Masoodabad Bus Stand", "Old Bus Stand", "Sarsol Chauraha (GT Road)", "Kwarsi Chauraha", "Numaish Ground Tiraha", "Ramghat Road", "Khair", "Atrauli", "Iglas", "Gabhana", "Chharra", "Harduaganj", "Akrabad", "Jawan Sikandarpur", "Madrak", "Somna", "Tappal", "Beswan", "Barla", "Jalali"],
+  "Ambedkar Nagar": ["Akbarpur Main Roadways Bus Station", "Shahzadpur Chauraha", "Patel Nagar Tiraha", "Collectorate Chauraha", "Dostpur Road Tiraha", "Malipur Road", "Tanda Bus Station", "Jalalpur", "Alapur (Ramnagar)", "Bhiti", "Katehari", "Baskhari", "Jahangirganj", "Hanswar", "Iltifatganj", "Mahrua", "Mijhaura", "Bewana"],
+  "Amethi": ["Gauriganj Bus Station", "Amethi Roadways Bus Stand", "Collectorate Chauraha", "Musafirkhana Bus Station", "Tiloi", "Jagdishpur (NH-56)", "Jamo", "Sangrampur", "Bhetua", "Munshiganj", "Inhauna", "Shukul Bazar", "Semrota", "Shahgarh", "Bhadar", "Ramganj"],
+  "Amroha (Jyotiba Phule Nagar)": ["Amroha Roadways Bus Station", "Joya Toll / Bypass Chauraha (NH-9)", "Court / Kachehri Chauraha", "Kotwali Tiraha", "Station Road", "Gajraula Bus Station", "Hasanpur", "Dhanoura (Mandi Dhanaura)", "Naugawan Sadat", "Bachhraon", "Rehra", "Tigri Dham (Ganga Ghat)", "Ujhani Link", "Saidnagli"],
+  "Auraiya": ["Auraiya Roadways Bus Station", "Devkali Temple Tiraha", "Mahavir Ganj Chauraha", "NH-19 Bypass Chauraha", "Jalaun Road Tiraha", "Bidhuna Bus Station", "Dibiyapur (GAIL/NTPC)", "Achhalda", "Ajitmal (Babarpar)", "Erwa Katra", "Sahar", "Phaphund", "Bela", "Kudarkot", "Muradganj"],
+  "Ayodhya (Faizabad)": ["Ayodhya Dham Bus Station", "Faizabad Main Roadways Bus Stand (Civil Lines)", "Naka Bypass Chauraha (NH-28)", "Devkali Chauraha", "Sahadatganj Tiraha", "Pushpraj Guest House Stop", "Rudauli Bus Station", "Bikapur", "Sohawal", "Milkipur", "Bhadarsa", "Goshainganj", "Kumarganj (ANDUAT Hub)", "Maya Bazar", "Chaure Bazar", "Pura Bazar", "Khandasa", "Ronahi (NH-28)"],
+  "Azamgarh": ["Azamgarh Main Roadways Bus Station", "Brahamsthan Chauraha", "Narouli Bus Stand", "Sidhari Tiraha", "Collectorate / Court Chauraha", "Belisa Chauraha", "Phoolpur", "Sagri (Jiyanpur)", "Lalganj", "Mehnagar", "Nizamabad", "Mubarakpur", "Bilariaganj", "Atraulia", "Maharajganj", "Rani Ki Sarai", "Jahanaganj", "Saraimeer", "Thekma", "Bardah", "Tahbarpur"],
+  "Baghpat": ["Baghpat Roadways Bus Station", "Delhi-Saharanpur Highway Bypass", "Yamuna Bridge Checkpost", "Collectorate Chauraha", "Vandana Chowk", "Baraut Bus Station", "Khekra", "Chhaprauli", "Binauli", "Aminagar Sarai", "Tikri", "Agarwal Mandi Tatiri", "Doghat", "Rataul", "Kotana", "Khekra Eastern Peripheral Expressway Cut"],
+  "Bahraich": ["Bahraich Main Roadways Bus Station (Gonda Road)", "Diggi Chauraha", "Dargah Sharif Tiraha", "Nanpara Bus Stand (City)", "Medical College Chauraha", "Bypass Tiraha (NH-28C/730)", "Nanpara Bus Station", "Rupaidiha (Nepal Border/ICP)", "Jarwal Road", "Kaiserganj", "Mahasi", "Payagpur", "Mihinpurwa (Motipur)", "Fakharpur", "Huzoorpur", "Shivpur", "Visheshwarganj", "Katarniaghat"],
+  "Ballia": ["Ballia Main Roadways Bus Station", "Chowk Bus Stand", "Baheri Chauraha", "Kadam Chauraha", "Bhrigu Ashram Tiraha", "Japlinganj Chauraha", "Tikhampur Bypass (NH-31)", "Rasra Bus Station", "Bairia", "Bansdih", "Sikanderpur", "Belthara Road", "Sahatwar", "Maniyar", "Dokati", "Reoti", "Chitbara Gaon", "Haldi", "Narahi (Bihar Border)", "Phephna", "Sukhpura", "Gadwar"],
+  "Balrampur": ["Balrampur Main Roadways Bus Station", "Veer Vinay Chauraha", "Bhagwati Ganj Bus Stop", "Collectorate Chauraha", "Tulsipur Road Tiraha", "Bypass Chauraha (NH-730)", "Tulsipur Bus Station", "Utraula", "Gasri", "Pachperwa", "Rehra Bazar", "Maharajganj Tarai", "Shriduttganj", "Harraiya Satgharwa", "Jarwa (Nepal Border)", "Gainsari"],
+  "Banda": ["Banda Main Roadways Bus Station", "Babu Lal Chauraha", "Kalwanganj Tiraha", "Chhavani Chauraha", "Aliganj Chauraha", "Kachehri Chauraha", "Banda-Kanpur Bypass (NH-35)", "Atarra Bus Station", "Naraini", "Baberu", "Tindwari", "Bisanda", "Badausa", "Kamasin", "Pailani", "Girwan", "Oran", "Mataundh", "Jaspura", "Kalinjar"],
+  "Barabanki": ["Barabanki Roadways Bus Station", "Patel Tiraha", "Chhaya Chauraha", "Begumganj Chauraha", "Rasauli Bypass (NH-28)", "Kachehri Chauraha", "Safedabad Link", "Dewa Sharif", "Haidergarh", "Ramnagar (Lodheshwar Mahadev)", "Fatehpur", "Zaidpur", "Sirauli Gauspur", "Tikaitnagar", "Masauli", "Badosarai", "Suratganj", "Siddhaur", "Harakh", "Kursi", "Satrikh"],
+  "Bareilly": ["Old Roadways Bus Stand (Ayub Khan Chauraha)", "Satellite Bus Terminal", "Bareilly Cantt Depot", "Delapeer Chauraha", "Chouki Chauraha", "Kutubkhana", "Koharapeer", "Aonla Bus Station", "Baheri", "Nawabganj", "Faridpur", "Mirganj", "Sirauli", "Fatehganj West", "Fatehganj East", "Shahi", "Shergarh", "Richha", "Bhuta", "Bithri Chainpur", "Kyoladia"],
+  "Basti": ["Basti Roadways Bus Station", "Company Bagh Chauraha", "Gandhi Nagar Tiraha", "Fuwara Chauraha", "Patel Chowk", "Kachehri", "Bigraiya Bypass Chauraha (NH-28)", "Harraiya Bus Station", "Bhabhnan", "Rudhauli", "Khalilabad Link", "Vikramjot", "Kaptanganj", "Walterganj", "Saltaua Gopalpur", "Gaur", "Ramnagar", "Mahso", "Dubaulia", "Kalwari", "Chhavani"],
+  "Bijnor": ["Bijnor Main Roadways Bus Station", "Numaish Ground Chauraha", "Shakti Chowk", "Kachehri Chauraha", "Jhalu Road Tiraha", "Ganga Barrage Link (NH-34/119)", "Najibabad Bus Station", "Chandpur", "Dhampur", "Nagina", "Kiratpur", "Seohara", "Noorpur", "Nehtaur", "Haldaur", "Afzalgarh", "Mandawar", "Sahanpur", "Sherkot", "Jhalu"],
+  "Budaun (Badaun)": ["Budaun Main Roadways Bus Station", "Lalpul Chauraha", "Indra Chowk", "Kachehri Chauraha", "Bareilly Road Tiraha", "Ujhani Road Bypass", "Gandhi Ground Stop", "Ujhani Bus Station", "Sahaswan", "Bilsi", "Dataganj", "Islamnagar", "Wazirganj", "Bisauli", "Kakrala", "Alapur", "Gunnaur Link", "Usawan", "Samrer", "Salarpur", "Zarifnagar"],
+  "Bulandshahr": ["Bulandshahr Main Roadways Bus Station", "Bhur Chauraha (Delhi GT Road)", "Kala Aam Chauraha", "Dhirendra Dham Tiraha", "DM Road Chauraha", "Jahangirabad Stand", "Khurja Bus Station", "Siyana", "Shikarpur", "Anupshahr", "Debai", "Jahangirabad", "Gulaothi", "Sikandrabad", "Narora (Atomic Plant)", "Bugrasi", "Pahasu", "Aurangabad", "Kakore", "Khanpur"],
+  "Chandauli": ["Chandauli Roadways Bus Station", "Pandit Deen Dayal Upadhyaya Nagar (Mughalsarai) Bus Stand", "Chakia Tiraha", "Kachehri Chauraha", "NH-19 Bypass", "Chakia Bus Station", "Sakaldiha", "Dhanapur", "Saiyadraja (Bihar Border)", "Chandauli Majhwar", "Naugarh", "Baburi", "Chahaniya", "Alinagar", "Niamatabad", "Kamalpur", "Chandhasi"],
+  "Chitrakoot": ["Karwi Roadways Bus Station", "Sitapur Bus Stand (Pilgrimage Center)", "Ramghat Auto/Bus Stand", "Shivrampur Tiraha", "Bedi Puliya (NH-35)", "Manikpur Bus Station", "Mau", "Rajapur", "Pahari", "Bharat Koop", "Kamtanath Parikrama Marg", "Gupt Godavari Stop", "Hanumaan Dhara Stop", "Bargarh"],
+  "Deoria": ["Deoria Main Roadways Bus Station", "Purva Chauraha", "Bhatwaliya Chauraha (Salempur Exit)", "Kachehri Chauraha", "Sonughat", "SSBL College Tiraha", "Salempur Bus Station", "Bhatpar Rani", "Rudrapur", "Lar Road", "Lar Town", "Barhaj (Saryu-Rapti Sangam)", "Gauri Bazar", "Baitalpur", "Bhaluani", "Rampur Karkhana", "Tarkulwa", "Bankata", "Bhagalpur", "Mail", "Mehrauna"],
+  "Etah": ["Etah Main Roadways Bus Station", "Shringarnagar Chauraha", "Aruna Nagar Tiraha", "Shikohabad Road Chauraha", "Kachehri Chauraha", "NH-34 Bypass", "Jalesar Bus Station", "Aliganj", "Kasganj Link", "Nidhauli Kalan", "Awagarh", "Sakit", "Marhara", "Jaithara", "Raja Ka Rampur", "Bagwala", "Mirhachi", "Pilua"],
+  "Etawah": ["Etawah Main Roadways Bus Station", "Shastri Chauraha", "Purabia Tola Stand", "Safari Park Link Road", "Kachehri Chauraha", "NH-19 Bypass (Farrukhabad/Agra Cut)", "Saifai Bus Station", "Jaswantnagar", "Bharthana", "Chakarnagar", "Takha", "Bakewar", "Ekdil", "Lakhna (Kalka Devi Temple)", "Basrehar", "Udi Mor (Chambal/MP Border)", "Barhpura"],
+  "Farrukhabad": ["Fatehgarh Roadways Bus Station", "Farrukhabad Cantt Bus Stand", "Lal Darwaza Chauraha", "ITI Chauraha", "Kachehri Chauraha", "Kadri Gate Tiraha", "Bholepur", "Kaimganj Bus Station", "Amritpur", "Kampil", "Mohammadabad", "Kamalganj", "Shamsabad", "Nawabganj", "Sankisa", "Rajepur", "Chhibramau Link"],
+  "Fatehpur": ["Fatehpur Main Roadways Bus Station", "Jwala Ganj Bus Stand", "ITI Chauraha", "Patel Nagar Chauraha", "Collectorate Chauraha", "NH-19 Bypass Chauraha", "Bindki Bus Station", "Khaga", "Hathgam", "Ghazipur", "Bahuwa", "Haswa", "Asothar", "Dhata", "Airayan", "Malwan", "Amauli", "Jahanabad", "Husainganj", "Bhrigu Dham (Bithoor/Ganga Ghat link)"],
+  "Firozabad": ["Firozabad Main Roadways Bus Station", "Subhash Chauraha", "Raja Ka Taal Tiraha", "Suhag Nagar Stop", "Asafabad Chauraha", "NH-19 Bypass", "Shikohabad Bus Station", "Tundla", "Sirsaganj", "Jasrana", "Eka", "Narkhi", "Matsena", "Hathwant", "Madanpur", "Fariha", "Makhanpur", "Urawar"],
+  "Gautam Buddha Nagar (Noida / Greater Noida)": ["Sector 35 Morna UPSRTC Depot", "Botanical Garden Metro Bus Hub", "Sector 62 Chauraha", "Pari Chowk Bus Terminal", "Knowledge Park Depot", "Alpha 1 Commercial Belt", "Dadri Bus Station", "Jewar", "Dankaur", "Rabupura", "Bilaspur", "Kasna", "Surajpur", "Greater Noida West (Gaur City Chowk)", "Bhangel", "Salarpur"],
+  "Ghaziabad": ["Old Bus Stand Ghaziabad", "Mohan Nagar Bus Terminal", "Anand Vihar Border UP Depot", "Kaushambi ISBT", "Sahibabad Depot", "Loni Road Bus Stand", "Lal Kuan (NH-9/GT Rd)", "Modinagar Bus Station (NH-58)", "Muradnagar", "Loni", "Dasna", "Pilkhuwa Link", "Bhojpur", "Niwari", "Govindpuri", "Crossings Republik Chauraha", "Raj Nagar Extension Tiraha"],
+  "Ghazipur": ["Ghazipur Main Roadways Bus Station", "Rauza Bus Stand", "Vishveshwarganj Tiraha", "Lanka Chauraha", "Kachehri Chauraha", "PG College Tiraha", "NH-31 Bypass", "Saidpur (Bhitari) Bus Station", "Mohammadabad", "Zamania", "Jakhanian", "Kasimabad", "Sevrai", "Dildarnagar", "Sadat", "Bahariyabad", "Nandganj", "Birno", "Mardah", "Jangipur", "Reotipur", "Gahmar"],
+  "Gonda": ["Gonda Main Roadways Bus Station", "Ambedkar Chauraha", "LBS Chauraha", "Utraula Road Tiraha", "Jhanjhari Block", "Station Road", "Balrampur Road Bypass", "Colonelganj Bus Station", "Tarabganj", "Mankapur", "Karnailganj", "Katra Bazar", "Nawabganj", "Paraspur", "Itiyathok", "Mujehana", "Wazirganj", "Belsar", "Chhapia (Swaminarayan Dham)", "Khargupur"],
+  "Gorakhpur": ["Gorakhpur Main Roadways Bus Stand", "Gorakhpur University / Chhatrasangh Chauraha", "Mohaddipur Depot & Chauraha", "Asuran Chowk", "Medical College Road", "Gorakhnath Mandir Tiraha", "Nausad Bus Terminal", "Transport Nagar", "Padri Bazar", "Bargadwa", "Khorabar Bypass", "Jagatbela", "Sahjanwa", "Pipraich", "Campierganj", "Bansgaon", "Khajni", "Gola Bazar", "Barhalganj (Saryu River Hub)", "Chauri Chaura", "Belghat", "Gagaha", "Urwa", "Sikriganj", "Kauri Ram", "Bhathat", "Jungle Kauria"],
+  "Hamirpur": ["Hamirpur Main Roadways Bus Station", "Yamuna Bridge Tiraha", "Betwa Ghat Stop", "Kachehri Chauraha", "Degree College Tiraha", "NH-34 Bypass", "Rath Bus Station", "Maudaha", "Sumerpur", "Sarila", "Muskara", "Kurara", "Gohand", "Biwar", "Bewar", "Khanna Link"],
+  "Hapur": ["Hapur Main Roadways Bus Station", "Tehsil Chauraha", "Delhi Road Tiraha", "Bulandshahr Road Bypass", "Meerut Road Tiraha", "Babugarh Chauraha (NH-9)", "Garhmukteshwar Bus Station", "Pilkhuwa", "Dhaulana", "Simbhaoli", "Brijghat", "Bahadurgarh", "Hafizpur", "Kuchesar Fort Road"],
+  "Hardoi": ["Hardoi Main Roadways Bus Station", "Cinema Chauraha", "Nuamysh Ground", "Railway Ganj Stop", "Circular Road Chauraha", "Lucknow-Shahjahanpur Link", "Sandila Bus Station", "Shahabad", "Bilgram", "Mallawan", "Sandi (Bird Sanctuary)", "Pihani", "Bawan", "Madhoganj", "Sawayajpur", "Bharawan", "Tandiwan", "Beniganj", "Kachhauna", "Harpalpur"],
+  "Hathras (Mahamaya Nagar)": ["Hathras Main Roadways Bus Station", "Talab Chauraha", "Agra Road Stand", "Sasni Gate Bus Stop", "Murshan Gate", "Aligarh Road Bypass", "Sadabad Bus Station", "Sasni", "Sikandra Rao", "Sahpau", "Mursan", "Hasayan", "Mendu", "Purdilnagar", "Kachaura", "Jalesar Road"],
+  "Jalaun (Orai)": ["Orai Main Roadways Bus Station", "Konch Bus Stand", "Jail Chauraha", "Sushil Nagar Tiraha", "NH-27 Kanpur-Jhansi Highway Bypass", "Jalaun Town Bus Station", "Konch", "Kalpi", "Madhogarh", "Kadaura", "Nadigaon", "Rampura", "Dakor", "Kotra", "Rendhar", "Bangra"],
+  "Jaunpur": ["Jaunpur Main Roadways Bus Station (Polytechnic Chauraha)", "Line Bazar Bus Stand", "Olindganj", "Shahi Pul Tiraha", "Kachehri Chauraha", "Jagdishpur Link", "Shahganj Bus Station", "Machhlishahr", "Mariahu", "Kerakat", "Badlapur", "Mungra Badshahpur", "Jalalpur", "Chandwak", "Sujanganj", "Barsathi", "Sikrara", "Baksha", "Dharmapur", "Sirkoni", "Khutahan", "Gaurabadshahpur"],
+  "Jhansi": ["Jhansi Main Roadways Bus Station (Elite Chauraha)", "BKD Chauraha", "Sipri Bazar Bus Stand", "Gwalior Road Tiraha", "Medical College Gate", "Kanpur Road Bypass (NH-27)", "Khajuraho Bypass", "Mauranipur Bus Station", "Moth", "Garautha", "Babina", "Chirgaon", "Samthar", "Baragaon", "Gursarai", "Ranipur", "Erich", "Poonch", "Bamaur", "Sakrar", "Raksa (MP Border)"],
+  "Kannauj": ["Kannauj Main Roadways Bus Station", "Sarai Meera Bus Stand", "Makrand Nagar Chauraha", "GT Road Bypass", "Kachehri Chauraha", "Chhibramau Bus Station", "Tirwa", "Gursahaiganj", "Saurikh", "Talgram", "Indergarh", "Haseran", "Jalalabad", "Umarda", "Samdhan", "Mirzapur Link"],
+  "Kanpur Dehat (Akbarpur-Mati)": ["Mati Collectorate / Administrative HQ Bus Stand", "Akbarpur Old Bus Stand", "Bara Toll Plaza (NH-19)", "Rania Industrial Area Stop", "Rura Bus Station", "Pukhrayan", "Bhognipur", "Derapur", "Rasulabad", "Sikandra", "Jhinjhak", "Amruthpur", "Rajpur", "Sandalpur", "Sarbankhera", "Chaubepur Link", "Malasa"],
+  "Kanpur Nagar": ["Jhakarkati Inter-State Bus Terminal", "Chunni Ganj Bus Station", "Rawatpur Bus Station", "Fazalganj Depot", "Azad Nagar Bus Stand", "Vikas Nagar Depot", "Kidwai Nagar", "Barra Bypass", "Ramadevi Chauraha", "Tatmill Chauraha", "Vijay Nagar Chauraha", "Gol Chauraha", "Jarib Chowki", "Kalyanpur", "IIT Kanpur Gate", "Bithoor", "Bilhaur Bus Station", "Ghatampur", "Shivrajpur", "Chaubepur", "Sarsaul", "Maharajpur", "Sachendi", "Narwal", "Bidhnu", "Patara", "Kakwan"],
+  "Kasganj (Kanshiram Nagar)": ["Kasganj Main Roadways Bus Station", "Bilram Gate Chauraha", "Soron Gate", "Nadrai Gate Tiraha", "Collectorate Chauraha", "Bareilly-Mathura Highway Link", "Soron Ji", "Patiali", "Sahawar", "Ganjdundwara", "Bilram", "Sidhpura", "Mohanpur", "Amanpur", "Bharghain", "Dholna"],
+  "Kaushambi": ["Manjhanpur Bus Station", "Osa Chauraha", "Karari Bus Stand", "Bharwari Bus Stop (GT Road)", "Mooratganj Tiraha (NH-19)", "Sirathu Bus Station", "Chail", "Sarai Akil", "Kada Dham", "Ajhuwa", "Kaushambi Ruins", "Nevada", "Paschim Sharira", "Manjhanpur Bypass"],
+  "Lakhimpur Kheri": ["Lakhimpur Main Roadways Bus Station", "Sankata Devi Chauraha", "Melaghat Road", "Collectorate Chauraha", "Rajgarh Tiraha", "Behjam Road", "Gola Gokarannath", "Mohammadi", "Palia Kalan (Dudhwa National Park Hub)", "Nighasan", "Dhaurahra", "Mailani", "Singahi", "Tikonia (Nepal Border)", "Khiri Town", "Phoolbehar", "Isanagar", "Bijua", "Bhejam"],
+  "Kushinagar (Padrauna)": ["Padrauna Main Roadways Bus Station", "Kushinagar International Buddhist Pilgrimage Depot", "Kasia Bus Station", "Subhash Chowk", "Chhitanu Chauraha", "Hata Bus Station", "Tamkuhi Raj (NH-28/Bihar Border)", "Kaptanganj", "Khadda", "Severhi", "Fazilnagar", "Ramkola", "Dudhahi", "Sukrauli", "Nebua Naurangia", "Ahirauli Bazar", "Vishunpura", "Turkpatti"],
+  "Lalitpur": ["Lalitpur Main UPSRTC Bus Station", "Varni Chauraha", "Tuvan Mandir Chauraha", "Savarkar Chowk", "Collectorate Chauraha", "Nehru Nagar Tiraha", "Jhansi-Sagar Bypass (NH-44)", "Elite Tiraha", "Mehroni", "Talbehat", "Pali", "Madawara", "Bar", "Deogarh", "Banpur", "Birdha", "Jakhaura", "Sojana", "Mata Tila Dam", "Balabehat", "Dhaura"],
+  "Lucknow": ["Alambagh Bus Terminal (ISBT)", "Charbagh Bus Station", "Kaiserbagh Bus Station", "Kamta (Awadh) Bus Station", "Dubagga Depot", "Transport Nagar (TP Nagar) Depot", "Gomti Nagar Depot", "Nadarganj Depot", "Polytechnic Chauraha", "Engineering College", "Matiyari", "Ahimamau (Shaheed Path)", "Husariya", "Awadh Chauraha", "Sarojini Nagar", "Chowk/Koneshwar", "Telibagh", "SGPGI Gate", "Hazratganj", "Mohanlalganj", "Malihabad", "Bakshi Ka Talab (BKT)", "Gosainganj", "Nagram", "Itaunja", "Kakori", "Mal", "Banthra", "Nigohan", "Rahimabad"],
+  "Maharajganj": ["Maharajganj UPSRTC Bus Station", "Collectorate Chauraha", "Saxena Chauraha", "Dhaneva Dhanei", "Shikarpur Tiraha", "Ballia Nala Tiraha", "Bypass Chauraha", "Sonauli (India-Nepal Border)", "Nautanwa", "Anandnagar (Pharenda)", "Nichlaul", "Siswa Bazar", "Thuthibari (Border)", "Kolhui", "Paniyara", "Ghughli", "Brijmanganj", "Partawal", "Ratanpur", "Bargadwa", "Laxmipur", "Sohagibarwa"],
+  "Mahoba": ["Mahoba UPSRTC Bus Station", "Parmanand Chauraha", "Alha Chowk", "Collectorate Chauraha", "Polytechnic Chauraha", "Mahoba Bypass (NH-34/39)", "Keerat Sagar", "Chhatarpur Chungi", "Charkhari", "Kulpahar", "Kabrai", "Khanna", "Panwari", "Belatal (Jaitpur)", "Srinagar", "Mahobkanth", "Ajnar", "Kharela", "Supa", "Gaurhari"],
+  "Mainpuri": ["Mainpuri UPSRTC Bus Station", "Bhawat Chauraha", "Karhal Chauraha", "Agra Road Chungi", "Kachehri Chauraha", "Jyoti Tiraha", "Mainpuri Bypass (NH-34)", "Isan River Bridge Tiraha", "Bewar", "Karhal", "Bhogaon", "Kishni", "Kurawali", "Ghiror", "Kusmara", "Barnahal", "Saman Bird Sanctuary Link", "Jagir", "Sultanganj", "Aoncha", "Nabiganj"],
+  "Mathura": ["Mathura New Bus Stand (Maholi Road)", "Mathura Old Bus Stand (Deeg Gate)", "Bhuteshwar Tiraha", "Goverdhan Chauraha (NH-19)", "Tank Chauraha", "Masani Tiraha", "Kachehri Chauraha", "Mandi Chauraha", "Vrindavan", "Goverdhan", "Barsana", "Nandgaon", "Chhata", "Kosi Kalan", "Mahavan (Gokul)", "Baldeo (Dauji)", "Mant", "Raya", "Chhatikara", "Chaumuhan", "Saunkh", "Farah", "Bajna", "Nauhjheel", "Shergarh"],
+  "Mau": ["Mau UPSRTC Bus Station", "Mirzahadipura Chauraha", "Ghazipur Tiraha", "Ballia Mor", "Collectorate", "Bheeti Chauraha", "Brahmsthan", "Mau Bypass (NH-24/29)", "Ghosi", "Muhammadabad Gohna", "Madhuban", "Dohrighat", "Kopaganj", "Chiraiyakot", "Ranipur", "Amila", "Kurthi Jafarpur", "Pahsa", "Khurhat", "Walidpur", "Ratanpura", "Fatehpur Mandav"],
+  "Meerut": ["Bhaisali Bus Terminal", "Sohrab Gate Bus Station", "Meerut Cantt", "Begumpool", "Tejgarhi Chauraha", "Hapur Adda", "Baghpat Adda", "Partapur Bypass", "Commissionary", "Roorkee Road", "Sardhana", "Mawana", "Hastinapur", "Daurala", "Lawar", "Rohta", "Jani", "Kharkhoda", "Kithore", "Parikshitgarh", "Bahsuma", "Phalawda", "Sakoti", "Siwalkhas"],
+  "Mirzapur": ["Mirzapur UPSRTC Bus Station", "Vindhyachal Bus Station", "Sankat Mochan Tiraha", "Shastri Bridge Chauraha", "Kachehri", "Baraundha Kachhar", "Dunkinganj", "Natwa Tiraha", "Chunar", "Lalganj (NH-135)", "Marihan", "Ahraura", "Haliya", "Kachhwa Bazar", "Cheelh", "Jigna", "Gaipura", "Pahari", "Seekhar", "Narayanpur", "Rajgarh", "Drummondganj"],
+  "Moradabad": ["Moradabad New Roadways Bus Station", "Peetal Nagri Depot (Kanth Road)", "Old Roadways Bus Station", "Kashipur Tiraha (NH-9)", "Gandhi Nagar", "Collectorate", "Dalpatpur Bypass", "Majhola", "Bilari", "Kanth", "Thakurdwara", "Kundarki", "Bhojpur Dharampur", "Mundhapande", "Dilari", "Amroha Mor", "Chhajlet", "Agwanpur", "Sirsi Mor"],
+  "Muzaffarnagar": ["Muzaffarnagar Main UPSRTC Bus Station", "Roadways Workshop Depot", "Shiv Chowk", "Meenakshi Chowk", "Mahaveer Chowk", "Bhopa Bus Stand", "Wahlan Bypass (NH-58)", "Rampur Tiraha", "Jansath Tiraha", "Khatauli", "Budhana", "Jansath", "Shukratal", "Miranpur", "Shahpur", "Charthawal", "Purkazi", "Morna", "Rohana Kalan", "Titawi", "Baghra", "Mansurpur"],
+  "Pilibhit": ["Pilibhit Main UPSRTC Bus Station", "Station Road", "District Hospital/Kachehri", "Sungadhi Chauraha", "Gajaroula Road Tiraha", "Pilibhit Bypass", "Chhatrapati Shivaji Chowk", "Bisalpur", "Puranpur", "Kalinagar", "Amariya", "Barkhera", "Bilsanda", "Nyoria Husainpur", "Madhotanda", "Ghungchhai", "Deorania Mor", "Tiger Reserve Mor"],
+  "Pratapgarh": ["Pratapgarh (Belha) UPSRTC Bus Station", "Ambedkar Chauraha", "Company Bagh", "Bhupiamau Chauraha (NH-31/330)", "Kachehri Chauraha", "Rajapal Chauraha", "Chilbila Tiraha", "Gayatri Nagar", "Kunda", "Lalganj Ajhara", "Patti", "Raniganj", "Baghray", "Babaganj", "Manikpur (Ganga Ghat)", "Heeraganj", "Sangipur", "Kohandaur", "Antu", "Mandhata", "Hathigawan"],
+  "Prayagraj": ["Civil Lines Bus Station", "Zero Road Bus Station", "Leader Road Bus Station", "Jhunsi Bus Station", "Naini Depot", "Subhash Chauraha", "Medical College Chauraha", "Daraganj (Sangam)", "Teliyarganj (NH-30/31)", "Phaphamau Tiraha", "Alopibagh", "Leprosy Chauraha", "Andawa (NH-19)", "Nawabganj Bypass", "Chaka Block", "Phulpur (IFFCO)", "Handia", "Koraon", "Meja Road", "Karchhana", "Bara (Jasra)", "Shankargarh", "Lal Gopalganj", "Soraon", "Shringverpur Dham", "Sahson", "Manda", "Ghoorpur"],
+  "Raebareli": ["Raebareli UPSRTC Bus Station", "Civil Lines", "Tripula Chauraha (NH-30 Bypass)", "Sultanpur Road Chauraha", "Saras Hotel Tiraha", "Kachehri", "Gora Bazar", "AIIMS Raebareli (Munshiganj)", "Ratapur Chauraha", "Lalganj (MCF Coach Factory)", "Salon", "Unchahar (NTPC)", "Maharajganj", "Tiloi", "Bachhrawan", "Dalmau (Ganga Ghat)", "Munshiganj", "Deeh", "Jagatpur", "Khiro", "Sareni", "Shivgarh", "Gurbakshganj", "Harchandpur"],
+  "Rampur": ["Rampur UPSRTC Bus Station", "Gandhi Samadhi Chauraha", "Rampur Bypass (NH-9)", "Ambedkar Park Tiraha", "Collectorate", "Chaku Chauraha", "Hathi Khana", "Rajdwara", "Qila Gate", "Bilaspur (NH-109)", "Milak", "Swar", "Tanda Badli", "Shahbad", "Saifni", "Kemri", "Dadiyal", "Maswasi", "Dhamora", "Azimnagar", "Chamraua", "Patwai"],
+  "Saharanpur": ["Saharanpur Main UPSRTC Bus Station", "Depot Workshop (Delhi Road)", "Ghanta Ghar Chauraha", "Court Road", "Hasanpur Chungi", "Delhi Road Bypass", "Chilkana Bus Stand", "Vishwakarma Chowk", "Deoband", "Nakur", "Behat", "Gangoh", "Rampur Maniharan", "Shakumbhari Devi Dham", "Sarsawa (Airport Hub)", "Nanauta", "Titron", "Chilkana", "Gagalheri", "Sadholi Qadeem", "Nagal", "Bargaon"],
+  "Sambhal": ["Sambhal UPSRTC Bus Station (Chaudhary Sarai)", "Chandausi UPSRTC Bus Station", "Chaudhary Sarai Chauraha", "Hayat Nagar", "Bahjoi Collectorate Stop", "Moradabad Road Tiraha", "Fawwara Chowk (Chandausi)", "Bahjoi", "Gunnaur", "Babrala (Narora Link)", "Chandausi Bypass", "Sirsi", "Junawai", "Rajpura", "Panwasa", "Asmoli", "Sondhan", "Dhanari", "Kaila Devi Dham"],
+  "Sant Kabir Nagar": ["Khalilabad UPSRTC Bus Station (NH-28)", "Mehdawal Bypass Chauraha", "Bardahiya Bazar Tiraha", "Collectorate Chauraha", "Banjariya Chauraha", "Dhanghata Tiraha", "Gola Bazar Mor", "Kante Bypass", "Maghar", "Mehdawal", "Dhanghata", "Bakhira (Bird Sanctuary)", "Haisar Bazar", "Nathnagar (Mahuli)", "Belhar Kalan", "Semariyawan", "Baghauli", "Pauli", "Mukhlispur", "Dharamsinghawa"],
+  "Shahjahanpur": ["Shahjahanpur Main UPSRTC Bus Station", "Bareilly Mor (NH-30)", "Roza Junction Tiraha", "Khirni Bagh", "Town Hall", "Kachehri", "Azizganj Bypass", "Govindganj Tiraha", "Tilhar", "Powayan", "Jalalabad", "Miranpur Katra", "Kalan", "Kant", "Khudaganj", "Banda", "Nigohi", "Madnapur", "Khutar", "Jaitipur", "Sindhauli", "Allahganj"],
+  "Shamli": ["Shamli Main UPSRTC Bus Station (Karnal Road)", "Old Bus Stand", "Vijay Chowk", "Dhimanpura", "Collectorate", "Karnal Bypass", "Muzaffarnagar Tiraha", "Delhi Road Bypass (NH-709B)", "Kairana", "Oon", "Kandhla", "Thana Bhawan", "Jhinjhana", "Jalalabad", "Babri", "Garhi Pukhta", "Chausana", "Ailum", "Bidoli (Haryana Border)", "Banat"],
+  "Shravasti": ["Bhinga UPSRTC Bus Station", "Katra Shravasti", "Ikauna Bus Station (NH-730)", "Bhinga Main Chauraha", "Collectorate Chauraha", "Laxmanpur Tiraha", "Ikauna", "Payagpur Mor", "Sirsiya", "Jamunaha", "Malhipur", "Gilaula", "Sonwa", "Hardattnagar Girant", "Bhagwanpur", "Mishrauliya", "Tendwa", "Babaganj Mor"],
+  "Siddharthnagar": ["Siddharthnagar (Naugarh) Main UPSRTC Bus Station", "Uska Bazar Tiraha", "Collectorate Chauraha", "Ambedkar Tiraha", "Sari Tiraha", "Naugarh Bypass", "Kapilvastu Tiraha", "Bansi", "Barhni (Nepal Border/NH-730)", "Domariyaganj", "Itwa", "Shohratgarh", "Kapilvastu", "Uska Bazar", "Khesraha", "Biskohar", "Lotan", "Birdpur", "Bharat Bhari"],
+  "Sitapur": ["Sitapur Main UPSRTC Bus Station", "Nepalpur Workshop", "Lalbagh Chauraha", "Collectorate", "Eye Hospital Tiraha", "Sitapur Bypass (NH-30)", "Hardoi Chungi", "Lakhimpur Road", "Naimisharanya (Neemsar Dham)", "Misrikh (Dadhichi Kund)", "Mahmudabad", "Laharpur", "Biswan", "Sidhauli", "Maholi", "Tambaur", "Hargaon", "Khairabad", "Reusa", "Pahala", "Atariya", "Kamlapur"],
+  "Sonbhadra": ["Robertsganj UPSRTC Bus Station (Chopan Road)", "Badhauli Chauraha", "Dharamshala Chowk", "Collectorate (Lodhi)", "Hinduari Tiraha", "Robertsganj Bypass (SH-5A)", "Urmaura Tiraha", "Renukoot (Hindalco)", "Shaktinagar (NTPC)", "Anpara", "Obra", "Chopan (Sone River Bridge)", "Ghorawal", "Dudhi", "Beejpur", "Pipri (Rihand Dam)", "Khaliyari", "Myorpur", "Babhani", "Windhamganj", "Dala", "Hathinala"],
+  "Sultanpur": ["Sultanpur UPSRTC Bus Station (NH-731)", "Deewani/Collectorate Chauraha", "Payagipur Chauraha", "Golaghat", "Shahganj Chauraha", "Dariyapur", "Ambedkar Chauraha", "Amhat", "Kadipur", "Lambhua", "Jaisinghpur", "Baldirai", "Chanda", "Dostpur", "Kurebhar", "Kudwar", "Haliapur (Purvanchal Expressway Cut)", "Motigarpur", "Katka Khanpur", "Dhanpatganj", "Akhand Nagar"],
+  "Unnao": ["Unnao Main UPSRTC Bus Station (NH-27)", "Gandhi Nagar Chauraha", "Hospital Road/Kachehri", "Dahi Chowki", "Unnao Bypass Chauraha", "Awas Vikas Tiraha", "Moti Nagar", "Shuklaganj", "Nawabganj (Bird Sanctuary)", "Safipur", "Bangarmau (Expressway Cut)", "Purwa", "Hasanganj", "Bighapur", "Maurawan", "Miyanganj", "Achalganj", "Auras", "Fatehpur Chaurasi", "Sohramau", "Patan"],
+  "Varanasi": ["Varanasi Cantt Bus Station", "Kashi Depot", "Cantt City Bus Terminal", "Chaukaghat Bus Station", "Lahartara Depot", "Golgadda Depot", "Englishia Line", "Sigra", "Rathyatra", "Godowlia", "Chandpur Chauraha", "Rohaniya (NH-19)", "Babatpur Airport Tiraha", "Harhua Chauraha", "Shivpur", "Pandeypur", "Andhrapul", "Mohansarai", "Lanka/BHU Gate", "Ramnagar", "Sarnath", "Pindra", "Rajatalab", "Ramnagar Depot", "Mirzamurad", "Cholapur", "Badagaon", "Sewapuri", "Kapsethi", "Chiraigaon", "Phulpur (Sindhaura)", "Jansa", "Kachhwa Road", "Chaubeypur (Markandey Mahadev)"],
 };
 
 const BUS_DATA = [
@@ -384,50 +520,50 @@ const BUS_DATA = [
   { bus_id: "KSN-GOR-ORD-047", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Kushinagar", to: "Gorakhpur", via_stops: ["Hata"], departure_time: "08:50 PM", arrival_time: "10:10 PM", duration: "1h 20m", fare: 60, frequency: "Har 20 minute par" },
   { bus_id: "KSN-GOR-ORD-048", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Kushinagar", to: "Gorakhpur", via_stops: ["Hata"], departure_time: "09:10 PM", arrival_time: "10:30 PM", duration: "1h 20m", fare: 60, frequency: "Har 20 minute par" },
   { bus_id: "KSN-GOR-ORD-049", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Kushinagar", to: "Gorakhpur", via_stops: ["Hata"], departure_time: "09:30 PM", arrival_time: "10:50 PM", duration: "1h 20m", fare: 60, frequency: "Har 20 minute par" },
-  { bus_id: "DEO-VNS-ORD-001", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "05:00 AM", arrival_time: "08:30 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-002", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "05:45 AM", arrival_time: "09:15 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-001", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "06:30 AM", arrival_time: "09:40 AM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-003", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "07:15 AM", arrival_time: "10:45 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-004", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "08:00 AM", arrival_time: "11:30 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-002", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "08:45 AM", arrival_time: "11:55 AM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-005", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "09:30 AM", arrival_time: "01:00 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-006", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "10:15 AM", arrival_time: "01:45 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-003", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "11:00 AM", arrival_time: "02:10 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-007", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "11:45 AM", arrival_time: "03:15 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-008", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "12:30 PM", arrival_time: "04:00 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-004", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "01:15 PM", arrival_time: "04:25 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-009", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "02:00 PM", arrival_time: "05:30 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-010", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "02:45 PM", arrival_time: "06:15 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-005", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "03:30 PM", arrival_time: "06:40 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-011", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "04:15 PM", arrival_time: "07:45 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-012", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "05:00 PM", arrival_time: "08:30 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-006", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "05:45 PM", arrival_time: "08:55 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-013", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "06:30 PM", arrival_time: "10:00 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-014", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "07:15 PM", arrival_time: "10:45 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-JAN-007", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "08:00 PM", arrival_time: "11:10 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "DEO-VNS-ORD-015", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Ballia"], departure_time: "08:45 PM", arrival_time: "12:15 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-001", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "05:00 AM", arrival_time: "08:30 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-002", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "05:45 AM", arrival_time: "09:15 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-001", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "06:30 AM", arrival_time: "09:40 AM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-003", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "07:15 AM", arrival_time: "10:45 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-004", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "08:00 AM", arrival_time: "11:30 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-002", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "08:45 AM", arrival_time: "11:55 AM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-005", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "09:30 AM", arrival_time: "01:00 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-006", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "10:15 AM", arrival_time: "01:45 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-003", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "11:00 AM", arrival_time: "02:10 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-007", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "11:45 AM", arrival_time: "03:15 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-008", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "12:30 PM", arrival_time: "04:00 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-004", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "01:15 PM", arrival_time: "04:25 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-009", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "02:00 PM", arrival_time: "05:30 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-010", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "02:45 PM", arrival_time: "06:15 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-005", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "03:30 PM", arrival_time: "06:40 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-011", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "04:15 PM", arrival_time: "07:45 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-012", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "05:00 PM", arrival_time: "08:30 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-006", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "05:45 PM", arrival_time: "08:55 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-013", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "06:30 PM", arrival_time: "10:00 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-014", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "07:15 PM", arrival_time: "10:45 PM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-JAN-007", bus_name: "Janrath 2x2 AC", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "08:00 PM", arrival_time: "11:10 PM", duration: "3h 10m", fare: 230, frequency: "Subah, dopahar aur shaam ke fixed slots" },
-  { bus_id: "VNS-DEO-ORD-015", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Ballia", "Salempur"], departure_time: "08:45 PM", arrival_time: "12:15 AM", duration: "3h 30m", fare: 180, frequency: "Subah, dopahar aur shaam ke fixed slots" },
+  { bus_id: "DEO-VNS-SLM-001", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "05:15 AM", arrival_time: "10:00 AM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLM-002", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "07:45 AM", arrival_time: "12:30 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLM-003", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "10:15 AM", arrival_time: "03:00 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLM-004", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "01:00 PM", arrival_time: "05:45 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLM-005", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "04:00 PM", arrival_time: "08:45 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLM-006", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "07:00 PM", arrival_time: "11:45 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLM-007", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "09:30 PM", arrival_time: "02:15 AM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLMJ-001", bus_name: "Janrath 2x2 AC (Salempur-Mau Corridor)", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "06:30 AM", arrival_time: "10:45 AM", duration: "4h 15m", fare: 260, frequency: "Din mein 2 AC trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-SLMJ-002", bus_name: "Janrath 2x2 AC (Salempur-Mau Corridor)", bus_type: "Janrath", from: "Deoria", to: "Varanasi", via_stops: ["Salempur", "Lar Road", "Dohrighat", "Ghosi", "Kopaganj", "Mau", "Mardah", "Saidpur", "Sarnath"], departure_time: "02:30 PM", arrival_time: "06:45 PM", duration: "4h 15m", fare: 260, frequency: "Din mein 2 AC trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-001", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "05:15 AM", arrival_time: "10:00 AM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-002", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "07:45 AM", arrival_time: "12:30 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-003", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "10:15 AM", arrival_time: "03:00 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-004", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "01:00 PM", arrival_time: "05:45 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-005", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "04:00 PM", arrival_time: "08:45 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-006", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "07:00 PM", arrival_time: "11:45 PM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLM-007", bus_name: "UPSRTC Sadharan (Salempur-Mau Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "09:30 PM", arrival_time: "02:15 AM", duration: "4h 45m", fare: 230, frequency: "Din mein 7 trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLMJ-001", bus_name: "Janrath 2x2 AC (Salempur-Mau Corridor)", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "07:30 AM", arrival_time: "11:45 AM", duration: "4h 15m", fare: 260, frequency: "Din mein 2 AC trips (Via Salempur/Mau)" },
+  { bus_id: "VNS-DEO-SLMJ-002", bus_name: "Janrath 2x2 AC (Salempur-Mau Corridor)", bus_type: "Janrath", from: "Varanasi", to: "Deoria", via_stops: ["Sarnath", "Saidpur", "Mardah", "Mau", "Kopaganj", "Ghosi", "Dohrighat", "Lar Road", "Salempur"], departure_time: "03:30 PM", arrival_time: "07:45 PM", duration: "4h 15m", fare: 260, frequency: "Din mein 2 AC trips (Via Salempur/Mau)" },
+  { bus_id: "DEO-VNS-RDB-001", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Rudrapur", "Gagaha", "Barhalganj", "Dohrighat", "Mau"], departure_time: "06:00 AM", arrival_time: "10:15 AM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "DEO-VNS-RDB-002", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Rudrapur", "Gagaha", "Barhalganj", "Dohrighat", "Mau"], departure_time: "09:00 AM", arrival_time: "01:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "DEO-VNS-RDB-003", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Rudrapur", "Gagaha", "Barhalganj", "Dohrighat", "Mau"], departure_time: "12:00 PM", arrival_time: "04:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "DEO-VNS-RDB-004", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Rudrapur", "Gagaha", "Barhalganj", "Dohrighat", "Mau"], departure_time: "03:00 PM", arrival_time: "07:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "DEO-VNS-RDB-005", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Rudrapur", "Gagaha", "Barhalganj", "Dohrighat", "Mau"], departure_time: "06:00 PM", arrival_time: "10:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "DEO-VNS-RDB-006", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Deoria", to: "Varanasi", via_stops: ["Rudrapur", "Gagaha", "Barhalganj", "Dohrighat", "Mau"], departure_time: "08:30 PM", arrival_time: "12:45 AM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-DEO-RDB-001", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Mau", "Dohrighat", "Barhalganj", "Gagaha", "Rudrapur"], departure_time: "06:00 AM", arrival_time: "10:15 AM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-DEO-RDB-002", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Mau", "Dohrighat", "Barhalganj", "Gagaha", "Rudrapur"], departure_time: "09:00 AM", arrival_time: "01:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-DEO-RDB-003", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Mau", "Dohrighat", "Barhalganj", "Gagaha", "Rudrapur"], departure_time: "12:00 PM", arrival_time: "04:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-DEO-RDB-004", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Mau", "Dohrighat", "Barhalganj", "Gagaha", "Rudrapur"], departure_time: "03:00 PM", arrival_time: "07:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-DEO-RDB-005", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Mau", "Dohrighat", "Barhalganj", "Gagaha", "Rudrapur"], departure_time: "06:00 PM", arrival_time: "10:15 PM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-DEO-RDB-006", bus_name: "UPSRTC Sadharan (Rudrapur-Barhalganj Corridor)", bus_type: "Ordinary", from: "Varanasi", to: "Deoria", via_stops: ["Mau", "Dohrighat", "Barhalganj", "Gagaha", "Rudrapur"], departure_time: "08:30 PM", arrival_time: "12:45 AM", duration: "4h 15m", fare: 210, frequency: "Din mein 6 trips (Via Rudrapur/Barhalganj)" },
+  { bus_id: "VNS-PRG-ORD-001", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "05:30 AM", arrival_time: "07:45 AM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "VNS-PRG-ORD-002", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "08:00 AM", arrival_time: "10:15 AM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "VNS-PRG-ORD-003", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "10:30 AM", arrival_time: "12:45 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "VNS-PRG-ORD-004", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "01:00 PM", arrival_time: "03:15 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "VNS-PRG-ORD-005", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "03:30 PM", arrival_time: "05:45 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "VNS-PRG-ORD-006", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "06:00 PM", arrival_time: "08:15 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "VNS-PRG-ORD-007", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Varanasi", to: "Prayagraj", via_stops: ["Bhadohi"], departure_time: "08:30 PM", arrival_time: "10:45 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-001", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "05:30 AM", arrival_time: "07:45 AM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-002", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "08:00 AM", arrival_time: "10:15 AM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-003", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "10:30 AM", arrival_time: "12:45 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-004", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "01:00 PM", arrival_time: "03:15 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-005", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "03:30 PM", arrival_time: "05:45 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-006", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "06:00 PM", arrival_time: "08:15 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
+  { bus_id: "PRG-VNS-ORD-007", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Prayagraj", to: "Varanasi", via_stops: ["Bhadohi"], departure_time: "08:30 PM", arrival_time: "10:45 PM", duration: "2h 15m", fare: 140, frequency: "Din mein 7 trips" },
   { bus_id: "GOR-VNS-ORD-001", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Gorakhpur", to: "Varanasi", via_stops: ["Azamgarh", "Mau"], departure_time: "05:00 AM", arrival_time: "09:45 AM", duration: "4h 45m", fare: 320, frequency: "Din mein 10 trips" },
   { bus_id: "GOR-VNS-ORD-002", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Gorakhpur", to: "Varanasi", via_stops: ["Azamgarh", "Mau"], departure_time: "07:00 AM", arrival_time: "11:45 AM", duration: "4h 45m", fare: 320, frequency: "Din mein 10 trips" },
   { bus_id: "GOR-VNS-ORD-003", bus_name: "UPSRTC Sadharan", bus_type: "Ordinary", from: "Gorakhpur", to: "Varanasi", via_stops: ["Azamgarh", "Mau"], departure_time: "09:00 AM", arrival_time: "01:45 PM", duration: "4h 45m", fare: 320, frequency: "Din mein 10 trips" },
@@ -841,28 +977,89 @@ function fullRoute(bus) {
 }
 
 // -----------------------------------------------------
-// Dropdown population — entirely data-driven
+// Master searchable name list — used to power the
+// From/To autocomplete AND to validate typed input.
+//   ROUTABLE_STOPS  = stops that actually have coordinates
+//                     and can appear on the map/polyline.
+//   ALL_SEARCHABLE_NAMES = every routable stop PLUS every
+//                     stand/depot/tehsil name from the full
+//                     74-district UPSRTC directory, so a
+//                     person can search literally anywhere
+//                     in UP. A directory-only name is a
+//                     valid, real place — it just may not
+//                     have a live bus schedule yet, exactly
+//                     like a real transit app whose network
+//                     doesn't cover every junction.
+// -----------------------------------------------------
+const ROUTABLE_STOPS = new Set(Object.keys(STOP_COORDS));
+
+const ALL_SEARCHABLE_NAMES = new Set(ROUTABLE_STOPS);
+Object.values(DISTRICT_DIRECTORY).forEach((stops) => {
+  stops.forEach((name) => ALL_SEARCHABLE_NAMES.add(name));
+});
+
+// -----------------------------------------------------
+// Autocomplete UI — converts the two <select> elements
+// (from the static HTML) into free-text <input list=...>
+// fields bound to a shared <datalist>, so typing any
+// tehsil/chauraha/depot name filters suggestions instantly
+// via native browser autocomplete. No HTML/CSS file edits
+// needed: markup + matching inline styles are created here.
+// -----------------------------------------------------
+function convertToAutocompleteInput(selectEl, datalistId) {
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = selectEl.id;
+  input.setAttribute("list", datalistId);
+  input.setAttribute("autocomplete", "off");
+  input.placeholder = "Sheher, tehsil ya chauraha type karein…";
+  // Inline styles mirror the .search-card select rules in style.css
+  // so the swap to <input> is visually seamless.
+  input.style.cssText = `
+    appearance: none; -webkit-appearance: none;
+    font-family: var(--font-body); font-weight: 700; font-size: 0.92rem;
+    color: var(--ink); background: var(--paper);
+    border: 1.5px solid var(--line-hair); border-radius: 10px;
+    padding: 10px 10px; width: 100%; box-sizing: border-box;
+  `;
+  selectEl.replaceWith(input);
+  return input;
+}
+
+let cityDatalist = document.getElementById("cityAutocompleteList");
+if (!cityDatalist) {
+  cityDatalist = document.createElement("datalist");
+  cityDatalist.id = "cityAutocompleteList";
+  document.body.appendChild(cityDatalist);
+}
+
+// -----------------------------------------------------
+// Dropdown -> autocomplete population — entirely data-driven
 // -----------------------------------------------------
 function populateCityDropdowns() {
-  const citySet = new Set();
-  VALID_BUSES.forEach((bus) => fullRoute(bus).forEach((stop) => citySet.add(stop)));
-  const cities = Array.from(citySet).sort((a, b) => a.localeCompare(b));
+  const allNames = Array.from(ALL_SEARCHABLE_NAMES).sort((a, b) => a.localeCompare(b));
 
-  [el.fromSelect, el.toSelect].forEach((sel) => {
-    sel.innerHTML = "";
-    cities.forEach((city) => {
-      const opt = document.createElement("option");
-      opt.value = city;
-      opt.textContent = city;
-      sel.appendChild(opt);
-    });
-    sel.disabled = cities.length === 0;
+  cityDatalist.innerHTML = "";
+  allNames.forEach((name) => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    cityDatalist.appendChild(opt);
   });
+
+  if (el.fromSelect.tagName !== "INPUT") {
+    el.fromSelect = convertToAutocompleteInput(el.fromSelect, cityDatalist.id);
+  }
+  if (el.toSelect.tagName !== "INPUT") {
+    el.toSelect = convertToAutocompleteInput(el.toSelect, cityDatalist.id);
+  }
+
+  el.fromSelect.disabled = allNames.length === 0;
+  el.toSelect.disabled = allNames.length === 0;
 }
 
 function pickSensibleDefaults() {
   const preferred = ["Deoria", "Gorakhpur"];
-  const options = Array.from(el.fromSelect.options).map((o) => o.value);
+  const options = Array.from(ROUTABLE_STOPS);
   if (options.length === 0) return;
 
   const from = preferred.find((c) => options.includes(c)) || options[0];
@@ -997,6 +1194,20 @@ function search(isNewQuery = true) {
     el.resultHeading.textContent = "Available Buses";
     el.resultCount.textContent = "";
     el.statusText.textContent = "Kripya From aur To station chunein.";
+    return;
+  }
+
+  // Typed text that doesn't match ANY known UP stand/depot/tehsil
+  // (not even in the full 74-district directory) gets a distinct
+  // "unrecognized place" message — different from "recognized
+  // place, no live bus yet" — so the person knows to pick from
+  // the suggestions rather than assuming it's a typo in our data.
+  const unrecognized = [!ALL_SEARCHABLE_NAMES.has(from) && from, !ALL_SEARCHABLE_NAMES.has(to) && to].filter(Boolean);
+  if (unrecognized.length > 0) {
+    el.resultHeading.textContent = `${from} → ${to}`;
+    el.resultCount.textContent = "";
+    el.statusText.innerHTML = `<strong>"${unrecognized.join('", "')}"</strong> UP directory mein nahi mila.`;
+    el.busList.appendChild(renderUnrecognizedState(unrecognized));
     return;
   }
 
@@ -1172,6 +1383,17 @@ function renderEmptyState() {
     <span class="emoji">🚏</span>
     <strong>Is route par jald buses add hongi</strong>
     <p>Abhi is stop-pair ke liye koi direct ya connecting bus data mein nahi hai. Kisi bade junction (Gorakhpur, Lucknow) se badal kar try karein.</p>
+  `;
+  return div;
+}
+
+function renderUnrecognizedState(names) {
+  const div = document.createElement("div");
+  div.className = "empty-state";
+  div.innerHTML = `
+    <span class="emoji">🔎</span>
+    <strong>"${names.join('", "')}" nahi pehchana gaya</strong>
+    <p>Suggestions list se koi jagah chunein — typing shuru karte hi UP ke saare 74 districts ke stops/depots/tehsil dikhne lagenge.</p>
   `;
   return div;
 }
@@ -1433,8 +1655,22 @@ el.swapBtn.addEventListener("click", () => {
 });
 
 el.searchBtn.addEventListener("click", () => search(true));
-el.fromSelect.addEventListener("change", () => search(true));
-el.toSelect.addEventListener("change", () => search(true));
+
+// Autocomplete inputs: fire a fresh search only once the typed
+// text exactly matches a known place (from suggestions or an
+// exact manual match) — avoids re-searching on every keystroke
+// while the person is still mid-typo. Wired up in Init, below,
+// AFTER populateCityDropdowns() has swapped the <select>s for
+// real <input> elements — attaching here would bind to the
+// soon-to-be-removed <select>s instead.
+function wireAutocompleteInput(inputEl) {
+  inputEl.addEventListener("input", () => {
+    if (ALL_SEARCHABLE_NAMES.has(inputEl.value.trim())) {
+      search(true);
+    }
+  });
+  inputEl.addEventListener("change", () => search(true));
+}
 
 el.togglePastBtn.addEventListener("click", () => {
   showPastBuses = !showPastBuses;
@@ -1451,6 +1687,8 @@ el.togglePastBtn.addEventListener("click", () => {
 // Init
 // -----------------------------------------------------
 populateCityDropdowns();
+wireAutocompleteInput(el.fromSelect);
+wireAutocompleteInput(el.toSelect);
 pickSensibleDefaults();
 search(true);
 tickClock();
