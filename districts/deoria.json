@@ -1,0 +1,104 @@
+{
+  "district": "Deoria",
+  "stops": [
+    "Deoria Sadar Bus Station",
+    "Kacheri Bus Stand",
+    "Kasya Dhala",
+    "Overbridge / SSBL Gate",
+    "Purva Chauraha",
+    "Salempur Bus Stand",
+    "Rudrapur Bus Station",
+    "Barhaj Bus Stand",
+    "Bhatpar Rani",
+    "Lar Road / Lar",
+    "Bhatni Bus Stand",
+    "Gauri Bazar",
+    "Baitalpur",
+    "Tarkulwa",
+    "Rampur Karkhana",
+    "Khukhundoo",
+    "Bhagalpur",
+    "Kaparwar Ghat",
+    "Mail",
+    "Mehrauna Ghat (Bihar Border)"
+  ],
+  "routes": [
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Gorakhpur Bus Stand",
+      "type": "Ordinary Non-AC",
+      "fare": 80,
+      "via": ["Baitalpur", "Gauri Bazar", "Chauri Chaura"],
+      "departures": [
+        "04:30", "05:00", "05:30", "06:00", "06:20", "06:40", "07:00", "07:20", "07:40", "08:00", 
+        "08:20", "08:40", "09:00", "09:20", "09:40", "10:00", "10:30", "11:00", "11:30", "12:00", 
+        "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", 
+        "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
+      ]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Gorakhpur Bus Stand",
+      "type": "Janrath AC 2x2",
+      "fare": 115,
+      "via": ["Baitalpur", "Gauri Bazar", "Chauri Chaura"],
+      "departures": ["06:00", "08:00", "11:30", "14:30", "17:00", "19:35", "21:30"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Salempur Bus Stand",
+      "type": "Local Ordinary",
+      "fare": 30,
+      "via": ["Purva Chauraha", "Khukhundoo"],
+      "departures": ["06:00", "07:00", "08:00", "09:00", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00", "20:30"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Barhaj Bus Stand",
+      "type": "Local Ordinary",
+      "fare": 35,
+      "via": ["Mail", "Kaparwar Ghat"],
+      "departures": ["06:30", "08:00", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "18:30"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Rudrapur Bus Station",
+      "type": "Local Ordinary",
+      "fare": 28,
+      "via": ["Gauri Bazar Link"],
+      "departures": ["07:00", "08:30", "10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Bhatpar Rani",
+      "type": "Local Ordinary",
+      "fare": 42,
+      "via": ["Salempur Bus Stand"],
+      "departures": ["06:45", "08:15", "10:00", "12:15", "14:30", "16:45", "18:30"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Mehrauna Ghat (Bihar Border)",
+      "type": "Interstate Express",
+      "fare": 55,
+      "via": ["Salempur Bus Stand", "Lar Road / Lar"],
+      "departures": ["07:15", "09:30", "12:00", "14:45", "17:15", "19:30"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Bhatni Bus Stand",
+      "type": "Local Ordinary",
+      "fare": 25,
+      "via": ["Overbridge / SSBL Gate"],
+      "departures": ["06:15", "07:45", "09:15", "11:00", "13:15", "15:00", "17:00", "18:45"]
+    },
+    {
+      "from": "Deoria Sadar Bus Station",
+      "to": "Varanasi Cantt ISBT",
+      "type": "Express Ordinary",
+      "fare": 215,
+      "via": ["Salempur Bus Stand", "Lar Road / Lar", "Dohrighat", "Mau", "Saidpur"],
+      "departures": ["05:30", "07:00", "08:45", "11:00", "13:15", "15:30", "18:00"]
+    }
+  ]
+}
