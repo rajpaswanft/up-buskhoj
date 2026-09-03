@@ -1,22 +1,28 @@
-// =====================================================
-// js/stops_coords.js
-// Lat/Long for every stop the base network currently
-// covers. Loaded before map.js and app.js since both
-// depend on this global STOP_COORDS object.
-//
-// To add a new stop: add one line here with its
-// [latitude, longitude], then reference it in a route's
-// stop list anywhere else in the app.
-// =====================================================
+// Gorakhpur City Hub & Depots
+  "Gorakhpur Kachehri Bus Station": [26.7620, 83.3750],
+  "Gorakhpur Railway Bus Station": [26.7588, 83.3813],
+  "Raptinagar Bus Depot": [26.7550, 83.4120],
+  "Nausad Bus Station": [26.7025, 83.3481],
+  "Padleyganj Bus Stop": [26.7410, 83.3790],
+  "Mohaddipur Chowk Bus Stop": [26.7505, 83.3985],
+  "Dharmshala Bazar Bus Stop": [26.7640, 83.3680],
+  "Asuran Chowk Bus Stop": [26.7750, 83.3780],
+  "Medical College (BRD) Bus Stop": [26.7920, 83.3850],
+  "University / Chhatrasangh Chowk Bus Stop": [26.7480, 83.3750],
 
-const STOP_COORDS = {
-  "Deoria": [26.5020, 83.7791],
-  "Baitalpur": [26.5505, 83.7431],
-  "Gauri Bazar": [26.5861, 83.6933],
-  "Chauri Chaura": [26.6432, 83.6062],
-  "Gorakhpur": [26.7588, 83.3813],
-  "Mau": [25.9417, 83.5610],
-  "Saidpur": [25.5833, 83.2833],
-  "Varanasi": [25.3176, 82.9739],
-  "Lucknow": [26.8467, 80.9462],
-};
+  // Tehsil, Block & Town Level Stops
+  "Sahjanwa Bus Stand": [26.7725, 83.1812],
+  "Chauri Chaura Bus Stand": [26.6432, 83.6062],
+  "Bansgaon Bus Stand": [26.5580, 83.3510],
+  "Gola Bazar Bus Station": [26.3520, 83.3540],
+  "Barhalganj Bus Station": [26.2820, 83.5015],
+  "Campierganj Bus Stand": [27.0250, 83.2750],
+  "Khajni Bus Stop": [26.6510, 83.2210],
+  "Peppeganj Bus Stop": [26.9380, 83.3050],
+  "Kauriram Bus Stop": [26.5410, 83.3980],
+  "Uruwa Bazar Bus Stop": [26.4620, 83.3280],
+  "Sardarnagar Bus Stop": [26.6850, 83.5620],
+  "Jangal Kauria Bus Stop": [26.8520, 83.3220],
+  "Pipraich Bus Stand": [26.8315, 83.5350],
+  "Belghat Bus Stop": [26.4350, 83.1890],
+  "Gagaha Bus Stop": [26.4180, 83.4520],
