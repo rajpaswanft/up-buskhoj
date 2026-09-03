@@ -1,0 +1,112 @@
+{
+  "district": "Gorakhpur",
+  "stops": [
+    "Gorakhpur Kachehri Bus Station",
+    "Gorakhpur Railway Bus Station",
+    "Raptinagar Bus Depot",
+    "Nausad Bus Station",
+    "Padleyganj Bus Stop",
+    "Mohaddipur Chowk Bus Stop",
+    "Dharmshala Bazar Bus Stop",
+    "Asuran Chowk Bus Stop",
+    "Medical College (BRD) Bus Stop",
+    "University / Chhatrasangh Chowk Bus Stop",
+    "Sahjanwa Bus Stand",
+    "Chauri Chaura Bus Stand",
+    "Bansgaon Bus Stand",
+    "Gola Bazar Bus Station",
+    "Barhalganj Bus Station",
+    "Campierganj Bus Stand",
+    "Khajni Bus Stop",
+    "Peppeganj Bus Stop",
+    "Kauriram Bus Stop",
+    "Uruwa Bazar Bus Stop",
+    "Sardarnagar Bus Stop",
+    "Jangal Kauria Bus Stop",
+    "Pipraich Bus Stand",
+    "Belghat Bus Stop",
+    "Gagaha Bus Stop"
+  ],
+  "routes": [
+    {
+      "from": "Gorakhpur Railway Bus Station",
+      "to": "Deoria Sadar Bus Station",
+      "type": "Ordinary Non-AC",
+      "fare": 80,
+      "via": ["Mohaddipur Chowk Bus Stop", "Sardarnagar Bus Stop", "Chauri Chaura Bus Stand", "Gauri Bazar", "Baitalpur"],
+      "departures": [
+        "05:00", "05:30", "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30",
+        "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+        "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+        "20:00", "20:30", "21:00", "21:30", "22:00"
+      ]
+    },
+    {
+      "from": "Gorakhpur Railway Bus Station",
+      "to": "Deoria Sadar Bus Station",
+      "type": "Janrath AC 2x2",
+      "fare": 115,
+      "via": ["Mohaddipur Chowk Bus Stop", "Chauri Chaura Bus Stand"],
+      "departures": ["06:30", "09:00", "12:00", "15:00", "17:30", "20:00", "22:15"]
+    },
+    {
+      "from": "Gorakhpur Railway Bus Station",
+      "to": "Barhalganj Bus Station",
+      "type": "Local Ordinary",
+      "fare": 75,
+      "via": ["Nausad Bus Station", "Kauriram Bus Stop", "Gagaha Bus Stop"],
+      "departures": [
+        "06:00", "07:15", "08:30", "09:45", "11:00", "12:15", "13:30", "14:45", "16:00", "17:15", "18:30", "20:00"
+      ]
+    },
+    {
+      "from": "Gorakhpur Kachehri Bus Station",
+      "to": "Gola Bazar Bus Station",
+      "type": "Local Ordinary",
+      "fare": 65,
+      "via": ["Nausad Bus Station", "Bansgaon Bus Stand", "Uruwa Bazar Bus Stop"],
+      "departures": [
+        "06:30", "08:00", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "18:30"
+      ]
+    },
+    {
+      "from": "Gorakhpur Railway Bus Station",
+      "to": "Campierganj Bus Stand",
+      "type": "Local Ordinary",
+      "fare": 45,
+      "via": ["Dharmshala Bazar Bus Stop", "Medical College (BRD) Bus Stop", "Jangal Kauria Bus Stop", "Peppeganj Bus Stop"],
+      "departures": [
+        "06:00", "07:30", "09:00", "10:30", "12:00", "13:30", "15:00", "16:30", "18:00", "19:30"
+      ]
+    },
+    {
+      "from": "Gorakhpur Railway Bus Station",
+      "to": "Sahjanwa Bus Stand",
+      "type": "Local Ordinary",
+      "fare": 25,
+      "via": ["Dharmshala Bazar Bus Stop", "Khajni Bus Stop"],
+      "departures": [
+        "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
+      ]
+    },
+    {
+      "from": "Nausad Bus Station",
+      "to": "Lucknow (Alambagh ISBT)",
+      "type": "Ordinary Non-AC",
+      "fare": 486,
+      "via": ["Sahjanwa Bus Stand", "Khalilabad", "Basti", "Ayodhya Dham", "Barabanki"],
+      "departures": [
+        "05:00", "06:00", "07:00", "08:00", "09:00", "10:30", "12:00", 
+        "13:30", "15:00", "16:30", "18:00", "19:30", "21:00", "22:30"
+      ]
+    },
+    {
+      "from": "Nausad Bus Station",
+      "to": "Varanasi Cantt ISBT",
+      "type": "Ordinary Non-AC",
+      "fare": 320,
+      "via": ["Kauriram Bus Stop", "Gagaha Bus Stop", "Barhalganj Bus Station", "Dohrighat", "Mau", "Saidpur"],
+      "departures": ["06:00", "07:30", "09:00", "11:00", "13:00", "15:00", "17:00", "19:00"]
+    }
+  ]
+}
