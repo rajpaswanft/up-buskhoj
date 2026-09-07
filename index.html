@@ -5,52 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UP BusKhoj - Live UPSRTC Schedule & Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    :root {
-      --primary: #107c41;
-      --primary-dark: #0b5a2e;
-      --bg-light: #f4f6f8;
-      --surface: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg-light); color: var(--text-main); padding-bottom: 30px; }
-    .app-header { background: var(--primary); color: #fff; padding: 14px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; }
-    .app-header h1 { font-size: 1.2rem; font-weight: 700; }
-    .app-header p { font-size: 0.75rem; opacity: 0.9; }
-    .main-container { padding: 14px; max-width: 550px; margin: 0 auto; }
-    .search-card { background: var(--surface); border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 10px; }
-    .input-group label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 3px; }
-    .input-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem; background: #fff; outline: none; }
-    .btn-primary { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
-    .results-container { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
-    .status-msg { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; }
-    .bus-card { background: var(--surface); border-radius: 10px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); display: flex; flex-direction: column; gap: 6px; }
-    .bus-card.next-bus { border-left: 5px solid #2563eb; background: #eff6ff; }
-    .bus-header { display: flex; justify-content: space-between; align-items: center; }
-    .badge-type { font-size: 0.7rem; font-weight: 700; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; }
-    .badge-fare { font-size: 0.9rem; font-weight: 700; color: var(--primary-dark); }
-    .bus-time-row { display: flex; justify-content: space-between; align-items: center; margin: 4px 0; }
-    .time-val { font-size: 1.15rem; font-weight: 700; }
-    .station-name { font-size: 0.8rem; color: var(--text-muted); }
-    .via-text { font-size: 0.75rem; color: var(--text-muted); }
-    .btn-track { background: #e0f2fe; color: #0369a1; border: none; padding: 7px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; margin-top: 4px; width: 100%; }
-    .btn-secondary { background: #e5e7eb; border: none; padding: 8px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; width: 100%; }
-    .map-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; z-index: 1000; }
-    .map-modal.hidden, .hidden { display: none !important; }
-    .map-modal-content { background: #fff; width: 100%; max-width: 550px; margin: 0 auto; border-radius: 16px 16px 0 0; padding: 14px; }
-    .map-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .btn-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; }
-    .map-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-    .btn-gps { background: #2563eb; color: #fff; border: none; padding: 7px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header class="app-header">
-    <span style="font-size: 1.6rem;">🚌</span>
+    <span class="header-icon">🚌</span>
     <div>
       <h1>UP BusKhoj</h1>
       <p>UPSRTC Live Bus Tracker & Schedule</p>
@@ -86,7 +46,7 @@
       <div id="upcomingBusesWrapper"></div>
       <div id="pastBusesWrapper" class="hidden">
         <button id="togglePastBtn" class="btn-secondary">Pehle nikal chuki buses dekhein</button>
-        <div id="pastBusesList" class="hidden" style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;"></div>
+        <div id="pastBusesList" class="hidden" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
     </section>
   </main>
@@ -94,20 +54,19 @@
   <div id="mapModal" class="map-modal hidden">
     <div class="map-modal-content">
       <div class="map-modal-header">
-        <h4 id="mapRouteTitle">Route Map</h4>
+        <h4 id="mapRouteTitle" style="font-size: 1rem; font-weight: 700;">Route Map</h4>
         <button id="closeMapBtn" class="btn-close">&times;</button>
       </div>
-      <div id="mapContainer" style="height: 250px; width: 100%; border-radius: 8px;"></div>
+      <div id="mapContainer" style="height: 260px; width: 100%; border-radius: 10px;"></div>
       <div class="map-actions">
         <button id="trackGpsBtn" class="btn-gps">📍 Live GPS</button>
-        <span id="gpsStatusText" style="font-size: 0.75rem; color: #6b7280;">GPS Ready</span>
+        <span id="gpsStatusText" style="font-size: 0.78rem; color: #64748b;">GPS Ready</span>
       </div>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // 1. MASTER STOPS & ROUTES DATA (100% EMBEDDED)
     const DATA = {
       "Deoria": {
         stops: [
@@ -195,7 +154,6 @@
       }
     };
 
-    // 2. COORDINATES DATABASE
     const COORDS = {
       "Deoria Sadar Bus Station": [26.5020, 83.7791],
       "Kacheri Bus Stand": [26.5058, 83.7842],
@@ -236,7 +194,6 @@
       "Varanasi Cantt ISBT": [25.3284, 82.9868]
     };
 
-    // 3. LOGIC CONTROLLER
     const districtSelect = document.getElementById("districtSelect");
     const fromSelect = document.getElementById("fromStop");
     const toSelect = document.getElementById("toStop");
@@ -354,7 +311,7 @@
             </div>
             <div style="text-align: right;">
               <div class="station-name">${b.to}</div>
-              <div style="font-size:0.75rem; color:#6b7280;">${isPast ? 'Departed' : 'Scheduled'}</div>
+              <div style="font-size:0.75rem; color:#64748b;">${isPast ? 'Departed' : 'Scheduled'}</div>
             </div>
           </div>
           <div class="via-text">Via: ${b.via.join(" ➔ ")}</div>
@@ -363,7 +320,6 @@
       `;
     }
 
-    // 4. MAP & GPS ENGINE
     let map = null;
     let polyline = null;
     let watchId = null;
@@ -422,7 +378,6 @@
     districtSelect.onchange = setupDropdowns;
     document.getElementById("searchBtn").onclick = searchBuses;
 
-    // First load
     setupDropdowns();
     searchBuses();
   </script>
