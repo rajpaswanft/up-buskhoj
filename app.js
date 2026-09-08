@@ -1,5 +1,8 @@
+// =====================================================
+// 1. ALL STOPS & COORDINATES DATABASE
+// =====================================================
 const COORDS = {
-  // Deoria
+  // Deoria Stops
   "Deoria Sadar Bus Station": [26.5020, 83.7791],
   "Kacheri Bus Stand": [26.5058, 83.7842],
   "Kasya Dhala": [26.5112, 83.7885],
@@ -21,7 +24,7 @@ const COORDS = {
   "Mail": [26.3380, 83.7310],
   "Mehrauna Ghat": [26.1750, 84.0120],
 
-  // Gorakhpur & Corridors
+  // Gorakhpur Stops
   "Gorakhpur Railway Bus Station": [26.7588, 83.3813],
   "Gorakhpur Kachehri Bus Station": [26.7620, 83.3750],
   "Nausad Bus Station": [26.7025, 83.3481],
@@ -35,162 +38,286 @@ const COORDS = {
   "Campierganj Bus Stand": [27.0250, 83.2750],
   "Khajni Bus Stop": [26.6510, 83.2210],
   "Kauriram Bus Stop": [26.5410, 83.3980],
+
+  // Corridors & Connecting Depots
   "Dohrighat": [26.2612, 83.5234],
   "Mau": [25.9416, 83.5602],
   "Saidpur": [25.5492, 83.1932],
   "Varanasi Cantt ISBT": [25.3284, 82.9868],
+  "Khalilabad": [26.7702, 83.0730],
+  "Basti": [26.8148, 82.7621],
+  "Ayodhya Dham": [26.7922, 82.1998],
   "Lucknow (Alambagh ISBT)": [26.8142, 80.9025]
 };
 
-const BUS_DATA = [
-  // Deoria -> Gorakhpur
-  {
-    from: "Deoria Sadar Bus Station",
-    to: "Gorakhpur Railway Bus Station",
-    type: "ordinary",
-    typeLabel: "Ordinary",
-    fare: 80,
-    duration: "1h 15m",
-    via: ["Baitalpur", "Gauri Bazar", "Chauri Chaura Bus Stand"],
-    departures: [
-      "04:30","05:00","05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00",
-      "09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00",
-      "14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00",
-      "19:30","20:00","20:30","21:00","21:30","22:00","23:15"
+// =====================================================
+// 2. DISTRICT ROUTES & TIMETABLES
+// =====================================================
+const DISTRICT_DATA = {
+  "Deoria": {
+    stops: [
+      "Deoria Sadar Bus Station", "Kacheri Bus Stand", "Kasya Dhala", "Overbridge / SSBL Gate",
+      "Purva Chauraha", "Salempur Bus Stand", "Rudrapur Bus Station", "Barhaj Bus Stand",
+      "Bhatpar Rani", "Lar Road / Lar", "Bhatni Bus Stand", "Gauri Bazar", "Baitalpur",
+      "Tarkulwa", "Rampur Karkhana", "Khukhundoo", "Bhagalpur", "Kaparwar Ghat", "Mail", "Mehrauna Ghat"
+    ],
+    destinations: [
+      "Gorakhpur Railway Bus Station", "Salempur Bus Stand", "Barhaj Bus Stand", 
+      "Rudrapur Bus Station", "Varanasi Cantt ISBT"
+    ],
+    routes: [
+      {
+        from: "Deoria Sadar Bus Station",
+        to: "Gorakhpur Railway Bus Station",
+        type: "ordinary",
+        typeLabel: "Ordinary",
+        fare: 80,
+        durationMinutes: 75,
+        durationText: "1h 15m",
+        via: ["Baitalpur", "Gauri Bazar", "Chauri Chaura Bus Stand"],
+        departures: [
+          "04:30","05:00","05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00",
+          "09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00",
+          "14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00",
+          "19:30","20:00","20:30","21:00","21:30","22:00","23:15"
+        ]
+      },
+      {
+        from: "Deoria Sadar Bus Station",
+        to: "Gorakhpur Railway Bus Station",
+        type: "janrath",
+        typeLabel: "Janrath AC",
+        fare: 115,
+        durationMinutes: 65,
+        durationText: "1h 05m",
+        via: ["Baitalpur", "Gauri Bazar", "Chauri Chaura Bus Stand"],
+        departures: ["06:00", "08:00", "11:30", "14:30", "17:00", "19:35", "21:30"]
+      },
+      {
+        from: "Deoria Sadar Bus Station",
+        to: "Salempur Bus Stand",
+        type: "ordinary",
+        typeLabel: "Local",
+        fare: 30,
+        durationMinutes: 45,
+        durationText: "45m",
+        via: ["Purva Chauraha", "Khukhundoo"],
+        departures: ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00","19:30","21:00"]
+      },
+      {
+        from: "Deoria Sadar Bus Station",
+        to: "Barhaj Bus Stand",
+        type: "ordinary",
+        typeLabel: "Local",
+        fare: 35,
+        durationMinutes: 55,
+        durationText: "55m",
+        via: ["Mail", "Kaparwar Ghat"],
+        departures: ["06:30","08:00","09:30","11:00","12:30","14:00","15:30","17:00","18:30","20:00"]
+      },
+      {
+        from: "Deoria Sadar Bus Station",
+        to: "Rudrapur Bus Station",
+        type: "ordinary",
+        typeLabel: "Local",
+        fare: 28,
+        durationMinutes: 40,
+        durationText: "40m",
+        via: ["Gauri Bazar"],
+        departures: ["07:00","08:30","10:00","11:30","13:00","14:30","16:00","17:30","19:00"]
+      },
+      {
+        from: "Deoria Sadar Bus Station",
+        to: "Varanasi Cantt ISBT",
+        type: "shatabdi",
+        typeLabel: "Express",
+        fare: 215,
+        durationMinutes: 270,
+        durationText: "4h 30m",
+        via: ["Salempur Bus Stand", "Lar Road / Lar", "Dohrighat", "Mau", "Saidpur"],
+        departures: ["05:30","07:00","08:45","11:00","13:15","15:30","18:00"]
+      }
     ]
   },
-  {
-    from: "Deoria Sadar Bus Station",
-    to: "Gorakhpur Railway Bus Station",
-    type: "janrath",
-    typeLabel: "Janrath AC",
-    fare: 115,
-    duration: "1h 05m",
-    via: ["Baitalpur", "Gauri Bazar", "Chauri Chaura Bus Stand"],
-    departures: ["06:00", "08:00", "11:30", "14:30", "17:00", "19:35", "21:30"]
-  },
-  // Gorakhpur -> Deoria
-  {
-    from: "Gorakhpur Railway Bus Station",
-    to: "Deoria Sadar Bus Station",
-    type: "ordinary",
-    typeLabel: "Ordinary",
-    fare: 80,
-    duration: "1h 15m",
-    via: ["Chauri Chaura Bus Stand", "Gauri Bazar", "Baitalpur"],
-    departures: [
-      "05:00","05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30",
-      "10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30",
-      "15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30",
-      "20:00","20:30","21:00","21:30","22:00","23:30"
+  "Gorakhpur": {
+    stops: [
+      "Gorakhpur Railway Bus Station", "Gorakhpur Kachehri Bus Station", "Nausad Bus Station",
+      "Mohaddipur Chowk Bus Stop", "Medical College (BRD) Bus Stop", "Sahjanwa Bus Stand",
+      "Chauri Chaura Bus Stand", "Bansgaon Bus Stand", "Gola Bazar Bus Station",
+      "Barhalganj Bus Station", "Campierganj Bus Stand", "Khajni Bus Stop", "Kauriram Bus Stop"
+    ],
+    destinations: [
+      "Deoria Sadar Bus Station", "Barhalganj Bus Station", "Lucknow (Alambagh ISBT)", "Varanasi Cantt ISBT"
+    ],
+    routes: [
+      {
+        from: "Gorakhpur Railway Bus Station",
+        to: "Deoria Sadar Bus Station",
+        type: "ordinary",
+        typeLabel: "Ordinary",
+        fare: 80,
+        durationMinutes: 75,
+        durationText: "1h 15m",
+        via: ["Chauri Chaura Bus Stand", "Gauri Bazar", "Baitalpur"],
+        departures: [
+          "05:00","05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30",
+          "10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30",
+          "15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30",
+          "20:00","20:30","21:00","21:30","22:00","23:30"
+        ]
+      },
+      {
+        from: "Gorakhpur Railway Bus Station",
+        to: "Deoria Sadar Bus Station",
+        type: "janrath",
+        typeLabel: "Janrath AC",
+        fare: 115,
+        durationMinutes: 65,
+        durationText: "1h 05m",
+        via: ["Chauri Chaura Bus Stand", "Gauri Bazar", "Baitalpur"],
+        departures: ["06:30", "09:00", "12:00", "15:00", "17:30", "20:00", "22:15"]
+      },
+      {
+        from: "Gorakhpur Railway Bus Station",
+        to: "Barhalganj Bus Station",
+        type: "ordinary",
+        typeLabel: "Local",
+        fare: 75,
+        durationMinutes: 100,
+        durationText: "1h 40m",
+        via: ["Nausad Bus Station", "Kauriram Bus Stop"],
+        departures: ["06:00","07:30","09:00","11:00","13:00","15:00","17:00","18:30"]
+      },
+      {
+        from: "Gorakhpur Railway Bus Station",
+        to: "Lucknow (Alambagh ISBT)",
+        type: "ordinary",
+        typeLabel: "Express",
+        fare: 486,
+        durationMinutes: 360,
+        durationText: "6h 00m",
+        via: ["Sahjanwa Bus Stand", "Khalilabad", "Basti", "Ayodhya Dham"],
+        departures: ["05:00","06:30","08:00","10:00","12:00","14:00","16:30","18:30","21:00","23:00"]
+      },
+      {
+        from: "Nausad Bus Station",
+        to: "Varanasi Cantt ISBT",
+        type: "shatabdi",
+        typeLabel: "Express",
+        fare: 320,
+        durationMinutes: 315,
+        durationText: "5h 15m",
+        via: ["Kauriram Bus Stop", "Barhalganj Bus Station", "Dohrighat", "Mau", "Saidpur"],
+        departures: ["06:00","08:00","10:00","12:00","14:00","16:00","18:00"]
+      }
     ]
-  },
-  // Deoria Locals
-  {
-    from: "Deoria Sadar Bus Station",
-    to: "Salempur Bus Stand",
-    type: "ordinary",
-    typeLabel: "Local",
-    fare: 30,
-    duration: "45m",
-    via: ["Purva Chauraha", "Khukhundoo"],
-    departures: ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00","19:30","21:00"]
-  },
-  {
-    from: "Deoria Sadar Bus Station",
-    to: "Barhaj Bus Stand",
-    type: "ordinary",
-    typeLabel: "Local",
-    fare: 35,
-    duration: "55m",
-    via: ["Mail", "Kaparwar Ghat"],
-    departures: ["06:30","08:00","09:30","11:00","12:30","14:00","15:30","17:00","18:30","20:00"]
-  },
-  {
-    from: "Gorakhpur Railway Bus Station",
-    to: "Lucknow (Alambagh ISBT)",
-    type: "ordinary",
-    typeLabel: "Express",
-    fare: 486,
-    duration: "6h 00m",
-    via: ["Sahjanwa Bus Stand", "Khalilabad", "Basti", "Ayodhya Dham"],
-    departures: ["05:00","06:30","08:00","10:00","12:00","14:00","16:30","18:30","21:00","23:00"]
   }
-];
+};
 
-// Live Clock
-function updateClock() {
-  const el = document.getElementById("liveClock");
-  if (!el) return;
+// =====================================================
+// 3. LIVE CLOCK ENGINE
+// =====================================================
+function updateLiveClock() {
+  const clockEl = document.getElementById("clockTime") || document.getElementById("liveClock");
+  if (!clockEl) return;
   const now = new Date();
   let h = now.getHours();
   const m = String(now.getMinutes()).padStart(2, '0');
   const s = String(now.getSeconds()).padStart(2, '0');
   const ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
-  el.innerText = `${h}:${m}:${s} ${ampm}`;
+  clockEl.innerText = `${h}:${m}:${s} ${ampm}`;
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateLiveClock, 1000);
+updateLiveClock();
 
-// Dropdowns
-const fromCity = document.getElementById("fromCity");
-const toCity = document.getElementById("toCity");
+// =====================================================
+// 4. DROPDOWN POPULATION (BOTH IDS SUPPORTED)
+// =====================================================
+const districtSelect = document.getElementById("districtSelect");
+const fromStopSelect = document.getElementById("fromStop") || document.getElementById("fromCity");
+const toStopSelect = document.getElementById("toStop") || document.getElementById("toCity");
 const swapBtn = document.getElementById("swapBtn");
 const searchBtn = document.getElementById("searchBtn");
 
-function initDropdowns() {
-  const fromSet = new Set();
-  const toSet = new Set();
+function populateStopsForDistrict(dist) {
+  const data = DISTRICT_DATA[dist];
+  if (!data || !fromStopSelect || !toStopSelect) return;
 
-  BUS_DATA.forEach(r => {
-    fromSet.add(r.from);
-    r.via.forEach(v => fromSet.add(v));
-    toSet.add(r.to);
+  fromStopSelect.innerHTML = '<option value="">Sabhi Boarding Stops</option>';
+  data.stops.forEach(st => {
+    fromStopSelect.innerHTML += `<option value="${st}">${st}</option>`;
   });
 
-  fromCity.innerHTML = '<option value="">Kahan Se (From)</option>';
-  [...fromSet].sort().forEach(s => {
-    fromCity.innerHTML += `<option value="${s}">${s}</option>`;
+  toStopSelect.innerHTML = '<option value="">Sabhi Destinations</option>';
+  data.destinations.forEach(dest => {
+    toStopSelect.innerHTML += `<option value="${dest}">${dest}</option>`;
   });
 
-  toCity.innerHTML = '<option value="">Kahan Tak (To)</option>';
-  [...toSet].sort().forEach(s => {
-    toCity.innerHTML += `<option value="${s}">${s}</option>`;
-  });
-
-  fromCity.value = "Deoria Sadar Bus Station";
-  toCity.value = "Gorakhpur Railway Bus Station";
+  if (dist === "Deoria") {
+    fromStopSelect.value = "Deoria Sadar Bus Station";
+    toStopSelect.value = "Gorakhpur Railway Bus Station";
+  } else {
+    fromStopSelect.value = "Gorakhpur Railway Bus Station";
+    toStopSelect.value = "Deoria Sadar Bus Station";
+  }
 }
 
-window.setQuickRoute = function(from, to) {
-  fromCity.value = from;
-  toCity.value = to;
+if (districtSelect) {
+  districtSelect.addEventListener("change", (e) => {
+    populateStopsForDistrict(e.target.value);
+    renderSchedule();
+  });
+}
+
+window.setQuickRoute = function(dist, from, to) {
+  if (districtSelect) districtSelect.value = dist;
+  populateStopsForDistrict(dist);
+  if (fromStopSelect) fromStopSelect.value = from;
+  if (toStopSelect) toStopSelect.value = to;
   renderSchedule();
 };
 
-swapBtn.addEventListener("click", () => {
-  const temp = fromCity.value;
-  fromCity.value = toCity.value;
-  toCity.value = temp;
-  renderSchedule();
-});
+if (swapBtn) {
+  swapBtn.addEventListener("click", () => {
+    const temp = fromStopSelect.value;
+    fromStopSelect.value = toStopSelect.value;
+    toStopSelect.value = temp;
+    renderSchedule();
+  });
+}
 
+// =====================================================
+// 5. SCHEDULE CALCULATION HELPERS
+// =====================================================
 function toMinutes(t) {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
 }
 
-// 24-Hour Smart Loop Schedule
+function calculateArrivalTime(depTimeStr, durationMinutes) {
+  const depMinutes = toMinutes(depTimeStr);
+  const arrMinutes = (depMinutes + durationMinutes) % (24 * 60);
+  const arrH = String(Math.floor(arrMinutes / 60)).padStart(2, '0');
+  const arrM = String(arrMinutes % 60).padStart(2, '0');
+  return `${arrH}:${arrM}`;
+}
+
+// =====================================================
+// 6. RENDER LOGIC WITH MODAL & INLINE SUPPORT
+// =====================================================
 function renderSchedule() {
-  const fromVal = fromCity.value;
-  const toVal = toCity.value;
+  const dist = districtSelect ? districtSelect.value : "Deoria";
+  const fromVal = fromStopSelect ? fromStopSelect.value : "";
+  const toVal = toStopSelect ? toStopSelect.value : "";
+  const routes = DISTRICT_DATA[dist] ? DISTRICT_DATA[dist].routes : [];
+
   const now = new Date();
   const curMin = now.getHours() * 60 + now.getMinutes();
 
   let matched = [];
 
-  BUS_DATA.forEach(r => {
+  routes.forEach(r => {
     const matchFrom = !fromVal || r.from === fromVal || r.via.includes(fromVal);
     const matchTo = !toVal || r.to === toVal;
 
@@ -199,12 +326,13 @@ function renderSchedule() {
         matched.push({
           time,
           minutes: toMinutes(time),
+          arrivalTime: calculateArrivalTime(time, r.durationMinutes),
           from: r.from,
           to: r.to,
           type: r.type,
           typeLabel: r.typeLabel,
           fare: r.fare,
-          duration: r.duration,
+          durationText: r.durationText,
           via: r.via
         });
       });
@@ -216,44 +344,60 @@ function renderSchedule() {
   const upcoming = matched.filter(m => m.minutes >= curMin);
   const past = matched.filter(m => m.minutes < curMin);
 
-  const busList = document.getElementById("busList");
-  const pastList = document.getElementById("pastBusList");
+  const nextBusWrapper = document.getElementById("nextBusWrapper");
+  const upcomingBusesWrapper = document.getElementById("upcomingBusesWrapper") || document.getElementById("busList");
+  const pastBusList = document.getElementById("pastBusesList") || document.getElementById("pastBusList");
   const togglePastBtn = document.getElementById("togglePastBtn");
   const resultCount = document.getElementById("resultCount");
 
-  busList.innerHTML = "";
-  pastList.innerHTML = "";
+  if (nextBusWrapper) nextBusWrapper.innerHTML = "";
+  if (upcomingBusesWrapper) upcomingBusesWrapper.innerHTML = "";
+  if (pastBusList) pastBusList.innerHTML = "";
 
-  // Night Loop Fix: Agar aaj raat koi bus nahi bachi, to kal subah ki pehli bus ko Next Bus banayein
   if (upcoming.length === 0 && matched.length > 0) {
-    const tomorrowFirstBus = matched[0];
-    const minsUntilMidnight = (24 * 60) - curMin;
-    const totalMins = minsUntilMidnight + tomorrowFirstBus.minutes;
-    
-    resultCount.innerText = `Subah ki pehli bus active`;
-    busList.innerHTML += buildCard(tomorrowFirstBus, 0, totalMins, true, false, true);
+    const tomorrowFirst = matched[0];
+    const diff = (24 * 60 - curMin) + tomorrowFirst.minutes;
+    if (resultCount) resultCount.innerText = `Subah ki pehli bus active`;
+    const cardHTML = buildCard(tomorrowFirst, 0, diff, true, false, true);
+    if (nextBusWrapper) nextBusWrapper.innerHTML = cardHTML;
+    else if (upcomingBusesWrapper) upcomingBusesWrapper.innerHTML = cardHTML;
   } else if (upcoming.length > 0) {
-    resultCount.innerText = `${upcoming.length} available`;
+    if (resultCount) resultCount.innerText = `${upcoming.length} available`;
     const next = upcoming[0];
     const diff = next.minutes - curMin;
-    busList.innerHTML += buildCard(next, 0, diff, true, false, false);
+    const nextHTML = buildCard(next, 0, diff, true, false, false);
 
-    upcoming.slice(1).forEach((b, idx) => {
-      busList.innerHTML += buildCard(b, idx + 1, b.minutes - curMin, false, false, false);
-    });
+    if (nextBusWrapper) {
+      nextBusWrapper.innerHTML = nextHTML;
+      upcoming.slice(1).forEach((b, idx) => {
+        upcomingBusesWrapper.innerHTML += buildCard(b, idx + 1, b.minutes - curMin, false, false, false);
+      });
+    } else if (upcomingBusesWrapper) {
+      upcomingBusesWrapper.innerHTML += nextHTML;
+      upcoming.slice(1).forEach((b, idx) => {
+        upcomingBusesWrapper.innerHTML += buildCard(b, idx + 1, b.minutes - curMin, false, false, false);
+      });
+    }
+  } else {
+    if (resultCount) resultCount.innerText = `0 available`;
+    const emptyMsg = `<div style="text-align:center; padding: 25px; color: var(--ink-soft);">Is route par koi direct bus nahi mili.</div>`;
+    if (nextBusWrapper) nextBusWrapper.innerHTML = emptyMsg;
+    else if (upcomingBusesWrapper) upcomingBusesWrapper.innerHTML = emptyMsg;
   }
 
-  // Past buses
-  if (past.length > 0) {
-    togglePastBtn.hidden = false;
+  if (past.length > 0 && pastBusList) {
+    if (togglePastBtn) togglePastBtn.hidden = false;
     past.forEach((b, idx) => {
-      pastList.innerHTML += buildCard(b, 100 + idx, 0, false, true, false);
+      pastBusList.innerHTML += buildCard(b, 100 + idx, 0, false, true, false);
     });
-  } else {
+  } else if (togglePastBtn) {
     togglePastBtn.hidden = true;
   }
 }
 
+// =====================================================
+// 7. CARD BUILDER
+// =====================================================
 function buildCard(b, id, diff, isNext, isPast, isTomorrow = false) {
   let cardClass = "bus-card";
   let countdownHTML = "";
@@ -287,10 +431,10 @@ function buildCard(b, id, diff, isNext, isPast, isTomorrow = false) {
         </div>
         <div class="duration-line">
           <div class="line"></div>
-          <span>${b.duration}</span>
+          <span>${b.durationText}</span>
         </div>
         <div>
-          <span class="time">--:--</span>
+          <span class="time arrival-time">${b.arrivalTime}</span>
           <span class="station">${b.to}</span>
         </div>
       </div>
@@ -301,109 +445,131 @@ function buildCard(b, id, diff, isNext, isPast, isTomorrow = false) {
 
       <div class="bus-card-footer">
         <span>UPSRTC Official Route</span>
-        <button class="track-btn" id="btn-${id}" onclick="toggleMapSection(${id}, '${b.from}', '${b.to}', ${JSON.stringify(b.via).replace(/"/g, '&quot;')})">
+        <button class="track-btn" id="btn-${id}" onclick="openMapModal('${b.from}', '${b.to}', ${JSON.stringify(b.via).replace(/"/g, '&quot;')})">
           Route / Live Track
         </button>
-      </div>
-
-      <div id="mapSec-${id}" class="map-section">
-        <div class="map-container" id="mapBox-${id}"></div>
-        <div class="map-controls">
-          <button class="gps-toggle-btn" id="gpsBtn-${id}" onclick="toggleGpsTracker(${id})">📍 Live GPS Track</button>
-          <div class="gps-status">
-            <span class="gps-chip" id="gpsChip-${id}">GPS Ready</span>
-          </div>
-        </div>
       </div>
     </article>
   `;
 }
 
-// Map Engine
-const activeMaps = {};
-let liveWatchId = null;
+// =====================================================
+// 8. LEAFLET MAP MODAL ENGINE
+// =====================================================
+let modalMap = null;
+let currentPolyline = null;
+let liveGpsWatch = null;
 
-window.toggleMapSection = function(id, from, to, via) {
-  const section = document.getElementById(`mapSec-${id}`);
-  const btn = document.getElementById(`btn-${id}`);
-  const isExpanded = section.classList.contains("expanded");
+window.openMapModal = function(from, to, via) {
+  const modal = document.getElementById("mapModal");
+  const title = document.getElementById("mapRouteTitle");
+  if (!modal) return;
 
-  if (isExpanded) {
-    section.classList.remove("expanded");
-    btn.classList.remove("active");
-    return;
-  }
-
-  section.classList.add("expanded");
-  btn.classList.add("active");
+  if (title) title.innerText = `${from} ➔ ${to}`;
+  modal.classList.remove("hidden");
 
   setTimeout(() => {
-    if (!activeMaps[id]) {
-      const container = document.getElementById(`mapBox-${id}`);
-      const map = L.map(container).setView([26.5020, 83.7791], 10);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OSM" }).addTo(map);
-
-      const stops = [from, ...via, to];
-      const points = [];
-
-      stops.forEach((st, idx) => {
-        const pt = COORDS[st];
-        if (pt) {
-          points.push(pt);
-          const isTerminal = (idx === 0 || idx === stops.length - 1);
-          const icon = L.divIcon({ className: isTerminal ? 'stop-pin terminal' : 'stop-pin', iconSize: [12, 12] });
-          L.marker(pt, { icon }).addTo(map).bindPopup(`<b>${st}</b>`);
-        }
-      });
-
-      if (points.length > 1) {
-        const poly = L.polyline(points, { color: "#1C4E36", weight: 4 }).addTo(map);
-        map.fitBounds(poly.getBounds(), { padding: [25, 25] });
-      }
-      activeMaps[id] = map;
+    if (!modalMap) {
+      modalMap = L.map("mapContainer").setView([26.5020, 83.7791], 10);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap"
+      }).addTo(modalMap);
     } else {
-      activeMaps[id].invalidateSize();
+      modalMap.invalidateSize();
     }
-  }, 320);
+
+    if (currentPolyline) {
+      modalMap.removeLayer(currentPolyline);
+    }
+
+    const stops = [from, ...via, to];
+    const points = [];
+
+    stops.forEach((st, idx) => {
+      const pt = COORDS[st];
+      if (pt) {
+        points.push(pt);
+        const isTerminal = (idx === 0 || idx === stops.length - 1);
+        const icon = L.divIcon({
+          className: isTerminal ? 'stop-pin terminal' : 'stop-pin',
+          iconSize: isTerminal ? [14, 14] : [10, 10]
+        });
+        L.marker(pt, { icon }).addTo(modalMap).bindPopup(`<b>${st}</b>`);
+      }
+    });
+
+    if (points.length > 1) {
+      currentPolyline = L.polyline(points, { color: "#1C4E36", weight: 4 }).addTo(modalMap);
+      modalMap.fitBounds(currentPolyline.getBounds(), { padding: [25, 25] });
+    }
+  }, 200);
 };
 
-window.toggleGpsTracker = function(id) {
-  const chip = document.getElementById(`gpsChip-${id}`);
-  const btn = document.getElementById(`gpsBtn-${id}`);
-  const map = activeMaps[id];
+const closeMapBtn = document.getElementById("closeMapBtn");
+const mapBackdrop = document.getElementById("mapBackdrop");
 
-  if (liveWatchId) {
-    navigator.geolocation.clearWatch(liveWatchId);
-    liveWatchId = null;
-    btn.classList.remove("active");
-    chip.innerText = "GPS Paused";
-    return;
+function closeMap() {
+  const modal = document.getElementById("mapModal");
+  if (modal) modal.classList.add("hidden");
+  if (liveGpsWatch) {
+    navigator.geolocation.clearWatch(liveGpsWatch);
+    liveGpsWatch = null;
   }
+}
 
-  if (!navigator.geolocation) {
-    chip.innerText = "No GPS Support";
-    return;
-  }
+if (closeMapBtn) closeMapBtn.addEventListener("click", closeMap);
+if (mapBackdrop) mapBackdrop.addEventListener("click", closeMap);
 
-  btn.classList.add("active");
-  chip.innerText = "Locating...";
+// Live GPS Button inside Modal
+const trackGpsBtn = document.getElementById("trackGpsBtn");
+const gpsStatusText = document.getElementById("gpsStatusText");
 
-  liveWatchId = navigator.geolocation.watchPosition(pos => {
-    const { latitude, longitude, speed } = pos.coords;
-    chip.innerText = `Speed: ${(speed ? (speed * 3.6).toFixed(0) : 0)} km/h`;
-    const userIcon = L.divIcon({ className: 'live-user-dot', iconSize: [16, 16] });
-    L.marker([latitude, longitude], { icon: userIcon }).addTo(map);
-    map.panTo([latitude, longitude]);
+if (trackGpsBtn) {
+  trackGpsBtn.addEventListener("click", () => {
+    if (liveGpsWatch) {
+      navigator.geolocation.clearWatch(liveGpsWatch);
+      liveGpsWatch = null;
+      trackGpsBtn.classList.remove("active");
+      if (gpsStatusText) gpsStatusText.innerText = "GPS Paused";
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      if (gpsStatusText) gpsStatusText.innerText = "GPS Not Supported";
+      return;
+    }
+
+    trackGpsBtn.classList.add("active");
+    if (gpsStatusText) gpsStatusText.innerText = "Locating device...";
+
+    liveGpsWatch = navigator.geolocation.watchPosition(pos => {
+      const { latitude, longitude, speed } = pos.coords;
+      const speedKm = speed ? (speed * 3.6).toFixed(0) : 0;
+      if (gpsStatusText) gpsStatusText.innerText = `Speed: ${speedKm} km/h`;
+
+      const userIcon = L.divIcon({ className: 'live-user-dot', iconSize: [16, 16] });
+      L.marker([latitude, longitude], { icon: userIcon }).addTo(modalMap);
+      modalMap.panTo([latitude, longitude]);
+    });
   });
-};
+}
 
-togglePastBtn.addEventListener("click", () => {
-  const pastList = document.getElementById("pastBusList");
-  pastList.classList.toggle("collapsed");
-  togglePastBtn.querySelector(".toggle-icon").innerText = pastList.classList.contains("collapsed") ? "▾" : "▴";
-});
+// =====================================================
+// 9. EVENT LISTENERS & INITIALIZATION
+// =====================================================
+if (togglePastBtn) {
+  togglePastBtn.addEventListener("click", () => {
+    const pastBusList = document.getElementById("pastBusesList") || document.getElementById("pastBusList");
+    if (pastBusList) {
+      pastBusList.classList.toggle("collapsed");
+      const icon = togglePastBtn.querySelector(".toggle-icon");
+      if (icon) icon.innerText = pastBusList.classList.contains("collapsed") ? "▾" : "▴";
+    }
+  });
+}
 
-searchBtn.addEventListener("click", renderSchedule);
+if (searchBtn) searchBtn.addEventListener("click", renderSchedule);
 
-initDropdowns();
+// Startup sequence
+populateStopsForDistrict("Deoria");
 renderSchedule();
