@@ -2,115 +2,111 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>UP BusKhoj - Live UPSRTC Tracker</title>
-  <!-- Google Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UP BusKhoj — UPSRTC Live Bus Tracker &amp; Schedule</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <!-- Leaflet CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <link rel="stylesheet" href="style.css?v=100">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Original LED Highway Board -->
+  <!-- ============ Header ============ -->
   <header class="app-header">
-    <div class="board-strip">
-      <span>DEORIA</span><span class="dot">•</span><span>GORAKHPUR</span><span class="dot">•</span>
-      <span>BASTI</span><span class="dot">•</span><span>AYODHYA</span><span class="dot">•</span>
-      <span>GONDA</span><span class="dot">•</span><span>LUCKNOW</span><span class="dot">•</span>
-      <span>KANPUR</span><span class="dot">•</span><span>VARANASI</span><span class="dot">•</span>
-      <span>PRAYAGRAJ</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
-      <span>GORAKHPUR</span><span class="dot">•</span><span>LUCKNOW</span>
-    </div>
-    <div class="logo-area">
-      <span class="bus-icon">🚌</span>
-      <div>
-        <h1>UP BusKhoj</h1>
-        <p>Live Timetable &middot; Route Map &middot; GPS</p>
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">🚌</span>
+        <div class="brand-text">
+          <h1>UP BusKhoj</h1>
+          <p>UPSRTC Live Bus Tracker &amp; Schedule</p>
+        </div>
       </div>
-      <span class="live-clock-chip">
-        <span class="clock-dot"></span>
-        <span id="liveClock">--:--:-- --</span>
-      </span>
+      <div class="live-clock" id="liveClock" title="Aapke device ka current time">--:-- --</div>
     </div>
   </header>
 
+  <!-- ============ Main ============ -->
   <main class="main-container">
 
-    <!-- Quick Route Chips -->
-    <div class="quick-chips-wrapper">
-      <span class="chip-label">Quick:</span>
-      <div class="chip-scroll">
-        <button class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Gorakhpur Railway Bus Station')">Deoria ⇄ Gorakhpur</button>
-        <button class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
-        <button class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
-        <button class="route-chip" onclick="setQuickRoute('Gorakhpur', 'Gorakhpur Railway Bus Station', 'Lucknow (Alambagh ISBT)')">Gorakhpur ➔ Lucknow</button>
-      </div>
-    </div>
-
-    <!-- Search Box Card With District Option -->
-    <section class="search-card">
-      <div class="input-group" style="margin-bottom: 10px;">
-        <label for="districtSelect">District (ज़िला चुनें)</label>
-        <select id="districtSelect">
+    <!-- Search card -->
+    <section class="search-card" aria-label="Bus search">
+      <div class="field-group">
+        <label for="districtSelect">District</label>
+        <select id="districtSelect" class="stop-select">
           <option value="Deoria">Deoria (देवरिया)</option>
           <option value="Gorakhpur">Gorakhpur (गोरखपुर)</option>
         </select>
       </div>
 
-      <div class="route-row">
-        <div class="input-group">
-          <label for="fromCity">Kahan Se (Boarding Stop)</label>
-          <select id="fromCity">
-            <option value="">Loading stops…</option>
-          </select>
+      <div class="stop-row">
+        <div class="field-group">
+          <label for="fromStop">Kahan Se (Boarding Stop)</label>
+          <select id="fromStop" class="stop-select"></select>
         </div>
 
-        <div class="swap-divider">
-          <button id="swapBtn" type="button" title="Swap Route">⇅</button>
-        </div>
-
-        <div class="input-group">
-          <label for="toCity">Kahan Tak (Destination)</label>
-          <select id="toCity">
-            <option value="">Loading destinations…</option>
-          </select>
+        <div class="field-group">
+          <label for="toStop">Kahan Tak (Destination)</label>
+          <select id="toStop" class="stop-select"></select>
         </div>
       </div>
 
-      <button id="searchBtn" class="primary-btn" type="button">
-        <span>Buses Khojein</span>
-        <span class="ticket-punch">✂</span>
-      </button>
+      <button type="button" id="searchBtn" class="primary-btn">Buses Khojein</button>
     </section>
 
-    <!-- Status Bar -->
-    <div class="quick-status">
-      <span class="pulse-dot"></span>
-      <span id="statusText">UPSRTC Purvanchal Corridor Live Tracker</span>
-    </div>
+    <div id="statusMessage" class="status-line">Kripya district aur stop chunein.</div>
 
-    <!-- Results Section -->
-    <section class="results-container">
-      <div class="results-heading-row">
-        <h2 id="resultHeading">Buses List</h2>
-        <span id="resultCount" class="result-count"></span>
+    <!-- Next Bus (single highlighted card) -->
+    <section class="results-block" aria-label="Next bus">
+      <h2 class="block-title">Next Bus</h2>
+      <div id="nextBusWrapper" class="next-bus-container">
+        <p class="placeholder-text">Search karke dekhein agli bus kab hai.</p>
       </div>
-
-      <div id="busList" class="bus-list has-timeline"></div>
-
-      <button id="togglePastBtn" class="toggle-past-btn" type="button" hidden>
-        <span class="toggle-icon">▾</span> Aaj nikal chuki buses dekhein
-      </button>
-      <div id="pastBusList" class="bus-list past-list collapsed"></div>
     </section>
 
-    <p class="disclaimer">Arrival time route ki average speed se calculate kiya gaya hai. Samay live clock se sync rehta hai.</p>
+    <!-- Upcoming buses -->
+    <section class="results-block" aria-label="Upcoming buses">
+      <h2 class="block-title">Upcoming Buses</h2>
+      <div id="upcomingBusesWrapper" class="bus-list"></div>
+    </section>
+
+    <!-- Departed buses (collapsed by default) -->
+    <section id="pastBusesWrapper" class="results-block" aria-label="Departed buses">
+      <button type="button" id="togglePastBtn" class="ghost-btn toggle-departed-btn" hidden>
+        <span class="toggle-icon" aria-hidden="true">▾</span> Show Departed Buses
+      </button>
+      <div id="pastBusesList" class="bus-list departed-list collapsed"></div>
+    </section>
+
+    <p class="disclaimer">Samay device ke local clock se calculate hota hai; road traffic ke hisaab se badal sakta hai.</p>
   </main>
 
-  <script src="app.js"></script>
+  <!-- ============ Map modal (hidden by default) ============ -->
+  <div id="mapModal" class="map-modal hidden" role="dialog" aria-modal="true" aria-label="Route map">
+    <div class="map-modal-backdrop"></div>
+    <div class="map-modal-panel">
+      <div class="map-modal-header">
+        <h3 id="mapRouteTitle">Route Map</h3>
+        <button type="button" id="closeMapBtn" class="icon-btn" aria-label="Close map">✕</button>
+      </div>
+      <div id="mapContainer" class="route-map-container" style="height: 280px;"></div>
+      <div class="map-modal-footer">
+        <button type="button" id="trackGpsBtn" class="gps-btn">📍 Inside Bus (Live GPS)</button>
+        <span id="gpsStatusText" class="gps-stats"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Scripts (exact load order) ============ -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/stops_coords.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
