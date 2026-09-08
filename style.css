@@ -77,20 +77,27 @@ body {
   .board-strip { animation: none; padding-left: 16px; }
 }
 
-.logo-area {
+.logo-area, .header-inner {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px 20px 22px;
+  padding: 16px 20px 20px;
 }
 
-.bus-icon {
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bus-icon, .brand-icon {
   font-size: 2.1rem;
   filter: drop-shadow(0 2px 0 rgba(0,0,0,0.25));
   transform: scaleX(-1);
+  display: inline-block;
 }
 
-.logo-area h1 {
+.logo-area h1, .brand-text h1 {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 2.1rem;
@@ -98,16 +105,17 @@ body {
   margin: 0;
   letter-spacing: 0.01em;
   text-shadow: 0 0 10px rgba(239, 176, 38, 0.35);
+  color: var(--marker-yellow);
 }
 
-.logo-area p {
+.logo-area p, .brand-text p {
   margin: 3px 0 0;
   font-size: 0.82rem;
   color: #CFE3D4;
   font-weight: 500;
 }
 
-.live-clock-chip {
+.live-clock-chip, .live-clock {
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -135,12 +143,60 @@ body {
 }
 
 /* =====================================================
-   Layout
+   Layout & Quick Chips
    ===================================================== */
 .main-container {
   max-width: 480px;
   margin: 0 auto;
   padding: 18px 16px 40px;
+}
+
+.quick-chips-wrapper {
+  margin-top: -18px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 3;
+}
+
+.chip-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.chip-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.chip-scroll::-webkit-scrollbar { display: none; }
+
+.route-chip {
+  background: var(--paper-raised);
+  border: 1.5px solid var(--board-green);
+  color: var(--board-green);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.route-chip:hover {
+  background: var(--board-green);
+  color: var(--marker-yellow);
 }
 
 /* =====================================================
@@ -152,26 +208,18 @@ body {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   padding: 18px 16px 16px;
-  margin-top: -34px;
   position: relative;
   z-index: 2;
 }
 
-.route-row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: end;
-  gap: 8px;
-}
-
-.input-group {
+.field-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-width: 0;
 }
 
-.input-group label {
+.field-group label, .input-group label {
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -179,27 +227,35 @@ body {
   color: var(--ink-soft);
 }
 
-select {
+.route-row, .stop-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 8px;
+}
+
+select, .stop-select {
   appearance: none;
   -webkit-appearance: none;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--ink);
   background: var(--paper)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23211E17' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
     no-repeat right 10px center;
   border: 1.5px solid var(--line-hair);
   border-radius: 10px;
-  padding: 10px 26px 10px 10px;
+  padding: 10px 24px 10px 8px;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  outline: none;
 }
 
 select:disabled { opacity: 0.6; cursor: wait; }
 
-select:focus-visible {
+select:focus-visible, .stop-select:focus-visible {
   outline: 3px solid var(--marker-yellow);
   outline-offset: 1px;
   border-color: var(--rust);
@@ -229,7 +285,7 @@ select:focus-visible {
 
 .primary-btn {
   width: 100%;
-  margin-top: 16px;
+  margin-top: 14px;
   background: var(--rust);
   color: #FBF3EA;
   border: none;
@@ -254,9 +310,9 @@ select:focus-visible {
 .ticket-punch { font-size: 1rem; opacity: 0.85; }
 
 /* =====================================================
-   Quick status bar
+   Quick status & block titles
    ===================================================== */
-.quick-status {
+.quick-status, .status-line {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -283,21 +339,15 @@ select:focus-visible {
 
 .quick-status strong { color: var(--ink); }
 
-/* =====================================================
-   Results
-   ===================================================== */
-.results-heading-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin: 18px 4px 10px;
+.results-heading-row, .results-block {
+  margin-top: 18px;
 }
 
-#resultHeading {
+.block-title, #resultHeading {
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 600;
-  margin: 0;
+  margin: 0 0 8px 4px;
   color: var(--board-green);
 }
 
@@ -307,10 +357,16 @@ select:focus-visible {
   color: var(--ink-soft);
 }
 
+.placeholder-text {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-left: 4px;
+}
+
 /* =====================================================
    Timeline list — "Where Is My Train" inspired rail
    ===================================================== */
-.bus-list {
+.bus-list, .next-bus-container {
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -333,7 +389,7 @@ select:focus-visible {
   background-repeat: repeat-y;
 }
 
-.past-list.collapsed { display: none; }
+.past-list.collapsed, .departed-list.collapsed { display: none; }
 
 /* =====================================================
    Bus card — paper ticket stub with timeline dot
@@ -466,6 +522,10 @@ select:focus-visible {
   color: var(--ink);
 }
 
+.bus-time-row .arrival-time {
+  color: var(--board-green);
+}
+
 .bus-time-row .station {
   display: block;
   font-size: 0.72rem;
@@ -567,6 +627,7 @@ select:focus-visible {
 
 .track-btn:hover { background: var(--board-green); color: #fff; }
 .track-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 2px; }
+.track-btn.active { background: var(--board-green); color: #fff; }
 
 .bus-card::after {
   content: "";
@@ -584,7 +645,7 @@ select:focus-visible {
 /* =====================================================
    Toggle: past buses
    ===================================================== */
-.toggle-past-btn {
+.toggle-past-btn, .toggle-departed-btn {
   width: 100%;
   margin-top: 16px;
   background: var(--paper-raised);
@@ -603,52 +664,23 @@ select:focus-visible {
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.toggle-past-btn:hover {
+.toggle-past-btn:hover, .toggle-departed-btn:hover {
   background: var(--paper);
   color: var(--ink);
   border-color: var(--ink-soft);
 }
 
-.toggle-past-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 2px; }
+.toggle-past-btn:focus-visible, .toggle-departed-btn:focus-visible { 
+  outline: 3px solid var(--marker-yellow); 
+  outline-offset: 2px; 
+}
+
 .toggle-icon { font-size: 0.7rem; }
-
-.past-list { margin-top: 14px; }
-
-/* =====================================================
-   Empty / no-more-buses state
-   ===================================================== */
-.empty-state {
-  text-align: center;
-  padding: 34px 18px;
-  border: 1.5px dashed var(--route-line);
-  border-radius: 14px;
-  color: var(--ink-soft);
-}
-
-.empty-state .emoji { font-size: 2rem; display: block; margin-bottom: 8px; }
-.empty-state strong { display: block; color: var(--ink); margin-bottom: 4px; font-size: 1rem; }
-.empty-state p { margin: 0; font-size: 0.82rem; }
-
-.disclaimer {
-  text-align: center;
-  font-size: 0.7rem;
-  color: var(--ink-soft);
-  margin-top: 22px;
-}
+.past-list, .departed-list { margin-top: 14px; }
 
 /* =====================================================
-   Step 3 — Route map (Leaflet) + Live GPS tracker
+   Inline Map & Live GPS (Cards)
    ===================================================== */
-
-/* "Route / Live Track" button doubles as the map toggle */
-.track-btn.active {
-  background: var(--board-green);
-  color: #fff;
-}
-
-/* Collapsible map section: animate max-height so Leaflet
-   always initialises into a container that already has a
-   real, final size (see MAP_TRANSITION_MS in app.js). */
 .map-section {
   max-height: 0;
   overflow: hidden;
@@ -656,9 +688,7 @@ select:focus-visible {
   transition: max-height 0.3s ease;
 }
 
-.map-section.expanded {
-  max-height: 380px;
-}
+.map-section.expanded { max-height: 380px; }
 
 .map-container {
   height: clamp(220px, 26vh, 260px);
@@ -671,25 +701,12 @@ select:focus-visible {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
-/* Leaflet injects its own canvas/tiles here — just make sure
-   it fills the rounded container we sized above. */
-.map-container .leaflet-container {
+.map-container .leaflet-container, .route-map-container .leaflet-container {
   height: 100%;
   width: 100%;
   font-family: var(--font-body);
   border-radius: 12px;
   background: var(--paper);
-}
-
-.map-fallback {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 16px;
-  font-size: 0.8rem;
-  color: var(--ink-soft);
 }
 
 .map-controls {
@@ -699,7 +716,7 @@ select:focus-visible {
   padding: 0 16px 14px;
 }
 
-.gps-toggle-btn {
+.gps-toggle-btn, .gps-btn {
   width: 100%;
   background: var(--paper-raised);
   border: 1.5px solid var(--ac-blue);
@@ -713,20 +730,24 @@ select:focus-visible {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.gps-toggle-btn:hover { background: var(--ac-blue); color: #fff; }
-.gps-toggle-btn:focus-visible { outline: 3px solid var(--marker-yellow); outline-offset: 2px; }
+.gps-toggle-btn:hover, .gps-btn:hover { 
+  background: var(--ac-blue); 
+  color: #fff; 
+}
 
-.gps-toggle-btn.active {
+.gps-toggle-btn.active, .gps-btn.active {
   background: var(--live-green);
   border-color: var(--live-green);
   color: #fff;
   animation: badgeGlow 1.8s infinite;
 }
 
-.gps-status {
+.gps-status, .gps-stats {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
 }
 
 .gps-chip {
@@ -746,8 +767,79 @@ select:focus-visible {
   font-weight: 600;
 }
 
-/* Custom Leaflet divIcon markers — plain CSS dots, no
-   external marker image assets needed. */
+/* =====================================================
+   Map Modal Window (Alternative pop-up overlay)
+   ===================================================== */
+.map-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.map-modal.hidden { display: none !important; }
+
+.map-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 51, 34, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.map-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: var(--paper-raised);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 24px rgba(0,0,0,0.25);
+  padding: 16px 16px 24px;
+  z-index: 2;
+  border-top: 3px solid var(--marker-yellow);
+}
+
+.map-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.map-modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--board-green);
+  margin: 0;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.route-map-container {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid var(--line-hair);
+}
+
+.map-modal-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* =====================================================
+   Custom Leaflet divIcon markers
+   ===================================================== */
 .stop-pin {
   width: 10px;
   height: 10px;
@@ -774,12 +866,17 @@ select:focus-visible {
   animation: dotPulse 1.6s infinite;
 }
 
-/* =====================================================
-   Small screens
-   ===================================================== */
+.disclaimer {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  margin-top: 22px;
+}
+
+/* Small Screens */
 @media (max-width: 380px) {
-  .logo-area { flex-wrap: wrap; }
-  .live-clock-chip { margin-left: 0; }
-  .logo-area h1 { font-size: 1.8rem; }
+  .logo-area, .header-inner { flex-wrap: wrap; }
+  .live-clock-chip, .live-clock { margin-left: 0; }
+  .logo-area h1, .brand-text h1 { font-size: 1.8rem; }
   .primary-btn { font-size: 1.15rem; }
 }
