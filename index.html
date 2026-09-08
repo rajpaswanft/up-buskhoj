@@ -11,7 +11,7 @@
   <!-- Leaflet CDN -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <link rel="stylesheet" href="style.css?v=99">
+  <link rel="stylesheet" href="style.css?v=100">
 </head>
 <body>
 
@@ -40,22 +40,30 @@
 
   <main class="main-container">
 
-    <!-- Quick Route Selection Chips -->
+    <!-- Quick Route Chips -->
     <div class="quick-chips-wrapper">
-      <span class="chip-label">Quick Routes:</span>
+      <span class="chip-label">Quick:</span>
       <div class="chip-scroll">
-        <button class="route-chip" onclick="setQuickRoute('Deoria Sadar Bus Station', 'Gorakhpur Railway Bus Station')">Deoria ⇄ Gorakhpur</button>
-        <button class="route-chip" onclick="setQuickRoute('Deoria Sadar Bus Station', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
-        <button class="route-chip" onclick="setQuickRoute('Deoria Sadar Bus Station', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
-        <button class="route-chip" onclick="setQuickRoute('Gorakhpur Railway Bus Station', 'Lucknow (Alambagh ISBT)')">Gorakhpur ➔ Lucknow</button>
+        <button class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Gorakhpur Railway Bus Station')">Deoria ⇄ Gorakhpur</button>
+        <button class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
+        <button class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
+        <button class="route-chip" onclick="setQuickRoute('Gorakhpur', 'Gorakhpur Railway Bus Station', 'Lucknow (Alambagh ISBT)')">Gorakhpur ➔ Lucknow</button>
       </div>
     </div>
 
-    <!-- Search Box Card -->
+    <!-- Search Box Card With District Option -->
     <section class="search-card">
+      <div class="input-group" style="margin-bottom: 10px;">
+        <label for="districtSelect">District (ज़िला चुनें)</label>
+        <select id="districtSelect">
+          <option value="Deoria">Deoria (देवरिया)</option>
+          <option value="Gorakhpur">Gorakhpur (गोरखपुर)</option>
+        </select>
+      </div>
+
       <div class="route-row">
         <div class="input-group">
-          <label for="fromCity">Kahan Se (Boarding)</label>
+          <label for="fromCity">Kahan Se (Boarding Stop)</label>
           <select id="fromCity">
             <option value="">Loading stops…</option>
           </select>
@@ -92,17 +100,15 @@
         <span id="resultCount" class="result-count"></span>
       </div>
 
-      <!-- Live Timeline Bus List -->
       <div id="busList" class="bus-list has-timeline"></div>
 
-      <!-- Past Departed Buses Toggle -->
       <button id="togglePastBtn" class="toggle-past-btn" type="button" hidden>
         <span class="toggle-icon">▾</span> Aaj nikal chuki buses dekhein
       </button>
       <div id="pastBusList" class="bus-list past-list collapsed"></div>
     </section>
 
-    <p class="disclaimer">Samay live clock se sync hota hai; raat ke baad agli subah ki pehli bus automatically Next Bus ban jati hai.</p>
+    <p class="disclaimer">Arrival time route ki average speed se calculate kiya gaya hai. Samay live clock se sync rehta hai.</p>
   </main>
 
   <script src="app.js"></script>
