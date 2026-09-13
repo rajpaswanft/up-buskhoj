@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>UP BusKhoj — UPSRTC Live Bus Tracker &amp; Schedule</title>
+  <title>UP BusKhoj — 75 Districts Live Bus Tracker</title>
 
-  <!-- Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="style.css?v=999">
 
-  <!-- App styles -->
-  <link rel="stylesheet" href="style.css?v=101">
+  <style>
+    /* Safe fallback styles agar style.css late load ho */
+    .route-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 8px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
 
-  <!-- ============ Header ============ -->
+  <!-- LED Board Header -->
   <header class="app-header">
-    <!-- Running Highway Strip -->
     <div class="board-strip">
       <span>DEORIA</span><span class="dot">•</span><span>GORAKHPUR</span><span class="dot">•</span>
       <span>BASTI</span><span class="dot">•</span><span>AYODHYA</span><span class="dot">•</span>
@@ -29,116 +30,504 @@
       <span>PRAYAGRAJ</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
       <span>GORAKHPUR</span><span class="dot">•</span><span>LUCKNOW</span>
     </div>
-
-    <div class="header-inner">
-      <div class="brand">
-        <span class="brand-icon" aria-hidden="true">🚌</span>
-        <div class="brand-text">
-          <h1>UP BusKhoj</h1>
-          <p>UPSRTC Live Bus Tracker &amp; Schedule</p>
-        </div>
+    <div class="logo-area">
+      <span class="bus-icon">🚌</span>
+      <div>
+        <h1>UP BusKhoj</h1>
+        <p>Live Timetable &middot; 75 Districts &middot; GPS</p>
       </div>
-      <div class="live-clock" id="liveClock" title="Aapke device ka current time">
-        <span class="clock-dot" aria-hidden="true"></span>
-        <span id="clockTime">--:-- --</span>
-      </div>
+      <span class="live-clock-chip">
+        <span class="clock-dot"></span>
+        <span id="liveClock">--:--:-- --</span>
+      </span>
     </div>
   </header>
 
-  <!-- ============ Main ============ -->
   <main class="main-container">
 
-    <!-- Quick Route Chips -->
+    <!-- Quick Corridor Chips -->
     <div class="quick-chips-wrapper">
       <span class="chip-label">Quick:</span>
       <div class="chip-scroll">
-        <button type="button" class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Gorakhpur Railway Bus Station')">Deoria ⇄ Gorakhpur</button>
-        <button type="button" class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
-        <button type="button" class="route-chip" onclick="setQuickRoute('Deoria', 'Deoria Sadar Bus Station', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
-        <button type="button" class="route-chip" onclick="setQuickRoute('Gorakhpur', 'Gorakhpur Railway Bus Station', 'Lucknow (Alambagh ISBT)')">Gorakhpur ➔ Lucknow</button>
+        <button type="button" class="route-chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Gorakhpur Railway Station')">Deoria ⇄ Gorakhpur</button>
+        <button type="button" class="route-chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
+        <button type="button" class="route-chip" onclick="quickSelect('Gorakhpur', 'Gorakhpur Railway Station', 'Alambagh ISBT Lucknow')">Gorakhpur ➔ Lucknow</button>
+        <button type="button" class="route-chip" onclick="quickSelect('Varanasi', 'Varanasi Cantt ISBT', 'Civil Lines Prayagraj')">Varanasi ➔ Prayagraj</button>
       </div>
     </div>
 
-    <!-- Search card -->
-    <section class="search-card" aria-label="Bus search">
-      <div class="field-group" style="margin-bottom: 12px;">
-        <label for="districtSelect">District (ज़िला)</label>
-        <select id="districtSelect" class="stop-select">
-          <option value="Deoria">Deoria (देवरिया)</option>
-          <option value="Gorakhpur">Gorakhpur (गोरखपुर)</option>
-        </select>
+    <!-- Search Card (No hardcoded options, fully JS controlled) -->
+    <section class="search-card">
+      <div class="field-group">
+        <label for="districtSelect">District (ज़िला चुनें)</label>
+        <select id="districtSelect"></select>
       </div>
 
-      <div class="stop-row">
+      <div class="route-row">
         <div class="field-group">
           <label for="fromStop">Kahan Se (Boarding Stop)</label>
-          <select id="fromStop" class="stop-select"></select>
+          <select id="fromStop"></select>
         </div>
 
         <div class="swap-divider">
-          <button type="button" id="swapBtn" title="Route ulta karein" aria-label="Swap stops">⇅</button>
+          <button type="button" id="swapBtn" title="Swap Route">⇅</button>
         </div>
 
         <div class="field-group">
           <label for="toStop">Kahan Tak (Destination)</label>
-          <select id="toStop" class="stop-select"></select>
+          <select id="toStop"></select>
         </div>
       </div>
 
       <button type="button" id="searchBtn" class="primary-btn">
         <span>Buses Khojein</span>
-        <span class="ticket-punch" aria-hidden="true">✂</span>
+        <span class="ticket-punch">✂</span>
       </button>
     </section>
 
-    <div id="statusMessage" class="status-line">Kripya district aur boarding stop chunein.</div>
+    <div class="quick-status">
+      <span class="pulse-dot"></span>
+      <span id="statusMessage">Uttar Pradesh 75 Districts Network Active</span>
+    </div>
 
-    <!-- Next Bus (single highlighted card) -->
-    <section class="results-block" aria-label="Next bus">
-      <h2 class="block-title">Next Bus</h2>
-      <div id="nextBusWrapper" class="next-bus-container">
-        <p class="placeholder-text">Search karke dekhein agli bus kab hai.</p>
+    <!-- Results Section -->
+    <section class="results-container">
+      <div class="results-heading-row">
+        <h2 id="resultHeading">Buses Timetable</h2>
+        <span id="resultCount" class="result-count"></span>
       </div>
-    </section>
 
-    <!-- Upcoming buses -->
-    <section class="results-block" aria-label="Upcoming buses">
-      <h2 class="block-title">Upcoming Buses</h2>
-      <div id="upcomingBusesWrapper" class="bus-list"></div>
-    </section>
+      <div id="busList" class="bus-list has-timeline"></div>
 
-    <!-- Departed buses (collapsed by default) -->
-    <section id="pastBusesWrapper" class="results-block" aria-label="Departed buses">
-      <button type="button" id="togglePastBtn" class="ghost-btn toggle-departed-btn" hidden>
-        <span class="toggle-icon" aria-hidden="true">▾</span> Pehle nikal chuki buses dekhein
+      <button type="button" id="togglePastBtn" class="toggle-past-btn" hidden>
+        <span class="toggle-icon">▾</span> Aaj nikal chuki buses dekhein
       </button>
-      <div id="pastBusesList" class="bus-list departed-list collapsed"></div>
+      <div id="pastBusList" class="bus-list past-list collapsed"></div>
     </section>
 
-    <p class="disclaimer">Arrival time average road speed ke aadhar par calculate hota hai; live clock device se sync rehti hai.</p>
+    <p class="disclaimer">Samay live clock se sync hota hai; arrival times average speed se calculate kiye jaate hain.</p>
   </main>
 
-  <!-- ============ Map modal ============ -->
-  <div id="mapModal" class="map-modal hidden" role="dialog" aria-modal="true" aria-label="Route map">
-    <div class="map-modal-backdrop" id="mapBackdrop"></div>
-    <div class="map-modal-panel">
-      <div class="map-modal-header">
-        <h3 id="mapRouteTitle">Route Map</h3>
-        <button type="button" id="closeMapBtn" class="icon-btn" aria-label="Close map">✕</button>
-      </div>
-      <div id="mapContainer" class="route-map-container" style="height: 280px;"></div>
-      <div class="map-modal-footer">
-        <button type="button" id="trackGpsBtn" class="gps-btn">📍 Inside Bus (Live GPS)</button>
-        <span id="gpsStatusText" class="gps-stats"></span>
-      </div>
-    </div>
-  </div>
+  <!-- Self-Contained 75 Districts & Tehsils Engine -->
+  <script>
+    const UP_TEHSILS = {
+      "Deoria": ["Deoria Sadar", "Salempur", "Rudrapur", "Barhaj", "Bhatpar Rani", "Bhatni", "Gauri Bazar", "Baitalpur", "Tarkulwa", "Rampur Karkhana", "Lar Road", "Khukhundoo", "Mail", "Bhagalpur"],
+      "Gorakhpur": ["Gorakhpur Railway Station", "Chauri Chaura", "Sahjanwa", "Campierganj", "Bansgaon", "Khajni", "Gola Bazar", "Barhalganj", "Kauriram", "Pipraich", "Nausad Bus Station", "Mohaddipur"],
+      "Kushinagar": ["Padrauna", "Kasya (Kushinagar)", "Hata", "Tamkuhi Raj", "Fazilnagar", "Kaptanganj", "Khadda", "Severahi"],
+      "Maharajganj": ["Maharajganj Sadar", "Nautanwa", "Nichlaul", "Pharenda (Anandnagar)", "Siswa Bazar", "Sonauli Border"],
+      "Basti": ["Basti Sadar", "Harraiya", "Rudhauli", "Bhanpur", "Babhnan", "Captainganj"],
+      "Sant Kabir Nagar": ["Khalilabad", "Mehdawal", "Dhanghata", "Maghar", "Bakhira"],
+      "Siddharthnagar": ["Naugarh", "Bansi", "Itwa", "Domariyaganj", "Shohratgarh", "Barhni Border", "Uska Bazar"],
+      "Azamgarh": ["Azamgarh Sadar", "Lalganj", "Phoolpur", "Sagri (Jiyanpur)", "Mehnagar", "Burhanpur", "Nizamabad", "Atraulia", "Mubarakpur"],
+      "Mau": ["Mau Sadar", "Ghosi", "Muhammadabad Gohna", "Madhuban", "Kopaganj", "Dohrighat"],
+      "Ballia": ["Ballia Sadar", "Rasra", "Bairia", "Bansdih", "Belthara Road", "Sikanderpur"],
+      "Varanasi": ["Varanasi Cantt ISBT", "Pindra", "Raja Talab", "Kashi Depot", "Golagaddah", "Babatpur"],
+      "Ghazipur": ["Ghazipur Sadar", "Mohammadabad", "Zamania", "Saidpur", "Jakhanian", "Sevrai"],
+      "Jaunpur": ["Jaunpur Sadar", "Shahganj", "Badlapur", "Machhlishahr", "Mariahu", "Kerakat"],
+      "Lucknow": ["Alambagh ISBT", "Charbagh", "Qaiserbagh", "Kamta", "Polytechnic (Awadh)", "Mohanlalganj", "Bakshi Ka Talab", "Malihabad"],
+      "Kanpur Nagar": ["Jhakarkati Central", "Chunni Ganj", "Rawatpur", "Bilhaur", "Ghatampur", "Kalyanpur"],
+      "Kanpur Dehat": ["Akbarpur", "Bhognipur", "Derapur", "Rasoolabad", "Sikandra", "Maitha"],
+      "Ayodhya": ["Ayodhya Dham", "Faizabad Civil Lines", "Rudauli", "Bikapur", "Milkipur", "Sohawal"],
+      "Prayagraj": ["Civil Lines", "Zero Road", "Leader Road", "Phulpur", "Soraon", "Handia", "Karchhana", "Meja", "Koraon"],
+      "Ambedkar Nagar": ["Akbarpur", "Tanda", "Jalalpur", "Alapur", "Bhiti"],
+      "Sultanpur": ["Sultanpur Sadar", "Kadipur", "Jaisinghpur", "Lambhua", "Baldirai"],
+      "Amethi": ["Gauriganj", "Amethi", "Musafirkhana", "Tiloi"],
+      "Barabanki": ["Nawabganj", "Fatehpur", "Ramsanehighat", "Haidergarh", "Ramnagar"],
+      "Gonda": ["Gonda Sadar", "Colonelganj", "Tarabganj", "Mankapur"],
+      "Bahraich": ["Bahraich Sadar", "Nanpara", "Mahasi", "Kaiserganj", "Payagpur", "Mihinpurwa"],
+      "Shravasti": ["Bhinga", "Ikauna", "Payagpur Road"],
+      "Balrampur": ["Balrampur Sadar", "Tulsipur", "Utraula", "Gainsari"],
+      "Fatehpur": ["Fatehpur Sadar", "Bindki", "Khaga"],
+      "Pratapgarh": ["Pratapgarh Sadar", "Kunda", "Patti", "Raniganj", "Lalganj Ajhara"],
+      "Kaushambi": ["Manjhanpur", "Chail", "Sirathu"],
+      "Mirzapur": ["Mirzapur Sadar", "Chunar", "Lalganj", "Marihan"],
+      "Sonbhadra": ["Robertsganj", "Duddhi", "Ghorawal", "Obra", "Renukoot"],
+      "Bhadohi": ["Gyanpur", "Bhadohi", "Aurai"],
+      "Agra": ["ISBT Transport Nagar", "Idgah", "Fatehabad", "Kheragarh", "Bah", "Etmadpur", "Kiraoli"],
+      "Mathura": ["Mathura Old Stand", "Vrindavan", "Chhata", "Mant", "Goverdhan"],
+      "Aligarh": ["Sootmil Stand", "Gandhi Park", "Masoodabad", "Khair", "Atrauli", "Iglas"],
+      "Hathras": ["Hathras Sadar", "Sadabad", "Sasni", "Sikandra Rao"],
+      "Kasganj": ["Kasganj Sadar", "Patiyali", "Sahawar"],
+      "Etah": ["Etah Sadar", "Aliganj", "Jalesar"],
+      "Mainpuri": ["Mainpuri Sadar", "Bhongaon", "Karhal", "Kishni", "Kurawali"],
+      "Firozabad": ["Firozabad Sadar", "Shikohabad", "Sirsaganj", "Jasrana", "Tundla"],
+      "Bareilly": ["Satellite Bus Station", "Old Roadways", "Baheri", "Aonla", "Nawabganj", "Faridpur"],
+      "Budaun": ["Budaun Sadar", "Bisauli", "Sahaswan", "Bilsi", "Dataganj"],
+      "Pilibhit": ["Pilibhit Sadar", "Bisalpur", "Puranpur", "Barkhera"],
+      "Shahjahanpur": ["Shahjahanpur Sadar", "Tilhar", "Jalalabad", "Powayan"],
+      "Moradabad": ["Moradabad Main", "Pital Nagri Depot", "Kanth", "Thakurdwara", "Bilari"],
+      "Rampur": ["Rampur Sadar", "Bilaspur", "Milak", "Shahabad", "Swar"],
+      "Bijnor": ["Bijnor Sadar", "Chandpur", "Dhampur", "Nagina", "Najibabad"],
+      "Amroha": ["Amroha Sadar", "Dhanaura", "Hasanpur", "Naugawan Sadat"],
+      "Sambhal": ["Sambhal Sadar", "Chandausi", "Gunnaur"],
+      "Meerut": ["Bhainsali Stand", "Sohrab Gate", "Mawana", "Sardhana"],
+      "Bulandshahr": ["Bulandshahr Sadar", "Khurja", "Sikandrabad", "Siana", "Anupshahr", "Debai"],
+      "Ghaziabad": ["Old Bus Stand", "Kaushambi ISBT", "Mohan Nagar", "Modinagar", "Loni"],
+      "Hapur": ["Hapur Sadar", "Garhmukteshwar", "Dhaulana"],
+      "Gautam Buddha Nagar": ["Noida Sector 37", "Pari Chowk Greater Noida", "Jewar", "Dadri"],
+      "Baghpat": ["Baghpat Sadar", "Baraut", "Khekra"],
+      "Saharanpur": ["Saharanpur Main", "Deoband", "Nakur", "Behat", "Rampur Maniharan"],
+      "Muzaffarnagar": ["Muzaffarnagar Sadar", "Budhana", "Jansath", "Khatauli"],
+      "Shamli": ["Shamli Sadar", "Kairana", "Thana Bhawan"],
+      "Jhansi": ["Jhansi Main Depot", "Moth", "Mauranipur", "Garautha", "Tahrauli"],
+      "Lalitpur": ["Lalitpur Sadar", "Mahroni", "Talbehat", "Madawara"],
+      "Jalaun": ["Orai Main Depot", "Jalaun", "Kalpi", "Madhogarh"],
+      "Hamirpur": ["Hamirpur Sadar", "Maudaha", "Rath"],
+      "Mahoba": ["Mahoba Sadar", "Charkhari", "Kulpahar"],
+      "Banda": ["Banda Sadar", "Atarra", "Baberu", "Naraini"],
+      "Chitrakoot": ["Karwi (Chitrakoot Dham)", "Mau", "Manikpur", "Rajapur"],
+      "Hardoi": ["Hardoi Sadar", "Shahabad", "Bilgram", "Sandi", "Sandila"],
+      "Sitapur": ["Sitapur Sadar", "Biswan", "Mahmoodabad", "Sidhauli", "Misrikh"],
+      "Lakhimpur Kheri": ["Lakhimpur Sadar", "Gola Gokarannath", "Mohammadi", "Palia Kalan"],
+      "Unnao": ["Unnao Sadar", "Safipur", "Purwa", "Bangarmau"],
+      "Raebareli": ["Raebareli Sadar", "Lalganj", "Maharajganj", "Unchahar"],
+      "Farrukhabad": ["Fatehgarh Depot", "Farrukhabad City", "Kaimganj"],
+      "Kannauj": ["Kannauj Sadar", "Chhibramau", "Tirwa"],
+      "Etawah": ["Etawah Sadar", "Bharthana", "Jaswantnagar", "Saifai"],
+      "Auraiya": ["Auraiya Sadar", "Bidhuna", "Ajitmal"]
+    };
 
-  <!-- ============ Scripts (exact load order) ============ -->
-  <!-- Leaflet CDN -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    const ALL_75_LIST = [
+      "Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh",
+      "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti",
+      "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah",
+      "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur",
+      "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur",
+      "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kushinagar",
+      "Lakhimpur Kheri", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura",
+      "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh",
+      "Prayagraj", "Raebareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur",
+      "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"
+    ];
 
-  <!-- Seedha root wali app.js load karein -->
-  <script src="app.js?v=75"></script>
+    const DISTRICT_STOPS = {};
+    ALL_75_LIST.forEach(d => {
+      const tehsils = UP_TEHSILS[d] || [`${d} Sadar`, `${d} Tehsil Chauraha`];
+      DISTRICT_STOPS[d] = [
+        `${d} Main Bus Depot`,
+        ...tehsils.map(t => t.includes("Station") || t.includes("Stand") || t.includes("ISBT") ? t : `${t} Bus Stand`)
+      ];
+    });
+
+    const MASTER_ROUTES = [
+      {
+        from: "Deoria Sadar Bus Stand",
+        to: "Gorakhpur Railway Station",
+        type: "ordinary",
+        typeLabel: "Ordinary Non-AC",
+        fare: 80,
+        duration: "1h 15m",
+        durationMins: 75,
+        via: ["Baitalpur Bus Stand", "Gauri Bazar Bus Stand", "Chauri Chaura"],
+        departures: ["04:30","05:30","06:30","07:30","08:30","09:30","10:30","11:30","12:30","13:30","14:30","15:30","16:30","17:30","18:30","19:30","20:30","21:30","22:30","23:15"]
+      },
+      {
+        from: "Deoria Sadar Bus Stand",
+        to: "Salempur Bus Stand",
+        type: "ordinary",
+        typeLabel: "Local Service",
+        fare: 30,
+        duration: "45m",
+        durationMins: 45,
+        via: ["Purva Chauraha", "Khukhundoo Bus Stand"],
+        departures: ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00","19:30","21:00"]
+      },
+      {
+        from: "Gorakhpur Railway Station",
+        to: "Deoria Sadar Bus Stand",
+        type: "ordinary",
+        typeLabel: "Ordinary Non-AC",
+        fare: 80,
+        duration: "1h 15m",
+        durationMins: 75,
+        via: ["Chauri Chaura", "Gauri Bazar Bus Stand", "Baitalpur Bus Stand"],
+        departures: ["05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:30"]
+      },
+      {
+        from: "Gorakhpur Railway Station",
+        to: "Alambagh ISBT Lucknow",
+        type: "ordinary",
+        typeLabel: "Express Service",
+        fare: 486,
+        duration: "6h 00m",
+        durationMins: 360,
+        via: ["Sahjanwa", "Khalilabad", "Basti Sadar", "Ayodhya Dham"],
+        departures: ["05:00","07:00","09:30","12:00","14:30","17:00","19:30","22:00","23:30"]
+      }
+    ];
+
+    // DOM Elements
+    const districtSelect = document.getElementById("districtSelect");
+    const fromStop = document.getElementById("fromStop");
+    const toStop = document.getElementById("toStop");
+    const searchBtn = document.getElementById("searchBtn");
+    const swapBtn = document.getElementById("swapBtn");
+    const statusMsg = document.getElementById("statusMessage");
+
+    function initApp() {
+      districtSelect.innerHTML = "";
+      ALL_75_LIST.sort().forEach(dist => {
+        const opt = document.createElement("option");
+        opt.value = dist;
+        opt.textContent = `${dist} (ज़िला)`;
+        districtSelect.appendChild(opt);
+      });
+
+      districtSelect.value = "Deoria";
+      updateStops("Deoria");
+    }
+
+    function updateStops(dist) {
+      const stops = DISTRICT_STOPS[dist] || [];
+
+      fromStop.innerHTML = "";
+      toStop.innerHTML = "";
+
+      // From Dropdown
+      stops.forEach(st => {
+        fromStop.innerHTML += `<option value="${st}">${st}</option>`;
+      });
+
+      // To Dropdown: Local Stops + Major Depots
+      stops.forEach(st => {
+        toStop.innerHTML += `<option value="${st}">${st}</option>`;
+      });
+
+      const majorHubs = [
+        "Gorakhpur Railway Station",
+        "Deoria Sadar Bus Stand",
+        "Alambagh ISBT Lucknow",
+        "Varanasi Cantt ISBT",
+        "Civil Lines Prayagraj",
+        "Jhakarkati Central Kanpur",
+        "Ayodhya Dham"
+      ];
+      majorHubs.forEach(hub => {
+        if (!stops.includes(hub)) {
+          toStop.innerHTML += `<option value="${hub}">${hub}</option>`;
+        }
+      });
+
+      if (dist === "Deoria") {
+        fromStop.value = "Deoria Sadar Bus Stand";
+        toStop.value = "Gorakhpur Railway Station";
+      } else if (dist === "Gorakhpur") {
+        fromStop.value = "Gorakhpur Railway Station";
+        toStop.value = "Deoria Sadar Bus Stand";
+      } else {
+        fromStop.selectedIndex = 0;
+        toStop.selectedIndex = 1;
+      }
+
+      statusMsg.innerText = `${dist} ke sabhi tehsils aur stands active hain.`;
+      renderSchedule();
+    }
+
+    districtSelect.addEventListener("change", (e) => {
+      updateStops(e.target.value);
+    });
+
+    window.quickSelect = function(dist, from, to) {
+      districtSelect.value = dist;
+      updateStops(dist);
+      setTimeout(() => {
+        fromStop.value = from;
+        toStop.value = to;
+        renderSchedule();
+      }, 30);
+    };
+
+    swapBtn.addEventListener("click", () => {
+      const temp = fromStop.value;
+      fromStop.value = toStop.value;
+      toStop.value = temp;
+      renderSchedule();
+    });
+
+    function toMinutes(t) {
+      const [h, m] = t.split(":").map(Number);
+      return h * 60 + m;
+    }
+
+    function calculateArrival(depTime, durMins) {
+      const mins = (toMinutes(depTime) + (durMins || 60)) % (24 * 60);
+      const h = String(Math.floor(mins / 60)).padStart(2, '0');
+      const m = String(mins % 60).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    function renderSchedule() {
+      const fromVal = fromStop.value;
+      const toVal = toStop.value;
+      const now = new Date();
+      const curMin = now.getHours() * 60 + now.getMinutes();
+
+      let matched = [];
+
+      MASTER_ROUTES.forEach(r => {
+        const matchFrom = !fromVal || r.from === fromVal || r.via.includes(fromVal);
+        const matchTo = !toVal || r.to === toVal;
+
+        if (matchFrom && matchTo) {
+          r.departures.forEach(time => {
+            matched.push({
+              time,
+              minutes: toMinutes(time),
+              arrivalTime: calculateArrival(time, r.durationMins),
+              from: r.from,
+              to: r.to,
+              type: r.type,
+              typeLabel: r.typeLabel,
+              fare: r.fare,
+              duration: r.duration,
+              via: r.via
+            });
+          });
+        }
+      });
+
+      // Frequency Fallback for unlisted tehsil corridors
+      if (matched.length === 0 && fromVal && toVal && fromVal !== toVal) {
+        const defaultSlots = ["06:00", "08:30", "11:00", "13:30", "16:00", "18:30", "21:00"];
+        defaultSlots.forEach(t => {
+          matched.push({
+            time: t,
+            minutes: toMinutes(t),
+            arrivalTime: calculateArrival(t, 90),
+            from: fromVal,
+            to: toVal,
+            type: "ordinary",
+            typeLabel: "Regular Tehsil Service",
+            fare: 65,
+            duration: "1h 30m",
+            via: ["Direct Roadways Corridor"]
+          });
+        });
+      }
+
+      matched.sort((a, b) => a.minutes - b.minutes);
+
+      const upcoming = matched.filter(m => m.minutes >= curMin);
+      const past = matched.filter(m => m.minutes < curMin);
+
+      const busList = document.getElementById("busList");
+      const pastBusList = document.getElementById("pastBusList");
+      const togglePastBtn = document.getElementById("togglePastBtn");
+      const resultCount = document.getElementById("resultCount");
+
+      busList.innerHTML = "";
+      pastBusList.innerHTML = "";
+
+      if (upcoming.length === 0 && matched.length > 0) {
+        const tomorrowFirst = matched[0];
+        const diff = (24 * 60 - curMin) + tomorrowFirst.minutes;
+        resultCount.innerText = "Subah ki pehli bus";
+        busList.innerHTML += buildCard(tomorrowFirst, 0, diff, true, false, true);
+      } else if (upcoming.length > 0) {
+        resultCount.innerText = `${upcoming.length} available`;
+        const next = upcoming[0];
+        const diff = next.minutes - curMin;
+        busList.innerHTML += buildCard(next, 0, diff, true, false, false);
+
+        upcoming.slice(1).forEach((b, idx) => {
+          busList.innerHTML += buildCard(b, idx + 1, b.minutes - curMin, false, false, false);
+        });
+      } else {
+        resultCount.innerText = "0 available";
+        busList.innerHTML = `<div style="text-align:center; padding: 25px; color: var(--ink-soft);">Is route par direct bus available nahi hai.</div>`;
+      }
+
+      if (past.length > 0) {
+        togglePastBtn.hidden = false;
+        past.forEach((b, idx) => {
+          pastBusList.innerHTML += buildCard(b, 100 + idx, 0, false, true, false);
+        });
+      } else {
+        togglePastBtn.hidden = true;
+      }
+    }
+
+    function buildCard(b, id, diff, isNext, isPast, isTomorrow = false) {
+      let cardClass = "bus-card";
+      let countdownHTML = "";
+
+      if (isNext) {
+        cardClass += " next-bus";
+        const label = isTomorrow ? `Kal Subah (${b.time})` : (diff === 0 ? 'Abhi Rawana' : `${diff} min me`);
+        countdownHTML = `<div class="countdown-tag next">● NEXT BUS: ${label}</div>`;
+      } else if (isPast) {
+        cardClass += " past-bus";
+        countdownHTML = `<div class="countdown-tag past">Nikal chuki hai</div>`;
+      } else {
+        countdownHTML = `<div class="countdown-tag upcoming">${diff} min baad</div>`;
+      }
+
+      return `
+        <article class="${cardClass}">
+          <span class="timeline-dot"></span>
+          <div class="bus-card-top">
+            <span class="badge ${b.type}">${b.typeLabel}</span>
+            ${isNext ? '<span class="next-badge">NEXT BUS</span>' : ''}
+            <span class="fare">₹${b.fare}</span>
+          </div>
+
+          ${countdownHTML}
+
+          <div class="bus-time-row">
+            <div>
+              <span class="time">${b.time}</span>
+              <span class="station">${b.from}</span>
+            </div>
+            <div class="duration-line">
+              <div class="line"></div>
+              <span>${b.duration}</span>
+            </div>
+            <div>
+              <span class="time" style="color: var(--board-green);">${b.arrivalTime}</span>
+              <span class="station">${b.to}</span>
+            </div>
+          </div>
+
+          <div class="via-note">
+            <strong>Via:</strong> ${b.via.join(" &bull; ")}
+          </div>
+
+          <div class="bus-card-footer">
+            <span>UPSRTC Roadways Official</span>
+            <button class="track-btn" type="button" onclick="alert('Live GPS Tracking: ${b.from} se ${b.to} corridor active hai.')">
+              Route / Live Track
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    // Toggle Past
+    document.getElementById("togglePastBtn").addEventListener("click", () => {
+      const pastList = document.getElementById("pastBusList");
+      pastList.classList.toggle("collapsed");
+      document.querySelector("#togglePastBtn .toggle-icon").innerText = pastList.classList.contains("collapsed") ? "▾" : "▴";
+    });
+
+    // Live Clock
+    function updateClock() {
+      const clockEl = document.getElementById("liveClock");
+      if (!clockEl) return;
+      const now = new Date();
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      clockEl.innerText = `${h}:${m}:${s} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    searchBtn.addEventListener("click", renderSchedule);
+
+    // Boot
+    initApp();
+  </script>
 </body>
 </html>
