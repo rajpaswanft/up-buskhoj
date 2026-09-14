@@ -2,115 +2,291 @@
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>UP BusKhoj — All UP Inter-District Live Bus Tracker</title>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css?v=102">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UP Roadways Timetable</title>
   <style>
-    .route-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 8px; }
-    .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-    optgroup { font-weight: 800; color: #113b29; background: #f0ece1; }
-    option { font-weight: 500; color: #1e1e1e; background: #ffffff; }
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --ink-main: #1a1a1a;
+      --ink-muted: #666666;
+      --primary: #d9381e;
+      --board-green: #0a7c42;
+      --border: #e2e8f0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--ink-main);
+      margin: 0;
+      padding: 12px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    header {
+      background: #1a252f;
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    #liveClock {
+      font-size: 0.85rem;
+      background: rgba(255,255,255,0.15);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .search-card {
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+    .row-two {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .swap-btn {
+      width: auto;
+      padding: 10px 14px;
+      background: #e2e8f0;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .search-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      font-weight: bold;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+    .status-msg {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+    .quick-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      background: #e9ecef;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0 8px;
+    }
+    .results-header h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+    .bus-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .bus-card.next-bus {
+      border: 2px solid var(--board-green);
+      background: #f0fff4;
+    }
+    .bus-card.past-bus {
+      opacity: 0.6;
+    }
+    .bus-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #eee;
+    }
+    .badge.ordinary { background: #e3f2fd; color: #0d47a1; }
+    .badge.express { background: #fff3e0; color: #e65100; }
+    .fare {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+    .countdown-tag {
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin: 6px 0;
+    }
+    .countdown-tag.next { color: var(--board-green); }
+    .countdown-tag.upcoming { color: #d97706; }
+    .countdown-tag.past { color: #718096; }
+    .bus-time-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .time {
+      font-size: 1.2rem;
+      font-weight: bold;
+      display: block;
+    }
+    .station {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+    }
+    .duration-line {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--ink-muted);
+    }
+    .duration-line .line {
+      height: 2px;
+      width: 60px;
+      background: #cbd5e0;
+      margin: 2px auto;
+    }
+    .via-note {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      border-top: 1px dashed var(--border);
+      padding-top: 6px;
+      margin-top: 6px;
+    }
+    .bus-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+    }
+    .track-btn {
+      width: auto;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      background: #edf2f7;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .past-section {
+      margin-top: 20px;
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--ink-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .collapsed { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- LED Board Header -->
-  <header class="app-header">
-    <div class="board-strip">
-      <span>DEORIA</span><span class="dot">•</span><span>GORAKHPUR</span><span class="dot">•</span>
-      <span>BASTI</span><span class="dot">•</span><span>AYODHYA</span><span class="dot">•</span>
-      <span>GONDA</span><span class="dot">•</span><span>LUCKNOW</span><span class="dot">•</span>
-      <span>KANPUR</span><span class="dot">•</span><span>VARANASI</span><span class="dot">•</span>
-      <span>PRAYAGRAJ</span><span class="dot">•</span><span>DEORIA</span><span class="dot">•</span>
-      <span>GORAKHPUR</span><span class="dot">•</span><span>LUCKNOW</span>
-    </div>
-    <div class="logo-area">
-      <span class="bus-icon">🚌</span>
-      <div>
-        <h1>UP BusKhoj</h1>
-        <p>State-Wide Inter-District & Local Tracker</p>
-      </div>
-      <span class="live-clock-chip">
-        <span class="clock-dot"></span>
-        <span id="liveClock">--:--:-- --</span>
-      </span>
-    </div>
-  </header>
+  <div class="container">
+    <header>
+      <h1>🚌 UP Roadways Live</h1>
+      <div id="liveClock">00:00:00 AM</div>
+    </header>
 
-  <main class="main-container">
-
-    <!-- Quick Long-Route Corridor Chips -->
-    <div class="quick-chips-wrapper">
-      <span class="chip-label">Popular:</span>
-      <div class="chip-scroll">
-        <button type="button" class="route-chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Gorakhpur Railway Station')">Deoria ⇄ Gorakhpur</button>
-        <button type="button" class="route-chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Alambagh ISBT (Lucknow)')">Deoria ➔ Lucknow</button>
-        <button type="button" class="route-chip" onclick="quickSelect('Gorakhpur', 'Gorakhpur Railway Station', 'Varanasi Cantt ISBT')">Gorakhpur ➔ Varanasi</button>
-        <button type="button" class="route-chip" onclick="quickSelect('Gorakhpur', 'Gorakhpur Railway Station', 'Alambagh ISBT (Lucknow)')">Gorakhpur ➔ Lucknow</button>
-        <button type="button" class="route-chip" onclick="quickSelect('Varanasi', 'Varanasi Cantt ISBT', 'Civil Lines (Prayagraj)')">Varanasi ➔ Prayagraj</button>
-      </div>
+    <div class="quick-chips">
+      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
+      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Rudrapur Bus Stand')">Deoria ➔ Rudrapur</button>
+      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
+      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Gorakhpur Railway Station')">Deoria ➔ Gorakhpur</button>
     </div>
 
-    <!-- Search Card -->
-    <section class="search-card">
-      <div class="field-group">
-        <label for="districtSelect">Boarding District (आप किस ज़िले में हैं?)</label>
+    <div class="search-card">
+      <div class="form-group">
+        <label>Zila (District) Chunein</label>
         <select id="districtSelect"></select>
       </div>
 
-      <div class="route-row">
-        <div class="field-group">
-          <label for="fromStop">Kahan Se (Boarding Stand)</label>
-          <select id="fromStop"></select>
-        </div>
+      <div class="form-group">
+        <label>Kahan Se (Boarding)</label>
+        <select id="fromStop"></select>
+      </div>
 
-        <div class="swap-divider">
-          <button type="button" id="swapBtn" title="Route Swap">⇅</button>
-        </div>
-
-        <div class="field-group">
-          <label for="toStop">Kahan Tak (Destination - Any District)</label>
+      <div class="row-two">
+        <div class="form-group" style="flex:1; margin:0;">
+          <label>Kahan Tak (Destination)</label>
           <select id="toStop"></select>
         </div>
+        <button type="button" class="swap-btn" id="swapBtn" title="Swap Route">⇅</button>
       </div>
 
-      <button type="button" id="searchBtn" class="primary-btn">
-        <span>Buses Khojein</span>
-        <span class="ticket-punch">✂</span>
-      </button>
-    </section>
-
-    <div class="quick-status">
-      <span class="pulse-dot"></span>
-      <span id="statusMessage">Pure Uttar Pradesh ke sabhi 75 Districts connect hain.</span>
+      <button type="button" class="search-btn" id="searchBtn">Buses Dhoondhein</button>
+      <div class="status-msg" id="statusMessage"></div>
     </div>
 
-    <!-- Results Section -->
-    <section class="results-container">
-      <div class="results-heading-row">
-        <h2 id="resultHeading">Buses Timetable</h2>
-        <span id="resultCount" class="result-count"></span>
-      </div>
+    <div class="results-header">
+      <h2>Aane Wali Buses</h2>
+      <span id="resultCount" style="font-size:0.8rem; color:var(--ink-muted);"></span>
+    </div>
 
-      <div id="busList" class="bus-list has-timeline"></div>
+    <div id="busList"></div>
 
-      <button type="button" id="togglePastBtn" class="toggle-past-btn" hidden>
-        <span class="toggle-icon">▾</span> Aaj pehle nikal chuki buses dekhein
+    <div class="past-section">
+      <button class="toggle-btn" id="togglePastBtn" hidden>
+        <span>Jo Buses Nikal Chuki Hain</span>
+        <span class="toggle-icon">▾</span>
       </button>
-      <div id="pastBusList" class="bus-list past-list collapsed"></div>
-    </section>
+      <div id="pastBusList" class="collapsed"></div>
+    </div>
+  </div>
 
-    <p class="disclaimer">Samay live clock se sync hota hai; arrival times road distance ke aadhar par calculate kiye jaate hain.</p>
-  </main>
-
-  <!-- Complete Inter-District Engine -->
   <script>
     const UP_TEHSILS = {
       "Deoria": ["Deoria Sadar", "Salempur", "Rudrapur", "Barhaj", "Bhatpar Rani", "Bhatni", "Gauri Bazar", "Baitalpur", "Tarkulwa", "Rampur Karkhana", "Lar Road", "Khukhundoo", "Mail", "Bhagalpur"],
@@ -191,7 +367,6 @@
 
     const ALL_75_DISTRICTS = Object.keys(UP_TEHSILS).sort();
 
-    // Stops Dictionary
     const DISTRICT_STOPS = {};
     ALL_75_DISTRICTS.forEach(d => {
       const tehsils = UP_TEHSILS[d];
@@ -201,7 +376,6 @@
       ];
     });
 
-    // Major UP State Corridors (Available anywhere as Destination)
     const MAJOR_UP_HUBS = [
       "Gorakhpur Railway Station",
       "Deoria Sadar Bus Stand",
@@ -223,7 +397,6 @@
       "Jhansi Main Depot"
     ];
 
-    // Real Corridor Master Schedule
     const MASTER_ROUTES = [
       {
         from: "Deoria Sadar Bus Stand",
@@ -231,65 +404,92 @@
         type: "ordinary",
         typeLabel: "Ordinary Non-AC",
         fare: 80,
+        isExactFare: true,
         duration: "1h 15m",
         durationMins: 75,
         via: ["Baitalpur Bus Stand", "Gauri Bazar Bus Stand", "Chauri Chaura"],
-        departures: ["04:30","05:30","06:30","07:30","08:30","09:30","10:30","11:30","12:30","13:30","14:30","15:30","16:30","17:30","18:30","19:30","20:30","21:30","22:30","23:15"]
+        departures: [
+          "04:30","05:00","05:30","06:00","06:15","06:30","06:45","07:00","07:15","07:30",
+          "07:45","08:00","08:15","08:30","08:45","09:00","09:15","09:30","09:45","10:00",
+          "10:15","10:30","10:45","11:00","11:15","11:30","11:45","12:00","12:15","12:30",
+          "12:45","13:00","13:15","13:30","13:45","14:00","14:15","14:30","14:45","15:00",
+          "15:15","15:30","15:45","16:00","16:15","16:30","16:45","17:00","17:15","17:30",
+          "17:45","18:00","18:15","18:30","18:45","19:00","19:15","19:30","19:45","20:00",
+          "20:30","21:00","21:30","22:00","22:30","23:15"
+        ]
       },
       {
         from: "Deoria Sadar Bus Stand",
-        to: "Alambagh ISBT (Lucknow)",
-        type: "express",
-        typeLabel: "Purvanchal Express",
-        fare: 540,
-        duration: "7h 15m",
-        durationMins: 435,
-        via: ["Gorakhpur Railway Station", "Basti Sadar", "Ayodhya Dham Bus Station"],
-        departures: ["05:30", "08:00", "11:30", "14:00", "17:30", "20:30", "22:30"]
-      },
-      {
-        from: "Gorakhpur Railway Station",
-        to: "Alambagh ISBT (Lucknow)",
-        type: "express",
-        typeLabel: "Express Service",
-        fare: 486,
-        duration: "6h 00m",
-        durationMins: 360,
-        via: ["Sahjanwa", "Khalilabad", "Basti Sadar", "Ayodhya Dham Bus Station"],
-        departures: ["05:00","06:30","08:00","10:00","12:00","14:00","16:30","18:30","21:00","23:00"]
-      },
-      {
-        from: "Gorakhpur Railway Station",
-        to: "Varanasi Cantt ISBT",
+        to: "Barhaj Bus Stand",
         type: "ordinary",
-        typeLabel: "Ordinary Service",
-        fare: 310,
-        duration: "5h 15m",
-        durationMins: 315,
-        via: ["Barhalganj Bus Stand", "Dohrighat", "Mau Sadar", "Saidpur"],
-        departures: ["06:00", "08:00", "10:30", "13:00", "15:30", "18:00", "20:30"]
+        typeLabel: "Local Service",
+        fare: 40,
+        isExactFare: true,
+        duration: "50m",
+        durationMins: 50,
+        via: ["Mail Bus Stand", "Kaparwar Ghat"],
+        departures: [
+          "06:00","06:45","07:30","08:15","09:00","09:45","10:30","11:15","12:00","12:45",
+          "13:30","14:15","15:00","15:45","16:30","17:15","18:00","18:45","19:30","20:15"
+        ]
       },
       {
         from: "Deoria Sadar Bus Stand",
-        to: "Varanasi Cantt ISBT",
+        to: "Rudrapur Bus Stand",
         type: "ordinary",
-        typeLabel: "Express Service",
-        fare: 215,
-        duration: "4h 30m",
-        durationMins: 270,
-        via: ["Salempur Bus Stand", "Lar Road", "Dohrighat", "Mau Sadar"],
-        departures: ["05:30", "07:00", "08:45", "11:00", "13:15", "15:30", "18:00"]
+        typeLabel: "Local Service",
+        fare: 28,
+        isExactFare: true,
+        duration: "35m",
+        durationMins: 35,
+        via: ["Gauri Bazar Road", "Rudrapur Chauraha"],
+        departures: [
+          "06:30","07:15","08:00","08:45","09:30","10:15","11:00","11:45","12:30","13:15",
+          "14:00","14:45","15:30","16:15","17:00","17:45","18:30","19:15","20:00"
+        ]
       },
       {
         from: "Deoria Sadar Bus Stand",
         to: "Salempur Bus Stand",
         type: "ordinary",
         typeLabel: "Local Service",
-        fare: 30,
+        fare: 35,
+        isExactFare: true,
         duration: "45m",
         durationMins: 45,
         via: ["Purva Chauraha", "Khukhundoo Bus Stand"],
-        departures: ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00","19:30","21:00"]
+        departures: [
+          "06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","10:30",
+          "11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30","15:00","15:30",
+          "16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:45"
+        ]
+      },
+      {
+        from: "Deoria Sadar Bus Stand",
+        to: "Bhatni Bus Stand",
+        type: "ordinary",
+        typeLabel: "Local Service",
+        fare: 25,
+        isExactFare: true,
+        duration: "30m",
+        durationMins: 30,
+        via: ["Kasya Dhala", "Tarkulwa Road"],
+        departures: [
+          "06:15","07:00","07:45","08:30","09:15","10:00","10:45","11:30","12:15","13:00",
+          "13:45","14:30","15:15","16:00","16:45","17:30","18:15","19:00","19:45"
+        ]
+      },
+      {
+        from: "Deoria Sadar Bus Stand",
+        to: "Alambagh ISBT (Lucknow)",
+        type: "express",
+        typeLabel: "Purvanchal Express / Janrath",
+        fare: 540,
+        isExactFare: true,
+        duration: "7h 15m",
+        durationMins: 435,
+        via: ["Gorakhpur Railway Station", "Basti Sadar", "Ayodhya Dham Bus Station"],
+        departures: ["05:30", "07:00", "08:30", "10:30", "12:30", "14:30", "16:30", "18:30", "20:30", "22:00", "23:15"]
       },
       {
         from: "Gorakhpur Railway Station",
@@ -297,14 +497,30 @@
         type: "ordinary",
         typeLabel: "Ordinary Non-AC",
         fare: 80,
+        isExactFare: true,
         duration: "1h 15m",
         durationMins: 75,
         via: ["Chauri Chaura", "Gauri Bazar Bus Stand", "Baitalpur Bus Stand"],
-        departures: ["05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:30"]
+        departures: [
+          "05:00","05:30","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45",
+          "08:00","08:15","08:30","08:45","09:00","09:15","09:30","09:45","10:00","10:15",
+          "10:30","10:45","11:00","11:15","11:30","11:45","12:00","12:15","12:30","12:45",
+          "13:00","13:15","13:30","13:45","14:00","14:15","14:30","14:45","15:00","15:15",
+          "15:30","15:45","16:00","16:15","16:30","16:45","17:00","17:15","17:30","17:45",
+          "18:00","18:15","18:30","18:45","19:00","19:20","19:40","20:00","20:30","21:00",
+          "21:30","22:00","22:45"
+        ]
       }
     ];
 
-    // Elements
+    function calculateFare(from, to, type = "ordinary") {
+      const isSameDistrict = from.split(" ")[0] === to.split(" ")[0];
+      let approxKm = isSameDistrict ? 22 : 140;
+      let baseRate = type === "janrath" ? 1.90 : 1.30;
+      let estimated = Math.round(approxKm * baseRate);
+      return { amount: estimated, isExact: false };
+    }
+
     const districtSelect = document.getElementById("districtSelect");
     const fromStop = document.getElementById("fromStop");
     const toStop = document.getElementById("toStop");
@@ -312,7 +528,6 @@
     const swapBtn = document.getElementById("swapBtn");
     const statusMsg = document.getElementById("statusMessage");
 
-    // 1. Initialise District Dropdown
     function initDistrictList() {
       districtSelect.innerHTML = "";
       ALL_75_DISTRICTS.forEach(dist => {
@@ -326,20 +541,16 @@
       buildStopsDropdowns("Deoria");
     }
 
-    // 2. Build FROM & TO Dropdowns Without Limits
     function buildStopsDropdowns(selectedDistrict) {
       const currentDistrictStops = DISTRICT_STOPS[selectedDistrict] || [];
 
-      // FROM: Stops within the selected boarding district
       fromStop.innerHTML = "";
       currentDistrictStops.forEach(st => {
         fromStop.innerHTML += `<option value="${st}">${st}</option>`;
       });
 
-      // TO: State-Wide Multi-Group Destination Dropdown
       toStop.innerHTML = "";
 
-      // Group 1: Major Connecting State Hubs
       let optGroupHubs = `<optgroup label="🌟 Major UP State Depots & Cities">`;
       MAJOR_UP_HUBS.forEach(hub => {
         if (!currentDistrictStops.includes(hub)) {
@@ -349,7 +560,6 @@
       optGroupHubs += `</optgroup>`;
       toStop.innerHTML += optGroupHubs;
 
-      // Group 2: Same District Local Stops
       let optGroupLocal = `<optgroup label="📍 ${selectedDistrict} Local Stops">`;
       currentDistrictStops.forEach(st => {
         optGroupLocal += `<option value="${st}">${st}</option>`;
@@ -357,7 +567,6 @@
       optGroupLocal += `</optgroup>`;
       toStop.innerHTML += optGroupLocal;
 
-      // Group 3: All 75 Other UP Districts (Tehsils & Depots)
       ALL_75_DISTRICTS.forEach(d => {
         if (d !== selectedDistrict) {
           let distGroup = `<optgroup label="🏢 ${d} District Stops">`;
@@ -371,7 +580,6 @@
         }
       });
 
-      // Smart Default Selection
       if (selectedDistrict === "Deoria") {
         fromStop.value = "Deoria Sadar Bus Stand";
         toStop.value = "Gorakhpur Railway Station";
@@ -420,7 +628,6 @@
       return `${h}:${m}`;
     }
 
-    // 3. Render Schedule Engine (Smart Inter-District Calculation)
     function renderSchedule() {
       const fromVal = fromStop.value;
       const toVal = toStop.value;
@@ -429,7 +636,6 @@
 
       let matched = [];
 
-      // Check Master Verified Corridors
       MASTER_ROUTES.forEach(r => {
         const matchFrom = !fromVal || r.from === fromVal || r.via.includes(fromVal);
         const matchTo = !toVal || r.to === toVal;
@@ -445,6 +651,7 @@
               type: r.type,
               typeLabel: r.typeLabel,
               fare: r.fare,
+              isExactFare: true,
               duration: r.duration,
               via: r.via
             });
@@ -452,30 +659,28 @@
         }
       });
 
-      // Smart Inter-District Bus Generator for Any Random Combination across UP
       if (matched.length === 0 && fromVal && toVal && fromVal !== toVal) {
-        const isLongDistance = toVal.includes("Lucknow") || toVal.includes("Delhi") || toVal.includes("Kanpur") || toVal.includes("Agra") || toVal.includes("Varanasi");
-        
-        const scheduleTimes = isLongDistance 
-          ? ["05:30", "07:45", "10:30", "13:00", "16:15", "19:00", "21:30", "23:00"]
-          : ["06:00", "07:30", "09:00", "10:30", "12:00", "13:30", "15:00", "16:30", "18:00", "19:30", "21:00"];
+        const isLongDistance = toVal.includes("Lucknow") || toVal.includes("Delhi") || toVal.includes("Varanasi");
+        const fareData = calculateFare(fromVal, toVal, isLongDistance ? "express" : "ordinary");
 
-        const estDurationMins = isLongDistance ? 330 : 90;
-        const estDurationText = isLongDistance ? "5h 30m" : "1h 30m";
-        const estFare = isLongDistance ? 385 : 75;
+        const scheduleTimes = [
+          "06:00","07:00","08:00","09:00","10:00","11:00","12:00",
+          "13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"
+        ];
 
         scheduleTimes.forEach(t => {
           matched.push({
             time: t,
             minutes: toMinutes(t),
-            arrivalTime: calculateArrival(t, estDurationMins),
+            arrivalTime: calculateArrival(t, 45),
             from: fromVal,
             to: toVal,
             type: isLongDistance ? "express" : "ordinary",
-            typeLabel: isLongDistance ? "UPSRTC Inter-District" : "State Roadways",
-            fare: estFare,
-            duration: estDurationText,
-            via: ["UP State Highway Corridor"]
+            typeLabel: isLongDistance ? "UPSRTC Express" : "State Roadways Local",
+            fare: fareData.amount,
+            isExactFare: false,
+            duration: "45m",
+            via: ["State Highway Corridor"]
           });
         });
       }
@@ -537,13 +742,17 @@
         countdownHTML = `<div class="countdown-tag upcoming">${diff} min baad</div>`;
       }
 
+      const fareHTML = b.isExactFare 
+        ? `₹${b.fare}` 
+        : `₹${b.fare} <span style="font-size: 0.62rem; font-weight: 600; color: #777;">(approx)</span>`;
+
       return `
         <article class="${cardClass}">
           <span class="timeline-dot"></span>
           <div class="bus-card-top">
             <span class="badge ${b.type}">${b.typeLabel}</span>
             ${isNext ? '<span class="next-badge">NEXT BUS</span>' : ''}
-            <span class="fare">₹${b.fare}</span>
+            <span class="fare">${fareHTML}</span>
           </div>
 
           ${countdownHTML}
@@ -577,14 +786,12 @@
       `;
     }
 
-    // Toggle Past
     document.getElementById("togglePastBtn").addEventListener("click", () => {
       const pastList = document.getElementById("pastBusList");
       pastList.classList.toggle("collapsed");
       document.querySelector("#togglePastBtn .toggle-icon").innerText = pastList.classList.contains("collapsed") ? "▾" : "▴";
     });
 
-    // Clock
     function updateClock() {
       const clockEl = document.getElementById("liveClock");
       if (!clockEl) return;
@@ -601,7 +808,6 @@
 
     searchBtn.addEventListener("click", renderSchedule);
 
-    // Boot
     initDistrictList();
   </script>
 </body>
