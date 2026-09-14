@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UP Roadways Timetable</title>
+  <title>UP Roadways Live Timetable</title>
   <style>
     :root {
       --bg-color: #f4f6f9;
@@ -513,11 +513,18 @@
       }
     ];
 
-    function calculateFare(from, to, type = "ordinary") {
+    // Smart Fare Calculator Logic based on Route Duration & Distance
+    function calculateFare(from, to, durationMins = 45, isLong = false) {
       const isSameDistrict = from.split(" ")[0] === to.split(" ")[0];
-      let approxKm = isSameDistrict ? 22 : 140;
-      let baseRate = type === "janrath" ? 1.90 : 1.30;
-      let estimated = Math.round(approxKm * baseRate);
+      
+      let approxKm = 25; // Default local stop ~25km
+      if (isLong) {
+        approxKm = 150; // Long distance intercity
+      } else if (!isSameDistrict && durationMins > 90) {
+        approxKm = 100; // Neighboring major district ~100km
+      }
+
+      let estimated = Math.round(approxKm * 1.30); // ₹1.30 per km rate
       return { amount: estimated, isExact: false };
     }
 
@@ -659,9 +666,11 @@
         }
       });
 
+      // Local vs Long Distance Dynamic Fare Fix
       if (matched.length === 0 && fromVal && toVal && fromVal !== toVal) {
-        const isLongDistance = toVal.includes("Lucknow") || toVal.includes("Delhi") || toVal.includes("Varanasi");
-        const fareData = calculateFare(fromVal, toVal, isLongDistance ? "express" : "ordinary");
+        const isLongDistance = toVal.includes("Lucknow") || toVal.includes("Delhi") || toVal.includes("Kanpur") || toVal.includes("Agra") || toVal.includes("Varanasi");
+        const durationMins = isLongDistance ? 360 : 45; // 45m for local, 6h for intercity
+        const fareData = calculateFare(fromVal, toVal, durationMins, isLongDistance);
 
         const scheduleTimes = [
           "06:00","07:00","08:00","09:00","10:00","11:00","12:00",
@@ -672,14 +681,14 @@
           matched.push({
             time: t,
             minutes: toMinutes(t),
-            arrivalTime: calculateArrival(t, 45),
+            arrivalTime: calculateArrival(t, durationMins),
             from: fromVal,
             to: toVal,
             type: isLongDistance ? "express" : "ordinary",
             typeLabel: isLongDistance ? "UPSRTC Express" : "State Roadways Local",
             fare: fareData.amount,
             isExactFare: false,
-            duration: "45m",
+            duration: isLongDistance ? "6h 00m" : "45m",
             via: ["State Highway Corridor"]
           });
         });
