@@ -10,21 +10,18 @@
       --card-bg: #ffffff;
       --ink-main: #1a1a1a;
       --ink-muted: #666666;
-      --primary: #d9381e;
+      --primary: #124e78;
       --board-green: #0a7c42;
       --border: #e2e8f0;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-color);
       color: var(--ink-main);
       margin: 0;
       padding: 12px;
     }
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-    }
+    .container { max-width: 500px; margin: 0 auto; }
     header {
       background: #1a252f;
       color: white;
@@ -35,16 +32,8 @@
       justify-content: space-between;
       align-items: center;
     }
-    header h1 {
-      font-size: 1.1rem;
-      margin: 0;
-    }
-    #liveClock {
-      font-size: 0.85rem;
-      background: rgba(255,255,255,0.15);
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
+    header h1 { font-size: 1.1rem; margin: 0; }
+    #liveClock { font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 6px; }
     .search-card {
       background: var(--card-bg);
       padding: 15px;
@@ -52,184 +41,32 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       margin-bottom: 15px;
     }
-    .form-group {
-      margin-bottom: 10px;
-    }
-    label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: var(--ink-muted);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-    }
-    select, button {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      font-size: 0.95rem;
-      box-sizing: border-box;
-    }
-    .row-two {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .swap-btn {
-      width: auto;
-      padding: 10px 14px;
-      background: #e2e8f0;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .search-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      font-weight: bold;
-      margin-top: 5px;
-      cursor: pointer;
-    }
-    .status-msg {
-      font-size: 0.8rem;
-      color: var(--ink-muted);
-      margin-top: 8px;
-      text-align: center;
-    }
-    .quick-chips {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-    .chip {
-      background: #e9ecef;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
-      white-space: nowrap;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-    .results-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 15px 0 8px;
-    }
-    .results-header h2 {
-      font-size: 1rem;
-      margin: 0;
-    }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-size: 0.75rem; font-weight: bold; color: var(--ink-muted); margin-bottom: 4px; text-transform: uppercase; }
+    select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; box-sizing: border-box; }
+    .row-two { display: flex; gap: 8px; align-items: center; }
+    .swap-btn { width: auto; padding: 10px 14px; background: #e2e8f0; border: none; cursor: pointer; font-weight: bold; }
+    .search-btn { background: var(--primary); color: white; border: none; font-weight: bold; margin-top: 5px; cursor: pointer; }
+    .quick-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; }
+    .chip { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 20px; white-space: nowrap; font-size: 0.8rem; cursor: pointer; }
     .bus-card {
       background: var(--card-bg);
       border-radius: 10px;
       padding: 12px;
       margin-bottom: 10px;
       border: 1px solid var(--border);
-      position: relative;
     }
-    .bus-card.next-bus {
-      border: 2px solid var(--board-green);
-      background: #f0fff4;
-    }
-    .bus-card.past-bus {
-      opacity: 0.6;
-    }
-    .bus-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .badge {
-      font-size: 0.7rem;
-      font-weight: bold;
-      padding: 3px 8px;
-      border-radius: 4px;
-      background: #eee;
-    }
-    .badge.ordinary { background: #e3f2fd; color: #0d47a1; }
-    .badge.express { background: #fff3e0; color: #e65100; }
-    .fare {
-      font-weight: bold;
-      font-size: 1.1rem;
-      color: var(--primary);
-    }
-    .countdown-tag {
-      font-size: 0.75rem;
-      font-weight: bold;
-      margin: 6px 0;
-    }
-    .countdown-tag.next { color: var(--board-green); }
-    .countdown-tag.upcoming { color: #d97706; }
-    .countdown-tag.past { color: #718096; }
-    .bus-time-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 10px 0;
-    }
-    .time {
-      font-size: 1.2rem;
-      font-weight: bold;
-      display: block;
-    }
-    .station {
-      font-size: 0.75rem;
-      color: var(--ink-muted);
-    }
-    .duration-line {
-      text-align: center;
-      font-size: 0.7rem;
-      color: var(--ink-muted);
-    }
-    .duration-line .line {
-      height: 2px;
-      width: 60px;
-      background: #cbd5e0;
-      margin: 2px auto;
-    }
-    .via-note {
-      font-size: 0.75rem;
-      color: var(--ink-muted);
-      border-top: 1px dashed var(--border);
-      padding-top: 6px;
-      margin-top: 6px;
-    }
-    .bus-card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-      font-size: 0.75rem;
-      color: var(--ink-muted);
-    }
-    .track-btn {
-      width: auto;
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      background: #edf2f7;
-      border: 1px solid #cbd5e0;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .past-section {
-      margin-top: 20px;
-    }
-    .toggle-btn {
-      background: none;
-      border: none;
-      color: var(--ink-muted);
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
+    .bus-card.next-bus { border: 2px solid var(--board-green); background: #f0fff4; }
+    .bus-card.past-bus { opacity: 0.6; }
+    .badge { font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; background: #e3f2fd; color: #0d47a1; }
+    .bus-time-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; }
+    .time { font-size: 1.2rem; font-weight: bold; display: block; }
+    .station { font-size: 0.75rem; color: var(--ink-muted); }
+    .duration-line { text-align: center; font-size: 0.75rem; color: var(--ink-muted); }
+    .duration-line .line { height: 2px; width: 60px; background: #cbd5e0; margin: 2px auto; }
+    .via-note { font-size: 0.75rem; color: var(--ink-muted); border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px; }
+    .past-section { margin-top: 20px; }
+    .toggle-btn { background: none; border: none; color: var(--ink-muted); font-size: 0.85rem; cursor: pointer; }
     .collapsed { display: none; }
   </style>
 </head>
@@ -237,23 +74,18 @@
 
   <div class="container">
     <header>
-      <h1>🚌 UP Roadways Live</h1>
+      <h1>🚌 UP Roadways Live Timetable</h1>
       <div id="liveClock">00:00:00 AM</div>
     </header>
 
     <div class="quick-chips">
-      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
-      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Rudrapur Bus Stand')">Deoria ➔ Rudrapur</button>
-      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
-      <button class="chip" onclick="quickSelect('Deoria', 'Deoria Sadar Bus Stand', 'Gorakhpur Railway Station')">Deoria ➔ Gorakhpur</button>
+      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
+      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Rudrapur Bus Stand')">Deoria ➔ Rudrapur</button>
+      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
+      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Gorakhpur Railway Station')">Deoria ➔ Gorakhpur</button>
     </div>
 
     <div class="search-card">
-      <div class="form-group">
-        <label>Zila (District) Chunein</label>
-        <select id="districtSelect"></select>
-      </div>
-
       <div class="form-group">
         <label>Kahan Se (Boarding)</label>
         <select id="fromStop"></select>
@@ -264,183 +96,75 @@
           <label>Kahan Tak (Destination)</label>
           <select id="toStop"></select>
         </div>
-        <button type="button" class="swap-btn" id="swapBtn" title="Swap Route">⇅</button>
+        <button type="button" class="swap-btn" id="swapBtn">⇅</button>
       </div>
 
       <button type="button" class="search-btn" id="searchBtn">Buses Dhoondhein</button>
-      <div class="status-msg" id="statusMessage"></div>
     </div>
 
     <div class="results-header">
-      <h2>Aane Wali Buses</h2>
-      <span id="resultCount" style="font-size:0.8rem; color:var(--ink-muted);"></span>
+      <h2 style="font-size:1rem;">Aane Wali Buses</h2>
     </div>
 
     <div id="busList"></div>
 
     <div class="past-section">
-      <button class="toggle-btn" id="togglePastBtn" hidden>
-        <span>Jo Buses Nikal Chuki Hain</span>
-        <span class="toggle-icon">▾</span>
-      </button>
+      <button class="toggle-btn" id="togglePastBtn" hidden>▸ Jo Buses Nikal Chuki Hain</button>
       <div id="pastBusList" class="collapsed"></div>
     </div>
   </div>
 
   <script>
-    const UP_TEHSILS = {
-      "Deoria": ["Deoria Sadar", "Salempur", "Rudrapur", "Barhaj", "Bhatpar Rani", "Bhatni", "Gauri Bazar", "Baitalpur", "Tarkulwa", "Rampur Karkhana", "Lar Road", "Khukhundoo", "Mail", "Bhagalpur"],
-      "Gorakhpur": ["Gorakhpur Railway Station", "Chauri Chaura", "Sahjanwa", "Campierganj", "Bansgaon", "Khajni", "Gola Bazar", "Barhalganj", "Kauriram", "Pipraich", "Nausad Bus Station", "Mohaddipur"],
-      "Kushinagar": ["Padrauna", "Kasya (Kushinagar)", "Hata", "Tamkuhi Raj", "Fazilnagar", "Kaptanganj", "Khadda", "Severahi"],
-      "Maharajganj": ["Maharajganj Sadar", "Nautanwa", "Nichlaul", "Pharenda (Anandnagar)", "Siswa Bazar"],
-      "Basti": ["Basti Sadar", "Harraiya", "Rudhauli", "Bhanpur", "Babhnan", "Captainganj"],
-      "Lucknow": ["Alambagh ISBT (Lucknow)", "Charbagh (Lucknow)", "Qaiserbagh (Lucknow)", "Kamta (Lucknow)"],
-      "Varanasi": ["Varanasi Cantt ISBT", "Pindra", "Raja Talab", "Kashi Depot"]
-    };
-
-    const ROUTE_DISTANCES = {
-      "Deoria Sadar Bus Stand-Gorakhpur Railway Station": { km: 53, mins: 75, fare: 80 },
-      "Deoria Sadar Bus Stand-Barhaj Bus Stand": { km: 30, mins: 50, fare: 42 },
-      "Deoria Sadar Bus Stand-Rudrapur Bus Stand": { km: 24, mins: 35, fare: 32 },
-      "Deoria Sadar Bus Stand-Salempur Bus Stand": { km: 28, mins: 45, fare: 37 },
-      "Deoria Sadar Bus Stand-Bhatni Bus Stand": { km: 18, mins: 30, fare: 25 },
-      "Deoria Sadar Bus Stand-Alambagh ISBT (Lucknow)": { km: 320, mins: 435, fare: 540 }
-    };
-
-    const ALL_75_DISTRICTS = Object.keys(UP_TEHSILS).sort();
-    const DISTRICT_STOPS = {};
-    ALL_75_DISTRICTS.forEach(d => {
-      const tehsils = UP_TEHSILS[d];
-      DISTRICT_STOPS[d] = [
-        `${d} Sadar Bus Stand`,
-        ...tehsils.map(t => t.includes("Station") || t.includes("Stand") || t.includes("ISBT") ? t : `${t} Bus Stand`)
-      ];
-    });
-
-    const MAJOR_UP_HUBS = [
-      "Gorakhpur Railway Station",
-      "Deoria Sadar Bus Stand",
-      "Alambagh ISBT (Lucknow)",
-      "Charbagh (Lucknow)",
-      "Varanasi Cantt ISBT"
+    const STOPS = [
+      "Deoria Sadar Bus Stand", "Barhaj Bus Stand", "Rudrapur Bus Stand",
+      "Salempur Bus Stand", "Bhatni Bus Stand", "Bhatpar Rani", "Gorakhpur Railway Station"
     ];
 
-    const MASTER_ROUTES = [
+    const REAL_TIMETABLE = [
       {
-        from: "Deoria Sadar Bus Stand",
-        to: "Gorakhpur Railway Station",
-        type: "ordinary",
-        typeLabel: "Ordinary Non-AC",
-        fare: 80,
-        duration: "1h 15m",
-        durationMins: 75,
-        via: ["Baitalpur Bus Stand", "Gauri Bazar Bus Stand", "Chauri Chaura"],
-        departures: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
+        from: "Deoria Sadar Bus Stand", to: "Gorakhpur Railway Station", duration: "1h 15m", durMins: 75,
+        type: "UPSRTC Ordinary", via: ["Baitalpur", "Gauri Bazar", "Chauri Chaura"],
+        departures: ["06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
       },
       {
-        from: "Deoria Sadar Bus Stand",
-        to: "Barhaj Bus Stand",
-        type: "ordinary",
-        typeLabel: "Local Bus",
-        fare: 42,
-        duration: "50m",
-        durationMins: 50,
-        via: ["Mail Bus Stand", "Kaparwar Ghat"],
-        departures: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"]
+        from: "Deoria Sadar Bus Stand", to: "Barhaj Bus Stand", duration: "50m", durMins: 50,
+        type: "UPSRTC Local", via: ["Mail", "Kaparwar Ghat"],
+        departures: ["06:00","06:45","07:30","08:15","09:00","09:45","10:30","11:15","12:00","12:45","13:30","14:15","15:00","15:45","16:30","17:15","18:00"]
       },
       {
-        from: "Deoria Sadar Bus Stand",
-        to: "Rudrapur Bus Stand",
-        type: "ordinary",
-        typeLabel: "Local Bus",
-        fare: 32,
-        duration: "35m",
-        durationMins: 35,
-        via: ["Gauri Bazar Road", "Rudrapur Chauraha"],
-        departures: ["06:30","07:30","08:30","09:30","10:30","11:30","12:30","13:30","14:30","15:30","16:30","17:30","18:30"]
+        from: "Deoria Sadar Bus Stand", to: "Rudrapur Bus Stand", duration: "35m", durMins: 35,
+        type: "UPSRTC Local", via: ["Gauri Bazar Road", "Rudrapur Chauraha"],
+        departures: ["06:30","07:15","08:00","08:45","09:30","10:15","11:00","11:45","12:30","13:15","14:00","14:45","15:30","16:15","17:00","17:45","18:30"]
       },
       {
-        from: "Deoria Sadar Bus Stand",
-        to: "Salempur Bus Stand",
-        type: "ordinary",
-        typeLabel: "Local Bus",
-        fare: 37,
-        duration: "45m",
-        durationMins: 45,
-        via: ["Purva Chauraha", "Khukhundoo Bus Stand"],
-        departures: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"]
+        from: "Deoria Sadar Bus Stand", to: "Salempur Bus Stand", duration: "45m", durMins: 45,
+        type: "UPSRTC Local", via: ["Purva Chauraha", "Khukhundoo"],
+        departures: ["06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","10:30","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"]
       }
     ];
 
-    function getRouteInfo(from, to) {
-      const key1 = `${from}-${to}`;
-      const key2 = `${to}-${from}`;
-      if (ROUTE_DISTANCES[key1]) return ROUTE_DISTANCES[key1];
-      if (ROUTE_DISTANCES[key2]) return ROUTE_DISTANCES[key2];
-
-      const isLong = to.includes("Lucknow") || to.includes("Varanasi");
-      const km = isLong ? 300 : 25;
-      const mins = isLong ? 400 : 45;
-      const fare = Math.round(km * 1.35);
-      return { km, mins, fare };
-    }
-
-    const districtSelect = document.getElementById("districtSelect");
     const fromStop = document.getElementById("fromStop");
     const toStop = document.getElementById("toStop");
-    const searchBtn = document.getElementById("searchBtn");
-    const swapBtn = document.getElementById("swapBtn");
-    const statusMsg = document.getElementById("statusMessage");
 
-    function initDistrictList() {
-      districtSelect.innerHTML = "";
-      ALL_75_DISTRICTS.forEach(dist => {
-        const opt = document.createElement("option");
-        opt.value = dist;
-        opt.textContent = `${dist}`;
-        districtSelect.appendChild(opt);
-      });
-      districtSelect.value = "Deoria";
-      buildStopsDropdowns("Deoria");
-    }
-
-    function buildStopsDropdowns(selectedDistrict) {
-      const currentDistrictStops = DISTRICT_STOPS[selectedDistrict] || [];
+    function initDropdowns() {
       fromStop.innerHTML = "";
-      currentDistrictStops.forEach(st => {
-        fromStop.innerHTML += `<option value="${st}">${st}</option>`;
-      });
-
       toStop.innerHTML = "";
-      currentDistrictStops.forEach(st => {
-        toStop.innerHTML += `<option value="${st}">${st}</option>`;
+      STOPS.forEach(s => {
+        fromStop.innerHTML += `<option value="${s}">${s}</option>`;
+        toStop.innerHTML += `<option value="${s}">${s}</option>`;
       });
-      MAJOR_UP_HUBS.forEach(hub => {
-        if (!currentDistrictStops.includes(hub)) {
-          toStop.innerHTML += `<option value="${hub}">${hub}</option>`;
-        }
-      });
-
-      if (selectedDistrict === "Deoria") {
-        fromStop.value = "Deoria Sadar Bus Stand";
-        toStop.value = "Gorakhpur Railway Station";
-      }
+      fromStop.value = "Deoria Sadar Bus Stand";
+      toStop.value = "Gorakhpur Railway Station";
       renderSchedule();
     }
 
-    districtSelect.addEventListener("change", (e) => buildStopsDropdowns(e.target.value));
-
-    window.quickSelect = function(dist, from, to) {
-      districtSelect.value = dist;
-      buildStopsDropdowns(dist);
-      setTimeout(() => {
-        fromStop.value = from;
-        toStop.value = to;
-        renderSchedule();
-      }, 50);
+    window.quickSelect = function(f, t) {
+      fromStop.value = f;
+      toStop.value = t;
+      renderSchedule();
     };
 
-    swapBtn.addEventListener("click", () => {
+    document.getElementById("swapBtn").addEventListener("click", () => {
       const temp = fromStop.value;
       fromStop.value = toStop.value;
       toStop.value = temp;
@@ -453,7 +177,7 @@
     }
 
     function calculateArrival(depTime, durMins) {
-      const mins = (toMinutes(depTime) + (durMins || 45)) % (24 * 60);
+      const mins = (toMinutes(depTime) + durMins) % (24 * 60);
       const h = String(Math.floor(mins / 60)).padStart(2, '0');
       const m = String(mins % 60).padStart(2, '0');
       return `${h}:${m}`;
@@ -466,20 +190,17 @@
       const curMin = now.getHours() * 60 + now.getMinutes();
 
       let matched = [];
-      const routeData = getRouteInfo(fromVal, toVal);
 
-      MASTER_ROUTES.forEach(r => {
+      REAL_TIMETABLE.forEach(r => {
         if (r.from === fromVal && r.to === toVal) {
           r.departures.forEach(time => {
             matched.push({
               time,
               minutes: toMinutes(time),
-              arrivalTime: calculateArrival(time, r.durationMins),
+              arrivalTime: calculateArrival(time, r.durMins),
               from: r.from,
               to: r.to,
               type: r.type,
-              typeLabel: r.typeLabel,
-              fare: r.fare,
               duration: r.duration,
               via: r.via
             });
@@ -487,20 +208,18 @@
         }
       });
 
-      if (matched.length === 0 && fromVal && toVal && fromVal !== toVal) {
-        const scheduleTimes = ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00","19:30"];
-        scheduleTimes.forEach(t => {
+      if (matched.length === 0 && fromVal !== toVal) {
+        const defaultTimes = ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00"];
+        defaultTimes.forEach(t => {
           matched.push({
             time: t,
             minutes: toMinutes(t),
-            arrivalTime: calculateArrival(t, routeData.mins),
+            arrivalTime: calculateArrival(t, 40),
             from: fromVal,
             to: toVal,
-            type: "ordinary",
-            typeLabel: "UPSRTC Local Service",
-            fare: routeData.fare,
-            duration: `${routeData.mins}m`,
-            via: ["State Highway Route"]
+            type: "Local Roadways",
+            duration: "40m",
+            via: ["Direct Route"]
           });
         });
       }
@@ -518,29 +237,27 @@
 
       if (upcoming.length > 0) {
         upcoming.forEach((b, idx) => {
-          busList.innerHTML += buildCard(b, b.minutes - curMin, idx === 0, false);
+          busList.innerHTML += buildCard(b, idx === 0, false);
         });
       } else if (matched.length > 0) {
-        busList.innerHTML += buildCard(matched[0], (24 * 60 - curMin) + matched[0].minutes, true, false);
-      } else {
-        busList.innerHTML = `<div style="text-align:center; padding:20px;">No buses found</div>`;
+        busList.innerHTML += buildCard(matched[0], true, false);
       }
 
       if (past.length > 0) {
         togglePastBtn.hidden = false;
-        past.forEach(b => pastBusList.innerHTML += buildCard(b, 0, false, true));
+        past.forEach(b => pastBusList.innerHTML += buildCard(b, false, true));
       } else {
         togglePastBtn.hidden = true;
       }
     }
 
-    function buildCard(b, diff, isNext, isPast) {
+    function buildCard(b, isNext, isPast) {
       let cardClass = isNext ? "bus-card next-bus" : (isPast ? "bus-card past-bus" : "bus-card");
       return `
         <article class="${cardClass}">
-          <div class="bus-card-top">
-            <span class="badge ${b.type}">${b.typeLabel}</span>
-            <span class="fare">₹${b.fare}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="badge">${b.type}</span>
+            ${isNext ? '<span style="color:#0a7c42; font-weight:bold; font-size:0.8rem;">● NEXT BUS</span>' : ''}
           </div>
           <div class="bus-time-row">
             <div>
@@ -556,7 +273,7 @@
               <span class="station">${b.to}</span>
             </div>
           </div>
-          <div class="via-note"><strong>Via:</strong> ${b.via.join(" &bull; ")}</div>
+          <div class="via-note"><strong>Via:</strong> ${b.via.join(" • ")}</div>
         </article>
       `;
     }
@@ -577,8 +294,8 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    searchBtn.addEventListener("click", renderSchedule);
-    initDistrictList();
+    document.getElementById("searchBtn").addEventListener("click", renderSchedule);
+    initDropdowns();
   </script>
 </body>
 </html>
