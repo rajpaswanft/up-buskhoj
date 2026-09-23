@@ -1,301 +1,111 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UP Roadways Live Timetable</title>
-  <style>
-    :root {
-      --bg-color: #f4f6f9;
-      --card-bg: #ffffff;
-      --ink-main: #1a1a1a;
-      --ink-muted: #666666;
-      --primary: #124e78;
-      --board-green: #0a7c42;
-      --border: #e2e8f0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--ink-main);
-      margin: 0;
-      padding: 12px;
-    }
-    .container { max-width: 500px; margin: 0 auto; }
-    header {
-      background: #1a252f;
-      color: white;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header h1 { font-size: 1.1rem; margin: 0; }
-    #liveClock { font-size: 0.85rem; background: rgba(255,255,255,0.15); padding: 4px 8px; border-radius: 6px; }
-    .search-card {
-      background: var(--card-bg);
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      margin-bottom: 15px;
-    }
-    .form-group { margin-bottom: 10px; }
-    label { display: block; font-size: 0.75rem; font-weight: bold; color: var(--ink-muted); margin-bottom: 4px; text-transform: uppercase; }
-    select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; box-sizing: border-box; }
-    .row-two { display: flex; gap: 8px; align-items: center; }
-    .swap-btn { width: auto; padding: 10px 14px; background: #e2e8f0; border: none; cursor: pointer; font-weight: bold; }
-    .search-btn { background: var(--primary); color: white; border: none; font-weight: bold; margin-top: 5px; cursor: pointer; }
-    .quick-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 10px; }
-    .chip { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 20px; white-space: nowrap; font-size: 0.8rem; cursor: pointer; }
-    .bus-card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 10px;
-      border: 1px solid var(--border);
-    }
-    .bus-card.next-bus { border: 2px solid var(--board-green); background: #f0fff4; }
-    .bus-card.past-bus { opacity: 0.6; }
-    .badge { font-size: 0.75rem; font-weight: bold; padding: 3px 8px; border-radius: 4px; background: #e3f2fd; color: #0d47a1; }
-    .bus-time-row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; }
-    .time { font-size: 1.2rem; font-weight: bold; display: block; }
-    .station { font-size: 0.75rem; color: var(--ink-muted); }
-    .duration-line { text-align: center; font-size: 0.75rem; color: var(--ink-muted); }
-    .duration-line .line { height: 2px; width: 60px; background: #cbd5e0; margin: 2px auto; }
-    .via-note { font-size: 0.75rem; color: var(--ink-muted); border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px; }
-    .past-section { margin-top: 20px; }
-    .toggle-btn { background: none; border: none; color: var(--ink-muted); font-size: 0.85rem; cursor: pointer; }
-    .collapsed { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UP BusKhoj - Live Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #d32f2f; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background-color: #b71c1c; }
+        #results { margin-top: 20px; text-align: left; }
+        .bus-card { border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 10px; background: #fafafa; }
+        .loading { color: #1976d2; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <h1>🚌 UP Roadways Live Timetable</h1>
-      <div id="liveClock">00:00:00 AM</div>
-    </header>
-
-    <div class="quick-chips">
-      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Barhaj Bus Stand')">Deoria ➔ Barhaj</button>
-      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Rudrapur Bus Stand')">Deoria ➔ Rudrapur</button>
-      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Salempur Bus Stand')">Deoria ➔ Salempur</button>
-      <button class="chip" onclick="quickSelect('Deoria Sadar Bus Stand', 'Gorakhpur Railway Station')">Deoria ➔ Gorakhpur</button>
+    <div class="container">
+        <h2>🚌 UP BusKhoj</h2>
+        <input type="text" id="fromCity" placeholder="Kahan Se? (eg. luck)" value="luck">
+        <input type="text" id="toCity" placeholder="Kahan Tak? (eg. deoria)" value="deoria">
+        <button onclick="searchBuses()">Search Buses</button>
+        
+        <div id="results"></div>
     </div>
 
-    <div class="search-card">
-      <div class="form-group">
-        <label>Kahan Se (Boarding)</label>
-        <select id="fromStop"></select>
-      </div>
+    <script>
+        // Aapki API Key aur Parse.bot ka unique Scraper ID
+        const API_KEY = "pmx_cd56769521b980e2927f2691ec11e85f";
+        const BASE_URL = "https://api.parse.bot/scraper/a8a2f054-e180-4156-b441-22a99770e4f1";
 
-      <div class="row-two">
-        <div class="form-group" style="flex:1; margin:0;">
-          <label>Kahan Tak (Destination)</label>
-          <select id="toStop"></select>
-        </div>
-        <button type="button" class="swap-btn" id="swapBtn">⇅</button>
-      </div>
-
-      <button type="button" class="search-btn" id="searchBtn">Buses Dhoondhein</button>
-    </div>
-
-    <div class="results-header">
-      <h2 style="font-size:1rem;">Aane Wali Buses</h2>
-    </div>
-
-    <div id="busList"></div>
-
-    <div class="past-section">
-      <button class="toggle-btn" id="togglePastBtn" hidden>▸ Jo Buses Nikal Chuki Hain</button>
-      <div id="pastBusList" class="collapsed"></div>
-    </div>
-  </div>
-
-  <script>
-    const STOPS = [
-      "Deoria Sadar Bus Stand", "Barhaj Bus Stand", "Rudrapur Bus Stand",
-      "Salempur Bus Stand", "Bhatni Bus Stand", "Bhatpar Rani", "Gorakhpur Railway Station"
-    ];
-
-    const REAL_TIMETABLE = [
-      {
-        from: "Deoria Sadar Bus Stand", to: "Gorakhpur Railway Station", duration: "1h 15m", durMins: 75,
-        type: "UPSRTC Ordinary", via: ["Baitalpur", "Gauri Bazar", "Chauri Chaura"],
-        departures: ["06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]
-      },
-      {
-        from: "Deoria Sadar Bus Stand", to: "Barhaj Bus Stand", duration: "50m", durMins: 50,
-        type: "UPSRTC Local", via: ["Mail", "Kaparwar Ghat"],
-        departures: ["06:00","06:45","07:30","08:15","09:00","09:45","10:30","11:15","12:00","12:45","13:30","14:15","15:00","15:45","16:30","17:15","18:00"]
-      },
-      {
-        from: "Deoria Sadar Bus Stand", to: "Rudrapur Bus Stand", duration: "35m", durMins: 35,
-        type: "UPSRTC Local", via: ["Gauri Bazar Road", "Rudrapur Chauraha"],
-        departures: ["06:30","07:15","08:00","08:45","09:30","10:15","11:00","11:45","12:30","13:15","14:00","14:45","15:30","16:15","17:00","17:45","18:30"]
-      },
-      {
-        from: "Deoria Sadar Bus Stand", to: "Salempur Bus Stand", duration: "45m", durMins: 45,
-        type: "UPSRTC Local", via: ["Purva Chauraha", "Khukhundoo"],
-        departures: ["06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","10:30","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"]
-      }
-    ];
-
-    const fromStop = document.getElementById("fromStop");
-    const toStop = document.getElementById("toStop");
-
-    function initDropdowns() {
-      fromStop.innerHTML = "";
-      toStop.innerHTML = "";
-      STOPS.forEach(s => {
-        fromStop.innerHTML += `<option value="${s}">${s}</option>`;
-        toStop.innerHTML += `<option value="${s}">${s}</option>`;
-      });
-      fromStop.value = "Deoria Sadar Bus Stand";
-      toStop.value = "Gorakhpur Railway Station";
-      renderSchedule();
-    }
-
-    window.quickSelect = function(f, t) {
-      fromStop.value = f;
-      toStop.value = t;
-      renderSchedule();
-    };
-
-    document.getElementById("swapBtn").addEventListener("click", () => {
-      const temp = fromStop.value;
-      fromStop.value = toStop.value;
-      toStop.value = temp;
-      renderSchedule();
-    });
-
-    function toMinutes(t) {
-      const [h, m] = t.split(":").map(Number);
-      return h * 60 + m;
-    }
-
-    function calculateArrival(depTime, durMins) {
-      const mins = (toMinutes(depTime) + durMins) % (24 * 60);
-      const h = String(Math.floor(mins / 60)).padStart(2, '0');
-      const m = String(mins % 60).padStart(2, '0');
-      return `${h}:${m}`;
-    }
-
-    function renderSchedule() {
-      const fromVal = fromStop.value;
-      const toVal = toStop.value;
-      const now = new Date();
-      const curMin = now.getHours() * 60 + now.getMinutes();
-
-      let matched = [];
-
-      REAL_TIMETABLE.forEach(r => {
-        if (r.from === fromVal && r.to === toVal) {
-          r.departures.forEach(time => {
-            matched.push({
-              time,
-              minutes: toMinutes(time),
-              arrivalTime: calculateArrival(time, r.durMins),
-              from: r.from,
-              to: r.to,
-              type: r.type,
-              duration: r.duration,
-              via: r.via
-            });
-          });
+        async function fetchStationCode(cityName) {
+            const url = `${BASE_URL}/search_stations?query=${cityName}`;
+            const response = await fetch(url, { headers: { "X-API-Key": API_KEY } });
+            if (!response.ok) throw new Error("API Limit reached or error!");
+            
+            const json = await response.json();
+            if (json.data && json.data.stations.length > 0) {
+                return json.data.stations[0].station_code; // Pehle station ka code return karega
+            }
+            return null;
         }
-      });
 
-      if (matched.length === 0 && fromVal !== toVal) {
-        const defaultTimes = ["06:00","07:30","09:00","10:30","12:00","13:30","15:00","16:30","18:00"];
-        defaultTimes.forEach(t => {
-          matched.push({
-            time: t,
-            minutes: toMinutes(t),
-            arrivalTime: calculateArrival(t, 40),
-            from: fromVal,
-            to: toVal,
-            type: "Local Roadways",
-            duration: "40m",
-            via: ["Direct Route"]
-          });
-        });
-      }
+        async function searchBuses() {
+            const from = document.getElementById("fromCity").value.trim();
+            const to = document.getElementById("toCity").value.trim();
+            const resultsDiv = document.getElementById("results");
 
-      matched.sort((a, b) => a.minutes - b.minutes);
-      const upcoming = matched.filter(m => m.minutes >= curMin);
-      const past = matched.filter(m => m.minutes < curMin);
+            if(!from || !to) {
+                alert("Dono sheher ka naam daalein!");
+                return;
+            }
 
-      const busList = document.getElementById("busList");
-      const pastBusList = document.getElementById("pastBusList");
-      const togglePastBtn = document.getElementById("togglePastBtn");
+            resultsDiv.innerHTML = "<p class='loading'>Station Codes nikal rahe hain...</p>";
 
-      busList.innerHTML = "";
-      pastBusList.innerHTML = "";
+            try {
+                // Step 1: Origin aur Destination ke station code nikalo
+                const originCode = await fetchStationCode(from);
+                const destCode = await fetchStationCode(to);
 
-      if (upcoming.length > 0) {
-        upcoming.forEach((b, idx) => {
-          busList.innerHTML += buildCard(b, idx === 0, false);
-        });
-      } else if (matched.length > 0) {
-        busList.innerHTML += buildCard(matched[0], true, false);
-      }
+                if (!originCode || !destCode) {
+                    resultsDiv.innerHTML = "<p style='color:red;'>Station nahi mila. Sahi naam daalein!</p>";
+                    return;
+                }
 
-      if (past.length > 0) {
-        togglePastBtn.hidden = false;
-        past.forEach(b => pastBusList.innerHTML += buildCard(b, false, true));
-      } else {
-        togglePastBtn.hidden = true;
-      }
-    }
+                resultsDiv.innerHTML = "<p class='loading'>Buses search ho rahi hain...</p>";
 
-    function buildCard(b, isNext, isPast) {
-      let cardClass = isNext ? "bus-card next-bus" : (isPast ? "bus-card past-bus" : "bus-card");
-      return `
-        <article class="${cardClass}">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="badge">${b.type}</span>
-            ${isNext ? '<span style="color:#0a7c42; font-weight:bold; font-size:0.8rem;">● NEXT BUS</span>' : ''}
-          </div>
-          <div class="bus-time-row">
-            <div>
-              <span class="time">${b.time}</span>
-              <span class="station">${b.from}</span>
-            </div>
-            <div class="duration-line">
-              <div class="line"></div>
-              <span>${b.duration}</span>
-            </div>
-            <div>
-              <span class="time" style="color: var(--board-green);">${b.arrivalTime}</span>
-              <span class="station">${b.to}</span>
-            </div>
-          </div>
-          <div class="via-note"><strong>Via:</strong> ${b.via.join(" • ")}</div>
-        </article>
-      `;
-    }
+                // Step 2: Bus Schedule API Call karo
+                const busUrl = `${BASE_URL}/search_bus_schedules?origin=${originCode}&destination=${destCode}`;
+                const busResponse = await fetch(busUrl, { headers: { "X-API-Key": API_KEY } });
+                
+                if (!busResponse.ok) throw new Error("Too many requests! 1 minute ruko.");
 
-    document.getElementById("togglePastBtn").addEventListener("click", () => {
-      document.getElementById("pastBusList").classList.toggle("collapsed");
-    });
+                const busData = await busResponse.json();
+                displayBuses(busData);
 
-    function updateClock() {
-      const now = new Date();
-      let h = now.getHours();
-      const m = String(now.getMinutes()).padStart(2, '0');
-      const s = String(now.getSeconds()).padStart(2, '0');
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      document.getElementById("liveClock").innerText = `${h}:${m}:${s} ${ampm}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style='color:red;'>Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
 
-    document.getElementById("searchBtn").addEventListener("click", renderSchedule);
-    initDropdowns();
-  </script>
+        function displayBuses(data) {
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = ""; // Purana data clear karo
+
+            // Parse.bot ke response structure ke hisab se data check kar rahe hain
+            if (!data.data || !data.data.trips || data.data.trips.length === 0) {
+                resultsDiv.innerHTML = "<p>Koi direct bus nahi mili.</p>";
+                return;
+            }
+
+            // Har bus ka card banakar screen par dikhao
+            data.data.trips.forEach(trip => {
+                const card = document.createElement("div");
+                card.className = "bus-card";
+                card.innerHTML = `
+                    <strong>🚍 ${trip.service_type_name || 'Express Bus'}</strong><br>
+                    🕒 Dep: <b>${trip.departure_time}</b> - Arr: <b>${trip.arrival_time}</b><br>
+                    💵 Fare: ₹${trip.fare || 'N/A'} <br>
+                    <small>Route: ${trip.route_name}</small>
+                `;
+                resultsDiv.appendChild(card);
+            });
+        }
+    </script>
 </body>
 </html>
