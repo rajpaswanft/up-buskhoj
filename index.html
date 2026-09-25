@@ -1,111 +1,421 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UP BusKhoj - Live Tracker</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #d32f2f; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
-        button:hover { background-color: #b71c1c; }
-        #results { margin-top: 20px; text-align: left; }
-        .bus-card { border: 1px solid #ddd; padding: 10px; border-radius: 5px; margin-bottom: 10px; background: #fafafa; }
-        .loading { color: #1976d2; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UP BusKhoj — उत्तर प्रदेश बस लाइव ट्रैकर</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <h2>🚌 UP BusKhoj</h2>
-        <input type="text" id="fromCity" placeholder="Kahan Se? (eg. luck)" value="luck">
-        <input type="text" id="toCity" placeholder="Kahan Tak? (eg. deoria)" value="deoria">
-        <button onclick="searchBuses()">Search Buses</button>
-        
-        <div id="results"></div>
-    </div>
+  <div class="app-layout">
 
-    <script>
-        // Aapki API Key aur Parse.bot ka unique Scraper ID
-        const API_KEY = "pmx_cd56769521b980e2927f2691ec11e85f";
-        const BASE_URL = "https://api.parse.bot/scraper/a8a2f054-e180-4156-b441-22a99770e4f1";
+    <!-- ============ Sidebar ============ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="icon">🚌</span>
+        <span class="name">UP BusKhoj</span>
+      </div>
 
-        async function fetchStationCode(cityName) {
-            const url = `${BASE_URL}/search_stations?query=${cityName}`;
-            const response = await fetch(url, { headers: { "X-API-Key": API_KEY } });
-            if (!response.ok) throw new Error("API Limit reached or error!");
-            
-            const json = await response.json();
-            if (json.data && json.data.stations.length > 0) {
-                return json.data.stations[0].station_code; // Pehle station ka code return karega
-            }
-            return null;
-        }
+      <ul class="nav-list">
+        <li><a class="nav-link active" href="#"><span class="nav-icon">🎫</span> My Bookings</a></li>
+        <li><a class="nav-link" href="#"><span class="nav-icon">🛣️</span> Routes</a></li>
+        <li><a class="nav-link" href="#"><span class="nav-icon">👤</span> Profile</a></li>
+        <li><a class="nav-link" href="#"><span class="nav-icon">❓</span> Help</a></li>
+      </ul>
 
-        async function searchBuses() {
-            const from = document.getElementById("fromCity").value.trim();
-            const to = document.getElementById("toCity").value.trim();
-            const resultsDiv = document.getElementById("results");
+      <div class="sidebar-footer">
+        <span class="lang-toggle-label">Language</span>
+        <div class="lang-switch" id="langSwitch">
+          <button type="button" class="active" data-lang="hi">हिंदी</button>
+          <button type="button" data-lang="en">English</button>
+        </div>
+      </div>
+    </aside>
 
-            if(!from || !to) {
-                alert("Dono sheher ka naam daalein!");
-                return;
-            }
+    <!-- ============ Main content ============ -->
+    <main class="main-content">
 
-            resultsDiv.innerHTML = "<p class='loading'>Station Codes nikal rahe hain...</p>";
+      <header class="app-header">
+        <span class="bus-emoji" aria-hidden="true">🚌</span>
+        <h1>UP BUSKHOJ (उत्तर प्रदेश बस लाइव ट्रैकर)</h1>
+      </header>
 
-            try {
-                // Step 1: Origin aur Destination ke station code nikalo
-                const originCode = await fetchStationCode(from);
-                const destCode = await fetchStationCode(to);
+      <!-- ---------- Search card ---------- -->
+      <section class="search-card">
+        <div class="search-row">
+          <div class="field">
+            <label for="fromInput">From</label>
+            <input type="text" id="fromInput" placeholder="e.g., luck" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="toInput">To</label>
+            <input type="text" id="toInput" placeholder="e.g., deoria" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="dateInput">Travel Date</label>
+            <input type="date" id="dateInput">
+          </div>
+        </div>
 
-                if (!originCode || !destCode) {
-                    resultsDiv.innerHTML = "<p style='color:red;'>Station nahi mila. Sahi naam daalein!</p>";
-                    return;
-                }
+        <div class="toggles-row">
+          <div class="toggle-group">
+            <label class="switch">
+              <input type="checkbox" id="acToggle">
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">AC / Non-AC</span>
+            <span class="toggle-state-text" id="acStateText">Non-AC</span>
+          </div>
 
-                resultsDiv.innerHTML = "<p class='loading'>Buses search ho rahi hain...</p>";
+          <div class="toggle-group">
+            <label class="switch">
+              <input type="checkbox" id="expressToggle">
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Express / Ordinary</span>
+            <span class="toggle-state-text" id="expressStateText">Ordinary</span>
+          </div>
+        </div>
 
-                // Step 2: Bus Schedule API Call karo
-                const busUrl = `${BASE_URL}/search_bus_schedules?origin=${originCode}&destination=${destCode}`;
-                const busResponse = await fetch(busUrl, { headers: { "X-API-Key": API_KEY } });
-                
-                if (!busResponse.ok) throw new Error("Too many requests! 1 minute ruko.");
+        <div class="search-btn-wrap">
+          <button type="button" class="search-btn" id="searchBtn">बसों को खोजें (Find Buses)</button>
+        </div>
+      </section>
 
-                const busData = await busResponse.json();
-                displayBuses(busData);
+      <!-- ---------- Status / loading / error ---------- -->
+      <div class="status-box" id="statusBox">
+        <span class="spinner" id="statusSpinner" style="display:none;"></span>
+        <span id="statusMessage"></span>
+      </div>
 
-            } catch (error) {
-                resultsDiv.innerHTML = `<p style='color:red;'>Error: ${error.message}</p>`;
-                console.error(error);
-            }
-        }
+      <!-- ---------- Results ---------- -->
+      <h2 class="results-heading">Available Buses</h2>
+      <div class="results-grid" id="resultsGrid">
+        <p class="placeholder-text">Search karke apni bus dhoondein.</p>
+      </div>
 
-        function displayBuses(data) {
-            const resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = ""; // Purana data clear karo
+      <!-- ---------- Live map ---------- -->
+      <section class="live-map-section">
+        <h2>Live Map View</h2>
+        <div class="map-placeholder">
+          <div class="map-route-line" aria-hidden="true"></div>
+          <span class="map-bus-icon" aria-hidden="true">🚌</span>
+          <div class="map-point origin">
+            <span class="dot"></span>
+            <span class="label" id="mapFromLabel">Origin</span>
+          </div>
+          <div class="map-point destination">
+            <span class="dot"></span>
+            <span class="label" id="mapToLabel">Destination</span>
+          </div>
+        </div>
+      </section>
 
-            // Parse.bot ke response structure ke hisab se data check kar rahe hain
-            if (!data.data || !data.data.trips || data.data.trips.length === 0) {
-                resultsDiv.innerHTML = "<p>Koi direct bus nahi mili.</p>";
-                return;
-            }
+    </main>
+  </div>
 
-            // Har bus ka card banakar screen par dikhao
-            data.data.trips.forEach(trip => {
-                const card = document.createElement("div");
-                card.className = "bus-card";
-                card.innerHTML = `
-                    <strong>🚍 ${trip.service_type_name || 'Express Bus'}</strong><br>
-                    🕒 Dep: <b>${trip.departure_time}</b> - Arr: <b>${trip.arrival_time}</b><br>
-                    💵 Fare: ₹${trip.fare || 'N/A'} <br>
-                    <small>Route: ${trip.route_name}</small>
-                `;
-                resultsDiv.appendChild(card);
-            });
-        }
-    </script>
+<script>
+(function () {
+  "use strict";
+
+  // =====================================================
+  // Config — Parse.bot API
+  //
+  // SECURITY NOTE: this key is embedded in client-side code.
+  // Anyone viewing this page's source (or your GitHub repo,
+  // if this is hosted on GitHub Pages) can read and reuse it.
+  // For a real deployment, move this call behind a small
+  // serverless proxy (Cloudflare Worker / Vercel function)
+  // that injects the key server-side instead of shipping it
+  // to the browser.
+  // =====================================================
+  const API_KEY = "pmx_cd56769521b980e2927f2691ec11e85f";
+  const BASE_URL = "https://api.parse.bot/scraper/a8a2f054-e180-4156-b441-22a99770e4f1";
+
+  const el = {
+    fromInput: document.getElementById("fromInput"),
+    toInput: document.getElementById("toInput"),
+    dateInput: document.getElementById("dateInput"),
+    acToggle: document.getElementById("acToggle"),
+    acStateText: document.getElementById("acStateText"),
+    expressToggle: document.getElementById("expressToggle"),
+    expressStateText: document.getElementById("expressStateText"),
+    searchBtn: document.getElementById("searchBtn"),
+    statusBox: document.getElementById("statusBox"),
+    statusSpinner: document.getElementById("statusSpinner"),
+    statusMessage: document.getElementById("statusMessage"),
+    resultsGrid: document.getElementById("resultsGrid"),
+    mapFromLabel: document.getElementById("mapFromLabel"),
+    mapToLabel: document.getElementById("mapToLabel"),
+    langSwitch: document.getElementById("langSwitch"),
+  };
+
+  // Default the date picker to today.
+  el.dateInput.value = new Date().toISOString().slice(0, 10);
+
+  // -----------------------------------------------------
+  // Toggle switch labels
+  // -----------------------------------------------------
+  el.acToggle.addEventListener("change", () => {
+    el.acStateText.textContent = el.acToggle.checked ? "AC" : "Non-AC";
+  });
+  el.expressToggle.addEventListener("change", () => {
+    el.expressStateText.textContent = el.expressToggle.checked ? "Express" : "Ordinary";
+  });
+
+  // -----------------------------------------------------
+  // Language toggle (cosmetic — swaps the search button text
+  // and a couple of key labels between Hindi/English)
+  // -----------------------------------------------------
+  el.langSwitch.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-lang]");
+    if (!btn) return;
+    Array.from(el.langSwitch.querySelectorAll("button")).forEach((b) => b.classList.toggle("active", b === btn));
+    el.searchBtn.textContent = btn.dataset.lang === "en" ? "Find Buses" : "बसों को खोजें (Find Buses)";
+  });
+
+  // -----------------------------------------------------
+  // Status box helpers
+  // -----------------------------------------------------
+  function showStatus(message, mode) {
+    // mode: "loading" | "error" | "info"
+    el.statusBox.className = "status-box visible " + (mode || "info");
+    el.statusSpinner.style.display = mode === "loading" ? "inline-block" : "none";
+    el.statusMessage.textContent = message;
+  }
+
+  function hideStatus() {
+    el.statusBox.className = "status-box";
+    el.statusMessage.textContent = "";
+  }
+
+  function showResultsPlaceholder(message) {
+    el.resultsGrid.innerHTML = `<p class="placeholder-text">${message}</p>`;
+  }
+
+  // -----------------------------------------------------
+  // Defensive JSON helpers — Parse.bot's exact response
+  // shape wasn't verified against a live call, so these
+  // helpers try several common wrapper patterns instead of
+  // assuming just one, and fail gracefully if none match.
+  // -----------------------------------------------------
+  function extractArray(json, candidateKeys) {
+    if (Array.isArray(json)) return json;
+    if (json && typeof json === "object") {
+      for (const key of candidateKeys) {
+        if (Array.isArray(json[key])) return json[key];
+      }
+    }
+    return [];
+  }
+
+  function extractStationCode(stationJson) {
+    const candidates = extractArray(stationJson, ["results", "data", "stations", "items"]);
+    const first = candidates[0];
+    if (!first) return null;
+    return first.station_code || first.code || first.id || null;
+  }
+
+  // -----------------------------------------------------
+  // API calls
+  // -----------------------------------------------------
+  async function fetchWithKey(url) {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { "X-API-Key": API_KEY },
+    });
+
+    if (res.status === 429) {
+      const err = new Error("RATE_LIMITED");
+      err.isRateLimit = true;
+      throw err;
+    }
+
+    if (!res.ok) {
+      const err = new Error(`HTTP ${res.status} ${res.statusText}`);
+      err.status = res.status;
+      throw err;
+    }
+
+    return res.json();
+  }
+
+  async function getStationCode(cityName) {
+    const url = `${BASE_URL}/search_stations?query=${encodeURIComponent(cityName)}`;
+    const json = await fetchWithKey(url);
+    return extractStationCode(json);
+  }
+
+  async function getBusSchedules(originCode, destCode) {
+    const url = `${BASE_URL}/search_bus_schedules?origin=${encodeURIComponent(originCode)}&destination=${encodeURIComponent(destCode)}`;
+    const json = await fetchWithKey(url);
+    // Requirement says data.trips — but fall back to a couple
+    // of other plausible shapes in case the wrapper differs.
+    if (json && json.data && Array.isArray(json.data.trips)) return json.data.trips;
+    return extractArray(json, ["trips", "results", "data"]);
+  }
+
+  // -----------------------------------------------------
+  // Rendering
+  // -----------------------------------------------------
+  function randomSeats() {
+    return Math.floor(Math.random() * 40) + 1; // 1-40, purely decorative
+  }
+
+  function randomStatus() {
+    // ~80% On Time, ~20% Delayed — decorative, API doesn't provide this.
+    return Math.random() < 0.8 ? "on-time" : "delayed";
+  }
+
+  function formatFare(fare) {
+    const num = Number(fare);
+    if (Number.isFinite(num)) return `₹${num}`;
+    return fare ? `₹${fare}` : "Fare N/A";
+  }
+
+  function buildBusCard(trip) {
+    const busType = trip.service_type_name || trip.bus_type || trip.serviceType || "UPSRTC Bus";
+    const departure = trip.departure_time || trip.departureTime || "--:--";
+    const arrival = trip.arrival_time || trip.arrivalTime || "--:--";
+    const fare = trip.fare != null ? trip.fare : trip.price;
+    const seats = randomSeats();
+    const statusClass = randomStatus();
+    const statusLabel = statusClass === "on-time" ? "On Time" : "Delayed";
+
+    const card = document.createElement("div");
+    card.className = "bus-card";
+    card.innerHTML = `
+      <div class="bus-card-top">
+        <span class="bus-type-badge">${busType}</span>
+        <span class="status-pill ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="bus-time-row">
+        <div class="time-block">
+          <span class="time">${departure}</span>
+          <span class="time-label">Departure</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="time-block">
+          <span class="time">${arrival}</span>
+          <span class="time-label">Arrival</span>
+        </div>
+      </div>
+      <div class="bus-card-footer">
+        <span class="fare-text">${formatFare(fare)}</span>
+        <span class="seat-info">💺 ${seats} seats left</span>
+      </div>
+    `;
+    return card;
+  }
+
+  function renderResults(trips) {
+    el.resultsGrid.innerHTML = "";
+    if (!trips || trips.length === 0) {
+      showResultsPlaceholder("No buses found for this route.");
+      return;
+    }
+    trips.forEach((trip) => el.resultsGrid.appendChild(buildBusCard(trip)));
+  }
+
+  function applyToggleFilters(trips) {
+    let filtered = trips;
+
+    if (el.acToggle.checked) {
+      filtered = filtered.filter((t) => {
+        const label = (t.service_type_name || t.bus_type || "").toLowerCase();
+        return label.includes("ac") && !label.includes("non-ac") && !label.includes("non ac");
+      });
+    }
+
+    if (el.expressToggle.checked) {
+      filtered = filtered.filter((t) => {
+        const label = (t.service_type_name || t.bus_type || "").toLowerCase();
+        return label.includes("express") || label.includes("janrath") || label.includes("shatabdi");
+      });
+    }
+
+    return filtered;
+  }
+
+  // -----------------------------------------------------
+  // Main search handler
+  // -----------------------------------------------------
+  let searchInFlight = false;
+
+  async function handleSearch() {
+    if (searchInFlight) return;
+
+    const fromCity = el.fromInput.value.trim();
+    const toCity = el.toInput.value.trim();
+
+    if (!fromCity || !toCity) {
+      showStatus("Kripya 'From' aur 'To' dono shehar bharein.", "error");
+      return;
+    }
+
+    el.mapFromLabel.textContent = fromCity;
+    el.mapToLabel.textContent = toCity;
+
+    searchInFlight = true;
+    el.searchBtn.disabled = true;
+    showResultsPlaceholder("");
+    showStatus("Stations dhoondhe ja rahe hain…", "loading");
+
+    try {
+      const [originCode, destCode] = await Promise.all([
+        getStationCode(fromCity),
+        getStationCode(toCity),
+      ]);
+
+      if (!originCode || !destCode) {
+        showStatus(
+          !originCode && !destCode
+            ? `"${fromCity}" aur "${toCity}" — dono stations nahi mile.`
+            : !originCode
+            ? `"${fromCity}" station nahi mila.`
+            : `"${toCity}" station nahi mila.`,
+          "error"
+        );
+        showResultsPlaceholder("No buses found for this route.");
+        return;
+      }
+
+      showStatus("Bus schedules load ho rahe hain…", "loading");
+      const trips = await getBusSchedules(originCode, destCode);
+      const filtered = applyToggleFilters(trips);
+
+      hideStatus();
+      renderResults(filtered);
+
+      if (trips.length > 0 && filtered.length === 0) {
+        showStatus("Is filter (AC/Express) ke saath koi bus nahi mili — toggles hata kar dekhein.", "info");
+      }
+    } catch (err) {
+      console.error("[UP BusKhoj] Search failed:", err);
+      if (err && err.isRateLimit) {
+        showStatus("⏳ Server busy, please wait 1 minute before searching again.", "error");
+      } else {
+        showStatus("Kuch galat ho gaya — buses load nahi ho sakin. Thodi der baad dobara try karein.", "error");
+      }
+      showResultsPlaceholder("No buses found for this route.");
+    } finally {
+      searchInFlight = false;
+      el.searchBtn.disabled = false;
+    }
+  }
+
+  el.searchBtn.addEventListener("click", handleSearch);
+  [el.fromInput, el.toInput].forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleSearch();
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
