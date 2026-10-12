@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UP BusKhoj — उत्तर प्रदेश बस लाइव ट्रैकर</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Hind:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- ============ Sidebar ============ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="icon">🚌</span>
+        <span class="name">UP BusKhoj</span>
+      </div>
+
+      <ul class="nav-list">
+        <li><a class="nav-link active" href="#"><span class="nav-icon">🎫</span> My Bookings</a></li>
+        <li><a class="nav-link" href="#"><span class="nav-icon">🛣️</span> Routes</a></li>
+        <li><a class="nav-link" href="#"><span class="nav-icon">👤</span> Profile</a></li>
+        <li><a class="nav-link" href="#"><span class="nav-icon">❓</span> Help</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <span class="lang-toggle-label">Language</span>
+        <div class="lang-switch" id="langSwitch">
+          <button type="button" class="active" data-lang="hi">हिंदी</button>
+          <button type="button" data-lang="en">English</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ Main content ============ -->
+    <main class="main-content">
+
+      <header class="app-header">
+        <span class="bus-emoji" aria-hidden="true">🚌</span>
+        <h1>UP BUSKHOJ (उत्तर प्रदेश बस लाइव ट्रैकर)</h1>
+      </header>
+
+      <!-- ---------- Search card ---------- -->
+      <section class="search-card">
+        <div class="search-row">
+          <div class="field">
+            <label for="fromSelect">From</label>
+            <select id="fromSelect"></select>
+          </div>
+          <button type="button" class="swap-btn" id="swapBtn" title="Route ulta karein" aria-label="Swap from and to">⇅</button>
+          <div class="field">
+            <label for="toSelect">To</label>
+            <select id="toSelect"></select>
+          </div>
+          <div class="field">
+            <label for="dateInput">Travel Date</label>
+            <input type="date" id="dateInput">
+          </div>
+        </div>
+
+        <div class="toggles-row">
+          <div class="toggle-group">
+            <label class="switch">
+              <input type="checkbox" id="acToggle">
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">AC / Non-AC</span>
+            <span class="toggle-state-text" id="acStateText">Sabhi</span>
+          </div>
+          <div class="toggle-group">
+            <label class="switch">
+              <input type="checkbox" id="expressToggle">
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label">Express / Ordinary</span>
+            <span class="toggle-state-text" id="expressStateText">Sabhi</span>
+          </div>
+        </div>
+
+        <div class="search-btn-wrap">
+          <button type="button" class="search-btn" id="searchBtn">बसों को खोजें (Find Buses)</button>
+        </div>
+      </section>
+
+      <div class="status-box" id="statusBox"><span id="statusMessage"></span></div>
+
+      <h2 class="results-heading">Next Bus</h2>
+      <div id="nextBusWrapper" class="next-bus-wrapper">
+        <p class="placeholder-text">Search karke dekhein agli bus kab hai.</p>
+      </div>
+
+      <h2 class="results-heading">Upcoming Buses</h2>
+      <div class="results-grid" id="resultsGrid"></div>
+
+      <button type="button" class="toggle-past-btn" id="togglePastBtn" hidden>Show Departed Buses</button>
+      <div class="results-grid departed-grid collapsed" id="pastBusesWrapper"></div>
+
+      <section class="live-map-section">
+        <h2>Live Map View</h2>
+        <div class="map-placeholder">
+          <div class="map-route-line" aria-hidden="true"></div>
+          <span class="map-bus-icon" aria-hidden="true">🚌</span>
+          <div class="map-point origin"><span class="dot"></span><span class="label" id="mapFromLabel">Origin</span></div>
+          <div class="map-point destination"><span class="dot"></span><span class="label" id="mapToLabel">Destination</span></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Official UPSRTC fare rates (Rs. per passenger per km) ----
+  const FARE_RATES = { Rural: 0.9750, Ordinary: 1.30, Janrath3x2: 1.6386, Janrath2x2: 1.9376, Volvo: 2.8614, Sleeper: 2.5878 };
+  const BUS_TYPE_LABEL = {
+    Rural: "Rural Service", Ordinary: "Ordinary Non-AC", Janrath3x2: "Janrath AC (3X2)",
+    Janrath2x2: "Janrath AC (2X2)", Volvo: "Volvo / Scania", Sleeper: "AC Sleeper",
+  };
+  const AC_TYPES = ["Janrath3x2", "Janrath2x2", "Volvo", "Sleeper"];
+
+  // ---- Stations from the official UPSRTC category-wise list ----
+  // Only stations with a known location are routable (distance -> fare).
+  const STATIONS = [
+    ["Agra Fort","Agra","Super A",27.1795,78.0211],
+    ["Firozabad","Agra","A",27.1592,78.3957],
+    ["Hathras","Aligarh","B",27.5959,78.0537],
+    ["Aligarh","Aligarh","B",27.8974,78.0880],
+    ["Etah","Aligarh","B",27.5580,78.6600],
+    ["Kasganj","Aligarh","B",27.8080,78.6410],
+    ["Ayodhya","Ayodhya","C",26.7922,82.1998],
+    ["Faizabad","Ayodhya","C",26.7730,82.1450],
+    ["Sultanpur","Ayodhya","C",26.2648,82.0722],
+    ["Azamgarh","Azamgarh","C",26.0736,83.1836],
+    ["Mau","Azamgarh","C",25.9417,83.5610],
+    ["Balia","Azamgarh","C",25.7600,84.1500],
+    ["Ghosi","Azamgarh","C",26.1667,83.5667],
+    ["Shahganj","Azamgarh","C",26.0500,82.6833],
+    ["Bareilly","Bareilly","C",28.3670,79.4304],
+    ["Badaun","Bareilly","C",28.0300,79.1200],
+    ["Pilibhit","Bareilly","C",28.6310,79.8040],
+    ["Shahjahanpur","Bareilly","C",27.8830,79.9050],
+    ["Banda","Chitrakoot","C",25.4762,80.3362],
+    ["Hamirpur","Chitrakoot","C",25.9560,80.1500],
+    ["Mahoba","Chitrakoot","C",25.2920,79.8730],
+    ["Gonda","Devipatan","C",27.1333,81.9667],
+    ["Bahraich","Devipatan","C",27.5742,81.5947],
+    ["Etawah","Etawah","D",26.7751,79.0230],
+    ["Mainpuri","Etawah","D",27.2350,79.0270],
+    ["Farrukhabad","Etawah","D",27.3900,79.5800],
+    ["Ghaziabad","Ghaziabad","D",28.6692,77.4538],
+    ["Mohan Nagar","Ghaziabad","D",28.6833,77.3667],
+    ["Gorakhpur","Gorakhpur","D",26.7588,83.3813],
+    ["Deoria","Gorakhpur","D",26.5020,83.7791],
+    ["Basti","Gorakhpur","D",26.8148,82.7621],
+    ["Gauri Bazar","Gorakhpur","D",26.5861,83.6933],
+    ["Rudrapur","Gorakhpur","D",26.3333,83.6167],
+    ["Kasya","Gorakhpur","D",26.7400,83.8900],
+    ["Padrauna","Gorakhpur","D",26.9029,83.9800],
+    ["Mahrajganj","Gorakhpur","D",27.1444,83.5597],
+    ["Dumariyaganj","Gorakhpur","D",27.1261,82.9372],
+    ["Hardoi","Hardoi","D",27.3950,80.1310],
+    ["Sitapur","Hardoi","D",27.5680,80.6830],
+    ["Kanpur Central","Kanpur","D",26.4572,80.3509],
+    ["Fatehpur","Kanpur","D",25.9308,80.8134],
+    ["Unnao","Kanpur","D",26.5464,80.4879],
+    ["Lucknow Alambagh","Lucknow","D",26.8206,80.9120],
+    ["Lucknow Charbagh","Lucknow","D",26.8302,80.9210],
+    ["Barabanki","Lucknow","D",26.9270,81.1830],
+    ["Raebareli","Lucknow","D",26.2124,81.2325],
+    ["Mathura","Mathura","D",27.4924,77.6737],
+    ["Meerut","Meerut","D",28.9845,77.7064],
+    ["Moradabad","Moradabad","D",28.8386,78.7733],
+    ["Rampur","Moradabad","D",28.8089,79.0250],
+    ["Noida","Gautam Budh Nagar","D",28.5355,77.3910],
+    ["Prayagraj Civil Lines","Prayagraj","D",25.4556,81.8392],
+    ["Prayagraj Zero Road","Prayagraj","D",25.4480,81.8470],
+    ["Pratapgarh","Prayagraj","D",25.8970,81.9460],
+    ["Mirzapur","Prayagraj","D",25.1460,82.5690],
+    ["Saharanpur","Saharanpur","D",29.9680,77.5460],
+    ["Varanasi","Varanasi","D",25.3176,82.9739],
+    ["Jaunpur","Varanasi","D",25.7500,82.6833],
+    ["Ghazipur","Ghazipur","D",25.5880,83.5780],
+    ["Kadipur","Sultanpur","D",26.1667,82.3667],
+    ["Jagdishpur","Sultanpur","D",26.1667,81.9000],
+    ["Amethi","Sultanpur","D",26.1547,81.8154],
+  ].map(([name, district, category, lat, lon]) => ({ name, district, category, coords: [lat, lon] }));
+
+  // ---- Direct services (bidirectional): trunk hub-to-hub + local feeders ----
+  const EDGES = [
+    ["Lucknow Alambagh","Kanpur Central"],["Lucknow Alambagh","Faizabad"],["Lucknow Alambagh","Varanasi"],
+    ["Lucknow Alambagh","Agra Fort"],["Lucknow Alambagh","Gorakhpur"],["Lucknow Alambagh","Prayagraj Civil Lines"],
+    ["Lucknow Alambagh","Bareilly"],["Lucknow Alambagh","Sultanpur"],["Lucknow Alambagh","Barabanki"],
+    ["Lucknow Alambagh","Unnao"],["Lucknow Alambagh","Raebareli"],["Lucknow Alambagh","Hardoi"],
+    ["Lucknow Alambagh","Sitapur"],["Lucknow Alambagh","Lucknow Charbagh"],
+    ["Kanpur Central","Agra Fort"],["Kanpur Central","Prayagraj Civil Lines"],["Kanpur Central","Banda"],
+    ["Kanpur Central","Unnao"],["Kanpur Central","Fatehpur"],["Kanpur Central","Etawah"],
+    ["Kanpur Central","Farrukhabad"],["Kanpur Central","Hamirpur"],["Fatehpur","Prayagraj Civil Lines"],
+    ["Agra Fort","Mathura"],["Agra Fort","Ghaziabad"],["Agra Fort","Firozabad"],["Agra Fort","Hathras"],
+    ["Agra Fort","Etawah"],["Firozabad","Etawah"],["Etawah","Mainpuri"],["Farrukhabad","Etawah"],
+    ["Aligarh","Hathras"],["Aligarh","Ghaziabad"],["Aligarh","Kasganj"],["Kasganj","Etah"],["Etah","Mainpuri"],
+    ["Ghaziabad","Noida"],["Ghaziabad","Meerut"],["Ghaziabad","Mohan Nagar"],["Meerut","Saharanpur"],
+    ["Meerut","Moradabad"],["Moradabad","Bareilly"],["Moradabad","Rampur"],["Rampur","Bareilly"],
+    ["Bareilly","Shahjahanpur"],["Bareilly","Pilibhit"],["Bareilly","Badaun"],["Shahjahanpur","Hardoi"],
+    ["Varanasi","Azamgarh"],["Varanasi","Prayagraj Civil Lines"],["Varanasi","Jaunpur"],["Varanasi","Gorakhpur"],
+    ["Varanasi","Ghazipur"],["Varanasi","Mirzapur"],["Mirzapur","Prayagraj Civil Lines"],["Mau","Ghazipur"],
+    ["Gorakhpur","Azamgarh"],["Gorakhpur","Faizabad"],["Azamgarh","Faizabad"],["Faizabad","Sultanpur"],
+    ["Faizabad","Gonda"],["Gonda","Bahraich"],["Sultanpur","Prayagraj Civil Lines"],["Sultanpur","Pratapgarh"],
+    ["Pratapgarh","Prayagraj Civil Lines"],["Prayagraj Civil Lines","Banda"],["Prayagraj Civil Lines","Jaunpur"],
+    ["Prayagraj Civil Lines","Prayagraj Zero Road"],["Banda","Hamirpur"],["Banda","Mahoba"],["Faizabad","Ayodhya"],
+    ["Gorakhpur","Deoria"],["Gorakhpur","Basti"],["Gorakhpur","Gauri Bazar"],["Gorakhpur","Rudrapur"],
+    ["Gorakhpur","Kasya"],["Gorakhpur","Padrauna"],["Gorakhpur","Mahrajganj"],["Gorakhpur","Dumariyaganj"],
+    ["Deoria","Rudrapur"],["Deoria","Gauri Bazar"],["Deoria","Kasya"],
+    ["Azamgarh","Mau"],["Azamgarh","Balia"],["Azamgarh","Ghosi"],["Azamgarh","Shahganj"],
+    ["Sultanpur","Kadipur"],["Sultanpur","Jagdishpur"],["Sultanpur","Amethi"],
+  ];
+
+  // ---- Engine ----
+  const stationByName = {};
+  STATIONS.forEach((s) => { stationByName[s.name] = s; });
+  const edgeSet = new Set();
+  EDGES.forEach(([a, b]) => { edgeSet.add(a + "|" + b); edgeSet.add(b + "|" + a); });
+
+  function haversineKm(a, b) {
+    const R = 6371, rad = (d) => (d * Math.PI) / 180;
+    const dLat = rad(b[0] - a[0]), dLon = rad(b[1] - a[1]);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+  // 1.15x calibrated against known UP road distances (e.g. Gorakhpur-Deoria, Lucknow-Agra)
+  const roadKm = (a, b) => Math.round(haversineKm(a, b) * 1.15);
+
+  function typesForDistance(km) {
+    const t = ["Ordinary"];
+    if (km <= 35) t.unshift("Rural");
+    if (km > 20) t.push("Janrath3x2");
+    if (km > 100) t.push("Janrath2x2");
+    if (km > 250) t.push("Volvo", "Sleeper");
+    return t;
+  }
+
+  function speedKmh(km, type) {
+    const base = km <= 30 ? 34 : km <= 80 ? 38 : km <= 150 ? 42 : km <= 300 ? 46 : 50;
+    const bonus = { Rural: 0.9, Ordinary: 1, Janrath3x2: 1.1, Janrath2x2: 1.12, Volvo: 1.25, Sleeper: 1.18 };
+    return base * bonus[type];
+  }
+
+  function computeTrip(km, type) {
+    const durationMin = Math.max(15, Math.round(((km / speedKmh(km, type)) * 60) / 5) * 5);
+    const fare = Math.max(10, Math.round((km * FARE_RATES[type]) / 5) * 5);
+    return { durationMin, fare };
+  }
+
+  function hashStr(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h;
+  }
+
+  // Each route+type gets its own seeded offset/jitter so timings differ across routes.
+  function genSlots(key, start, end, minGap, maxGap) {
+    let t = start + (hashStr(key) % minGap), i = 0;
+    const out = [];
+    while (t <= end) {
+      out.push(t);
+      t += minGap + (hashStr(key + ":" + i) % (maxGap - minGap + 1));
+      i++;
+    }
+    return out;
+  }
+
+  function freqFor(type, km) {
+    if (type === "Rural") return [330, 1200, 30, 45];
+    if (type === "Ordinary") return km <= 80 ? [300, 1290, 25, 40] : [300, 1320, 45, 75];
+    if (type === "Janrath3x2" || type === "Janrath2x2") return [330, 1320, 60, 90];
+    if (type === "Volvo") return [300, 1260, 150, 240];
+    return [1200, 1380, 45, 90]; // Sleeper: overnight
+  }
+
+  // null => no direct service
+  function buildTrips(fromName, toName) {
+    if (!edgeSet.has(fromName + "|" + toName)) return null;
+    const km = roadKm(stationByName[fromName].coords, stationByName[toName].coords);
+    const trips = [];
+    typesForDistance(km).forEach((type) => {
+      const [s, e, g1, g2] = freqFor(type, km);
+      const { durationMin, fare } = computeTrip(km, type);
+      genSlots(fromName + ">" + toName + ":" + type, s, e, g1, g2).forEach((dep, idx) => {
+        // Every 4th Ordinary trip also runs as a Pink Bus (ladies special): same vehicle class and fare.
+        trips.push({ from: fromName, to: toName, type, isPink: type === "Ordinary" && idx % 4 === 3,
+          dep, arr: dep + durationMin, durationMin, fare, km });
+      });
+    });
+    return trips;
+  }
+
+  // ---- UI ----
+  const $ = (id) => document.getElementById(id);
+  const el = {
+    from: $("fromSelect"), to: $("toSelect"), swap: $("swapBtn"), date: $("dateInput"),
+    ac: $("acToggle"), acText: $("acStateText"), ex: $("expressToggle"), exText: $("expressStateText"),
+    search: $("searchBtn"), statusBox: $("statusBox"), statusMsg: $("statusMessage"),
+    next: $("nextBusWrapper"), grid: $("resultsGrid"), pastBtn: $("togglePastBtn"), past: $("pastBusesWrapper"),
+    mapFrom: $("mapFromLabel"), mapTo: $("mapToLabel"), lang: $("langSwitch"),
+  };
+  let showPast = false;
+  el.date.value = new Date().toISOString().slice(0, 10);
+
+  function fillSelect(sel) {
+    sel.innerHTML = "";
+    ["Super A", "A", "B", "C", "D"].forEach((cat) => {
+      const list = STATIONS.filter((s) => s.category === cat).sort((a, b) => a.name.localeCompare(b.name));
+      if (!list.length) return;
+      const g = document.createElement("optgroup");
+      g.label = cat + " Category";
+      list.forEach((s) => {
+        const o = document.createElement("option");
+        o.value = s.name;
+        o.textContent = s.name + " (" + s.district + ")";
+        g.appendChild(o);
+      });
+      sel.appendChild(g);
+    });
+  }
+
+  const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+  function clock(min) {
+    const h = Math.floor(min / 60) % 24, m = min % 60;
+    return String(h % 12 || 12).padStart(2, "0") + ":" + String(m).padStart(2, "0") + " " + (h >= 12 ? "PM" : "AM");
+  }
+  function dur(min) {
+    const h = Math.floor(min / 60), m = min % 60;
+    return h && m ? h + "h " + m + "m" : h ? h + "h" : m + "m";
+  }
+  function countdown(diff) {
+    if (diff <= 1) return "Boarding Now";
+    if (diff < 60) return diff + " min me";
+    return dur(diff) + " me";
+  }
+  function ago(diff) {
+    if (diff < 1) return "Abhi nikli";
+    return dur(diff) + " pehle nikal chuki";
+  }
+
+  function showStatus(msg, mode) {
+    el.statusBox.className = "status-box visible " + (mode || "info");
+    el.statusMsg.textContent = msg;
+  }
+  function hideStatus() { el.statusBox.className = "status-box"; }
+  function note(msg) { return '<p class="placeholder-text">' + msg + "</p>"; }
+
+  function card(trip, variant, now) {
+    const c = document.createElement("div");
+    c.className = "bus-card " + variant;
+    const timeText = variant === "past" ? ago(now - trip.dep) : countdown(trip.dep - now);
+    c.innerHTML =
+      '<div class="bus-card-top"><div class="badge-group">' +
+      '<span class="bus-type-badge ' + trip.type.toLowerCase() + '">' + BUS_TYPE_LABEL[trip.type] + "</span>" +
+      (trip.isPink ? '<span class="pink-badge">Pink Bus</span>' : "") + "</div>" +
+      (variant === "next" ? '<span class="next-ribbon">NEXT BUS</span>' : "") + "</div>" +
+      '<div class="countdown-text ' + variant + '">' + timeText + "</div>" +
+      '<div class="bus-time-row"><div class="time-block"><span class="time">' + clock(trip.dep) +
+      '</span><span class="time-label">' + trip.from + '</span></div><span class="arrow">→</span>' +
+      '<div class="time-block"><span class="time">' + clock(trip.arr) + '</span><span class="time-label">' +
+      trip.to + "</span></div></div>" +
+      '<div class="bus-card-footer"><span class="fare-text">₹' + trip.fare + '</span><span class="trip-meta">' +
+      trip.km + " km · " + dur(trip.durationMin) + (trip.isPink ? " · Lady conductor, CCTV, Panic Button" : "") +
+      "</span></div>";
+    return c;
+  }
+
+  function filterTrips(trips) {
+    let f = trips;
+    if (el.ac.checked) f = f.filter((t) => AC_TYPES.includes(t.type));
+    // Official rate card has no non-AC express class: Express == Janrath/Volvo/Sleeper.
+    if (el.ex.checked) f = f.filter((t) => AC_TYPES.includes(t.type));
+    return f;
+  }
+
+  function clearResults() {
+    el.next.innerHTML = ""; el.grid.innerHTML = ""; el.past.innerHTML = ""; el.pastBtn.hidden = true;
+  }
+
+  function search() {
+    const from = el.from.value, to = el.to.value;
+    clearResults();
+    el.mapFrom.textContent = from;
+    el.mapTo.textContent = to;
+
+    if (from === to) {
+      showStatus("Kripya alag From aur To station chunein.", "error");
+      el.next.innerHTML = note("Alag From aur To station chunein.");
+      return;
+    }
+    const trips = buildTrips(from, to);
+    if (trips === null) {
+      showStatus(from + " → " + to + ": seedhi bus service nahi hai.", "error");
+      el.next.innerHTML = note("No direct bus found. Kisi bade junction (Gorakhpur, Lucknow Alambagh, Varanasi, Kanpur Central) se badal kar try karein.");
+      return;
+    }
+    const list = filterTrips(trips);
+    if (!list.length) {
+      showStatus("Is filter ke saath koi bus nahi mili — toggles hata kar dekhein.", "info");
+      el.next.innerHTML = note("No buses found for this filter.");
+      return;
+    }
+    const now = nowMin();
+    const upcoming = list.filter((t) => t.dep >= now).sort((a, b) => a.dep - b.dep);
+    const past = list.filter((t) => t.dep < now).sort((a, b) => b.dep - a.dep);
+
+    if (!upcoming.length) {
+      el.next.innerHTML = note("Aaj ke liye is route ki saari buses nikal chuki hain. Neeche Departed Buses dekhein.");
+    } else {
+      el.next.appendChild(card(upcoming[0], "next", now));
+      upcoming.slice(1).forEach((t) => el.grid.appendChild(card(t, "upcoming", now)));
+      if (upcoming.length === 1) el.grid.innerHTML = note("Is route par aaj aur koi upcoming bus nahi hai.");
+    }
+    if (past.length) {
+      past.forEach((t) => el.past.appendChild(card(t, "past", now)));
+      el.pastBtn.hidden = false;
+      el.past.classList.toggle("collapsed", !showPast);
+      el.pastBtn.textContent = showPast ? "Departed Buses Chhupayein" : "Show Departed Buses (" + past.length + ")";
+    }
+    showStatus(from + " → " + to + " · " + list[0].km + " km · " + upcoming.length + " upcoming, " + past.length + " departed", "info");
+  }
+
+  fillSelect(el.from);
+  fillSelect(el.to);
+  el.from.value = "Deoria";
+  el.to.value = "Gorakhpur";
+
+  el.search.addEventListener("click", search);
+  el.swap.addEventListener("click", () => { const f = el.from.value; el.from.value = el.to.value; el.to.value = f; search(); });
+  el.from.addEventListener("change", search);
+  el.to.addEventListener("change", search);
+  el.ac.addEventListener("change", () => { el.acText.textContent = el.ac.checked ? "AC" : "Sabhi"; search(); });
+  el.ex.addEventListener("change", () => { el.exText.textContent = el.ex.checked ? "Express" : "Sabhi"; search(); });
+  el.pastBtn.addEventListener("click", () => {
+    showPast = !showPast;
+    el.past.classList.toggle("collapsed", !showPast);
+    const n = el.past.children.length;
+    el.pastBtn.textContent = showPast ? "Departed Buses Chhupayein" : "Show Departed Buses (" + n + ")";
+  });
+  el.lang.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lang]");
+    if (!b) return;
+    Array.from(el.lang.querySelectorAll("button")).forEach((x) => x.classList.toggle("active", x === b));
+    el.search.textContent = b.dataset.lang === "en" ? "Find Buses" : "बसों को खोजें (Find Buses)";
+  });
+
+  search();
+  // Keep NEXT BUS and countdowns fresh as time passes.
+  setInterval(search, 30000);
+})();
+</script>
+
+</body>
+</html>
